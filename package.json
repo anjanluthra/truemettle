@@ -2,7 +2,7 @@
   "name": "truemettle",
   "version": "1.0.0",
   "private": true,
-  "description": "True Mettle \u2014 temporary holding page",
+  "description": "True Mettle — temporary holding page",
   "type": "module",
   "engines": {
     "node": "22.x"
@@ -15,7 +15,7 @@
     "images": "bash tools/make-images.sh"
   },
   "dependencies": {
-    "nodemailer": "^6.9.16",
-    "pg": "^8.13.1"
+    "mysql2": "^3.11.5",
+    "nodemailer": "^6.9.16"
   }
 }

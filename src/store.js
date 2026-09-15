@@ -1,54 +1,69 @@
 import { config, storeConfigured } from './config.js';
 
-/* Enquiries are written to Postgres before the email is attempted, so a bad
-   SMTP password can never lose one.
+/* Enquiries are written to TiDB before the email is attempted, so a bad SMTP
+ * password can never lose one.
  *
- * A serverless function gets a fresh process often and a reused one sometimes,
- * so this opens a client per request and closes it — no pool to leak across
- * invocations. At this volume the extra handshake costs nothing that matters.
+ * TiDB speaks the MySQL protocol, so this is mysql2 talking to it. A
+ * serverless function gets a fresh process often and a reused one sometimes,
+ * so this opens a connection per request and closes it in a finally — no pool
+ * to leak across invocations. At this volume the handshake costs nothing that
+ * matters.
  */
 
+/* Indexes are declared inline rather than as separate CREATE INDEX statements:
+   MySQL 8 has no CREATE INDEX IF NOT EXISTS, and one statement keeps mysql2's
+   multi-statement guard off. utf8mb4 throughout — the copy has typographic
+   quotes in it and a founder's name can be in any script. */
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS submissions (
-  id          BIGSERIAL PRIMARY KEY,
-  received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  name        TEXT        NOT NULL,
-  email       TEXT        NOT NULL,
-  business    TEXT,
-  revenue     TEXT,
-  situation   TEXT        NOT NULL,
-  ip          TEXT,
-  user_agent  TEXT,
-  emailed     BOOLEAN     NOT NULL DEFAULT false,
-  email_error TEXT,
-  spam        BOOLEAN     NOT NULL DEFAULT false
-);
-CREATE INDEX IF NOT EXISTS submissions_received_at ON submissions (received_at DESC);
-CREATE INDEX IF NOT EXISTS submissions_ip_received_at ON submissions (ip, received_at DESC);
+  id          BIGINT       NOT NULL AUTO_INCREMENT,
+  received_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  name        VARCHAR(160) NOT NULL,
+  email       VARCHAR(255) NOT NULL,
+  business    VARCHAR(255) NULL,
+  revenue     VARCHAR(160) NULL,
+  situation   TEXT         NOT NULL,
+  ip          VARCHAR(64)  NULL,
+  user_agent  VARCHAR(320) NULL,
+  emailed     BOOLEAN      NOT NULL DEFAULT FALSE,
+  email_error VARCHAR(512) NULL,
+  spam        BOOLEAN      NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (id),
+  INDEX submissions_received_at (received_at),
+  INDEX submissions_ip_received_at (ip, received_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `;
 
 // Idempotent, but only worth running once per warm instance.
 let schemaReady = false;
 
 async function connect() {
-  const { default: pg } = await import('pg');
-  const client = new pg.Client({
-    connectionString: config.databaseUrl,
-    // Hosted Postgres (Neon, Vercel, Supabase, RDS) is TLS-only, and their
-    // certificates are not in Node's default trust store.
-    ssl: /\bsslmode=disable\b/.test(config.databaseUrl)
-      ? false
-      : { rejectUnauthorized: false },
-    connectionTimeoutMillis: 10000,
-    query_timeout: 10000
-  });
-  await client.connect();
-  return client;
+  const { default: mysql } = await import('mysql2/promise');
+
+  const options = {
+    // Round-trip timestamps as UTC rather than the server's local zone.
+    timezone: 'Z',
+    connectTimeout: 10000,
+    // TiDB Cloud is TLS-only and presents a publicly trusted certificate, so
+    // ordinary verification is both possible and worth keeping.
+    ssl: config.database.ssl ? { minVersion: 'TLSv1.2' } : undefined
+  };
+
+  return config.database.url
+    ? mysql.createConnection({ uri: config.database.url, ...options })
+    : mysql.createConnection({
+        host: config.database.host,
+        port: config.database.port,
+        user: config.database.user,
+        password: config.database.password,
+        database: config.database.name,
+        ...options
+      });
 }
 
-export async function ensureSchema(client) {
+async function ensureSchema(connection) {
   if (schemaReady) return;
-  await client.query(SCHEMA);
+  await connection.query(SCHEMA);
   schemaReady = true;
 }
 
@@ -64,24 +79,26 @@ export async function ensureSchema(client) {
 export async function saveSubmission(submission) {
   if (!storeConfigured) throw new Error('no_database_configured');
 
-  const client = await connect();
+  const connection = await connect();
   try {
-    await ensureSchema(client);
+    await ensureSchema(connection);
 
     if (submission.ip) {
-      const { rows } = await client.query(
-        `SELECT count(*)::int AS count FROM submissions
-         WHERE ip = $1 AND received_at > now() - ($2 || ' minutes')::interval`,
-        [submission.ip, String(config.rateLimit.windowMinutes)]
+      // The cutoff is computed here rather than with INTERVAL ? MINUTE, which
+      // is the kind of thing drivers disagree about.
+      const cutoff = new Date(Date.now() - config.rateLimit.windowMinutes * 60_000);
+      const [rows] = await connection.execute(
+        'SELECT COUNT(*) AS count FROM submissions WHERE ip = ? AND received_at > ?',
+        [submission.ip, cutoff]
       );
-      if (rows[0].count >= config.rateLimit.max) return { rateLimited: true };
+      if (Number(rows[0].count) >= config.rateLimit.max) return { rateLimited: true };
     }
 
-    const { rows } = await client.query(
+    // MySQL has no RETURNING; the insert id comes back on the result.
+    const [result] = await connection.execute(
       `INSERT INTO submissions
          (name, email, business, revenue, situation, ip, user_agent, spam)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         submission.name,
         submission.email,
@@ -90,13 +107,13 @@ export async function saveSubmission(submission) {
         submission.situation,
         submission.ip || null,
         submission.userAgent || null,
-        Boolean(submission.spam)
+        submission.spam ? 1 : 0
       ]
     );
 
-    return { id: Number(rows[0].id) };
+    return { id: Number(result.insertId) };
   } finally {
-    await client.end().catch(() => {});
+    await connection.end().catch(() => {});
   }
 }
 
@@ -104,30 +121,29 @@ export async function saveSubmission(submission) {
 export async function recordEmailResult(id, ok, error) {
   if (!storeConfigured || id == null) return;
 
-  let client;
+  let connection;
   try {
-    client = await connect();
-    await client.query('UPDATE submissions SET emailed = $1, email_error = $2 WHERE id = $3', [
-      ok,
-      error ? String(error).slice(0, 500) : null,
-      id
-    ]);
+    connection = await connect();
+    await connection.execute(
+      'UPDATE submissions SET emailed = ?, email_error = ? WHERE id = ?',
+      [ok ? 1 : 0, error ? String(error).slice(0, 500) : null, id]
+    );
   } catch (updateError) {
     // The enquiry is already safely stored; this is only bookkeeping.
     console.error('[store] could not record email result:', updateError.message);
   } finally {
-    if (client) await client.end().catch(() => {});
+    if (connection) await connection.end().catch(() => {});
   }
 }
 
 /** Used by `npm run db:init` to create the table ahead of the first enquiry. */
 export async function initSchema() {
   if (!storeConfigured) throw new Error('no_database_configured');
-  const client = await connect();
+  const connection = await connect();
   try {
     schemaReady = false;
-    await ensureSchema(client);
+    await ensureSchema(connection);
   } finally {
-    await client.end().catch(() => {});
+    await connection.end().catch(() => {});
   }
 }

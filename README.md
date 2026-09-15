@@ -21,7 +21,7 @@ the only thing needing a server is the contact form, which has to email you
 | Page | Hand-written HTML, CSS and ~5 KB of JS | No framework, no build to relearn in eight weeks |
 | Hosting | Vercel, serving `public/` statically | Already wired to the repo; deploys on push |
 | Form | One serverless function, `api/contact.js` | The only server-side code in the project |
-| Storage | Postgres via `pg` | Vercel has no disk; a hosted table is the equivalent |
+| Storage | TiDB via `mysql2` | Vercel has no disk; a hosted table is the equivalent |
 | Email | `nodemailer` over SMTP | Provider-agnostic |
 | Type | Fraunces + Work Sans, self-hosted | No Google Fonts request, no third party watching visitors |
 
@@ -52,9 +52,20 @@ showing a thank-you for an enquiry nobody will read.
 
 ### 1. Attach a database
 
-In the Vercel project → **Storage** → create a Postgres database (Vercel
-Postgres or Neon; both are free at this volume) and attach it. That sets
-`DATABASE_URL` / `POSTGRES_URL` on the project automatically.
+Create a cluster in [TiDB Cloud](https://tidbcloud.com) (the serverless tier is
+free at this volume) and a database called `truemettle`. Its **Connect** dialog
+gives you either a connection string or the parts separately.
+
+Set **one** of these in the Vercel project's Environment Variables:
+
+```
+DATABASE_URL=mysql://prefix.user:password@gateway01.<region>.prod.aws.tidbcloud.com:4000/truemettle
+```
+
+or `TIDB_HOST`, `TIDB_PORT`, `TIDB_USER`, `TIDB_PASSWORD`, `TIDB_DATABASE`.
+
+TLS is on by default and TiDB Cloud presents a publicly trusted certificate, so
+there is no CA file to upload. `TIDB_SSL=false` exists only for a local MySQL.
 
 Then, once:
 
@@ -104,12 +115,12 @@ defaults baked into the HTML.
 
 ## Reading the enquiries
 
-From the Vercel Postgres query console, or any `psql`:
+From TiDB Cloud's SQL Editor, or any MySQL client:
 
 ```sql
 SELECT received_at, name, email, business, revenue, situation
 FROM submissions
-WHERE spam = false
+WHERE spam = 0
 ORDER BY id DESC;
 ```
 
@@ -118,8 +129,8 @@ so a silent SMTP failure is visible rather than invisible. `spam = true` marks
 a submission the filters caught — worth a glance now and then in case
 something genuine landed there.
 
-Enquiries are written to Postgres **before** the email is attempted, so a bad
-SMTP password can never lose one.
+Enquiries are written to TiDB **before** the email is attempted, so a bad SMTP
+password can never lose one.
 
 ---
 
@@ -163,7 +174,7 @@ No CAPTCHA. Three quiet layers instead:
 2. A timing check — a form completed in under 2.5 seconds isn't being read.
    No upper bound on purpose: someone who opens the page, gets pulled away and
    sends it the next morning is exactly who this is for.
-3. Rate limiting, five submissions per IP per hour, counted in Postgres. The
+3. Rate limiting, five submissions per IP per hour, counted in TiDB. The
    count is taken before the insert, so a flood can't fill the table with the
    rows it was rejected for.
 

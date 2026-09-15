@@ -51,13 +51,18 @@ export const config = {
   personalSiteUrl: (process.env.PERSONAL_SITE_URL ?? DEFAULTS.personalSiteUrl).trim(),
   personalSiteLabel: (process.env.PERSONAL_SITE_LABEL || DEFAULTS.personalSiteLabel).trim(),
 
-  /* Vercel's Postgres and Neon integrations both set several of these; take
-     whichever is present so the project works with either, unchanged. */
-  databaseUrl:
-    process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL ||
-    process.env.POSTGRES_PRISMA_URL ||
-    '',
+  /* TiDB, which speaks MySQL. TiDB Cloud's connect dialog hands you either a
+     connection string or the five parts separately — take whichever is set. */
+  database: {
+    url: process.env.DATABASE_URL || process.env.TIDB_URL || '',
+    host: process.env.TIDB_HOST || '',
+    port: Number(process.env.TIDB_PORT || 4000),
+    user: process.env.TIDB_USER || '',
+    password: process.env.TIDB_PASSWORD || '',
+    name: process.env.TIDB_DATABASE || 'truemettle',
+    // TiDB Cloud is TLS-only. Off only for a local MySQL in development.
+    ssl: !/^(0|false|no|off)$/i.test(process.env.TIDB_SSL ?? 'true')
+  },
 
   mail: {
     to: process.env.CONTACT_EMAIL_TO || '',
@@ -82,4 +87,6 @@ export const mailConfigured = Boolean(
   config.mail.to && config.mail.from && config.mail.smtp.host
 );
 
-export const storeConfigured = Boolean(config.databaseUrl);
+export const storeConfigured = Boolean(
+  config.database.url || (config.database.host && config.database.user)
+);

@@ -99,7 +99,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(config.port, () => {
   console.info('True Mettle (local preview) — http://localhost:%d', config.port);
-  console.info('  store  %s', storeConfigured ? 'postgres via DATABASE_URL' : 'not configured');
+  console.info('  store  %s', storeConfigured ? 'TiDB' : 'not configured');
   console.info('  mail   %s', mailConfigured ? `→ ${config.mail.to}` : 'not configured');
   if (!storeConfigured && !mailConfigured) {
     console.info('  note   the form will answer 503 until one of those is set');

@@ -28,17 +28,26 @@ loadDotEnv();
 const bool = (value, fallback = false) =>
   value === undefined ? fallback : /^(1|true|yes|on)$/i.test(value);
 
+/* The values baked into public/index.html, so a static host serving that file
+   straight off disk gets a correct page. The server rewrites them only when
+   the environment asks for something else. */
+export const DEFAULTS = {
+  siteUrl: 'https://truemettle.com',
+  personalSiteUrl: 'https://anjanluthra.com',
+  personalSiteLabel: 'anjanluthra.com'
+};
+
 export const config = {
   port: Number(process.env.PORT || 3000),
   host: process.env.HOST || '0.0.0.0',
   trustProxy: bool(process.env.TRUST_PROXY, false),
 
   // Canonical origin, used for canonical/OG tags. No trailing slash.
-  siteUrl: (process.env.SITE_URL || 'https://truemettle.com').replace(/\/+$/, ''),
+  siteUrl: (process.env.SITE_URL || DEFAULTS.siteUrl).replace(/\/+$/, ''),
 
   // TBC — the personal site. Empty renders the label as plain text, not a link.
-  personalSiteUrl: (process.env.PERSONAL_SITE_URL ?? 'https://anjanluthra.com').trim(),
-  personalSiteLabel: (process.env.PERSONAL_SITE_LABEL || 'anjanluthra.com').trim(),
+  personalSiteUrl: (process.env.PERSONAL_SITE_URL ?? DEFAULTS.personalSiteUrl).trim(),
+  personalSiteLabel: (process.env.PERSONAL_SITE_LABEL || DEFAULTS.personalSiteLabel).trim(),
 
   databasePath: process.env.DATABASE_PATH || path.join(ROOT, 'data', 'submissions.db'),
   overflowLogPath: process.env.OVERFLOW_LOG_PATH || path.join(ROOT, 'data', 'submissions.jsonl'),

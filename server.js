@@ -4,7 +4,7 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import crypto from 'node:crypto';
 
-import { config, mailConfigured, ROOT } from './src/config.js';
+import { config, mailConfigured, ROOT, DEFAULTS } from './src/config.js';
 import { openStore, saveSubmission, recordEmailResult, closeStore } from './src/store.js';
 import { sendNotification } from './src/mail.js';
 import {
@@ -38,13 +38,19 @@ const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.json', '.svg', '.txt', '
 const IMMUTABLE = new Set(['.woff2']);
 
 /* ── Templating ───────────────────────────────────────────────────────────────
-   The page is static HTML with a handful of tokens resolved once at boot, so a
-   deployment can point at a different domain or personal site without an edit.
+   public/index.html is a complete, correct page on its own — it carries real
+   defaults, not placeholders, so a static host can serve it untouched. What
+   follows rewrites those defaults once at boot when the environment differs,
+   which is why it substitutes values rather than filling in blanks.
    ────────────────────────────────────────────────────────────────────────── */
+const PERSONAL_LINK_REGION = /<!--personal-link-->[\s\S]*?<!--\/personal-link-->/;
+
 function personalLink() {
   const label = escapeHtml(config.personalSiteLabel);
-  if (!config.personalSiteUrl) return `<span class="tbc">${label}</span>`;
-  return `<a href="${escapeHtml(config.personalSiteUrl)}" rel="noopener">${label}</a>`;
+  const inner = config.personalSiteUrl
+    ? `<a href="${escapeHtml(config.personalSiteUrl)}" rel="noopener">${label}</a>`
+    : `<span class="tbc">${label}</span>`;
+  return `<!--personal-link-->${inner}<!--/personal-link-->`;
 }
 
 function escapeHtml(value) {
@@ -58,9 +64,20 @@ function escapeHtml(value) {
 }
 
 function render(html) {
-  return html
-    .replaceAll('{{SITE_URL}}', escapeHtml(config.siteUrl))
-    .replaceAll('{{PERSONAL_LINK}}', personalLink());
+  let out = html;
+
+  if (config.siteUrl !== DEFAULTS.siteUrl) {
+    out = out.replaceAll(DEFAULTS.siteUrl, escapeHtml(config.siteUrl));
+  }
+
+  if (
+    config.personalSiteUrl !== DEFAULTS.personalSiteUrl ||
+    config.personalSiteLabel !== DEFAULTS.personalSiteLabel
+  ) {
+    out = out.replace(PERSONAL_LINK_REGION, personalLink());
+  }
+
+  return out;
 }
 
 /* ── Static assets, read and compressed once ─────────────────────────────── */

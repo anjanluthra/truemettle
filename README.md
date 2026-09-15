@@ -97,6 +97,18 @@ docker run -d --name truemettle -p 3000:3000 \
   truemettle
 ```
 
+### Static-only hosts (Vercel, Netlify, S3)
+
+`public/` is a complete, self-sufficient static site — the HTML carries real
+URLs, not placeholders, so serving it straight off disk gives a correct page.
+The server rewrites `SITE_URL` and the personal link in place only when the
+environment asks for something different.
+
+**The form is the exception.** It posts to `/api/contact`, which only exists
+in the Node server. On a static-only deploy the page renders perfectly and the
+form 404s, so a static host needs the form rewritten as a serverless function
+plus a hosted database — see "Decisions still open".
+
 ### Plain Node host
 
 ```bash
@@ -178,10 +190,21 @@ gets pulled away and sends it the next morning is exactly who this is for.
 
 ## Decisions still open
 
-1. **Hosting.** The build assumes a Node process with a persistent `data/`
-   directory. If you'd rather deploy to Vercel or Netlify, the page itself is
-   already static but the form needs rewriting against a hosted database
-   (Neon, Turso) — say the word and it's a small change.
+1. **Hosting — needs your answer.** This repository is already connected to
+   Vercel; it built a preview from the first push. Vercel serves `public/`
+   fine, but it has no persistent filesystem, so `/api/contact` and the SQLite
+   file cannot run there as built.
+
+   Either:
+
+   - **Vercel** — the form becomes a serverless function under `api/` and the
+     store becomes a hosted Postgres (Vercel Postgres or Neon, both free at
+     this volume). You provision the database; the rewrite is contained.
+   - **A Node host** (Fly.io, Render, Railway, a VPS) — works as it stands
+     today, with a volume mounted at `data/`.
+
+   Until that's settled, the Vercel preview shows the page correctly and the
+   form returns 404.
 2. **SMTP provider.** No account exists yet. Postmark or Resend for a site
    this size; a Google Workspace app password also works.
 3. **`anjanluthra.com`.** Marked TBC in the brief — the link is live and

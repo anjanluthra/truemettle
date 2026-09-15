@@ -6,27 +6,27 @@ colour, with a marked slot where the hero image will go.
 
 Expected life: 8–12 weeks.
 
+Deploys to **Vercel**, which this repository is already connected to.
+
 ---
 
 ## The stack, and why
 
-The repository was empty, so nothing had to be inherited. The form has to send
-an email *and* keep a private copy, which means a server — but nothing beyond
-that is needed, so there isn't any:
+The repository was empty, so nothing had to be inherited. The page is static;
+the only thing needing a server is the contact form, which has to email you
+*and* keep a private copy. That's one serverless function.
 
 | Piece | Choice | Why |
 | --- | --- | --- |
-| Page | Hand-written HTML, CSS and ~5 KB of JS | No build step, nothing to upgrade, nothing to relearn in eight weeks |
-| Server | Node's built-in `http` (~330 lines) | Serves the page, handles the form, and that's it |
-| Storage | SQLite via Node 22's built-in `node:sqlite` | A real table, zero dependencies, one file to back up |
-| Email | `nodemailer` over SMTP | The only dependency in the project. Works with any provider |
+| Page | Hand-written HTML, CSS and ~5 KB of JS | No framework, no build to relearn in eight weeks |
+| Hosting | Vercel, serving `public/` statically | Already wired to the repo; deploys on push |
+| Form | One serverless function, `api/contact.js` | The only server-side code in the project |
+| Storage | Postgres via `pg` | Vercel has no disk; a hosted table is the equivalent |
+| Email | `nodemailer` over SMTP | Provider-agnostic |
 | Type | Fraunces + Work Sans, self-hosted | No Google Fonts request, no third party watching visitors |
 
-Assets are read, brotli-compressed and cached in memory at boot. The page comes
-down as roughly **2.7 KB of HTML** plus 117 KB of fonts.
-
-**Requires Node 22.5 or newer** — that's when `node:sqlite` landed. `node -v`
-to check.
+Five requests, ~129 KB total on a cold load, most of it the two fonts. Vercel
+compresses everything at the edge.
 
 ---
 
@@ -34,107 +34,92 @@ to check.
 
 ```bash
 npm install
-cp .env.example .env     # optional: nothing here is required to run
-npm run dev              # http://localhost:3000, restarts on save
+cp .env.example .env     # optional
+npm run dev              # http://localhost:3000
 ```
 
-Without SMTP configured the form still works end to end: submissions are
-stored, and the email that *would* have been sent is printed to the console.
+`dev-server.js` stands in for Vercel: it serves `public/` and routes
+`/api/contact` to the same function, so the whole page works without the
+Vercel CLI. It is a preview tool, not a deployment target — production is
+Vercel, and only Vercel.
 
-`npm start` runs it without the file watcher.
+With nothing configured the form answers **503** and says so, rather than
+showing a thank-you for an enquiry nobody will read.
 
 ---
 
-## Environment variables
+## Going live
 
-Everything has a working default except the email settings. Copy
-`.env.example` to `.env`, or set them in your host's dashboard.
+### 1. Attach a database
 
-### Needed before the form can email you
+In the Vercel project → **Storage** → create a Postgres database (Vercel
+Postgres or Neon; both are free at this volume) and attach it. That sets
+`DATABASE_URL` / `POSTGRES_URL` on the project automatically.
 
-| Variable | Example | Notes |
-| --- | --- | --- |
-| `CONTACT_EMAIL_TO` | `anjan@truemettle.com` | Where enquiries land |
-| `CONTACT_EMAIL_FROM` | `True Mettle <site@truemettle.com>` | Must be a sender your SMTP provider allows |
-| `SMTP_HOST` | `smtp.postmarkapp.com` | |
-| `SMTP_PORT` | `587` | `465` if using implicit TLS |
-| `SMTP_SECURE` | `false` | Defaults to `true` when the port is 465 |
-| `SMTP_USER` / `SMTP_PASS` | | Leave blank for an unauthenticated relay |
+Then, once:
+
+```bash
+npm run db:init        # creates the submissions table and proves it's reachable
+```
+
+The function also creates the table lazily on the first enquiry, so this is
+really a way to find out about a bad connection string before a founder does.
+
+### 2. Add the SMTP settings
+
+Set these in the Vercel project's **Environment Variables**:
+
+| Variable | Example |
+| --- | --- |
+| `CONTACT_EMAIL_TO` | `anjan@truemettle.com` |
+| `CONTACT_EMAIL_FROM` | `True Mettle <site@truemettle.com>` — must be a sender your provider allows |
+| `SMTP_HOST` | `smtp.postmarkapp.com` |
+| `SMTP_PORT` | `587` (`465` for implicit TLS) |
+| `SMTP_SECURE` | `false` — defaults to `true` on port 465 |
+| `SMTP_USER` / `SMTP_PASS` | blank for an unauthenticated relay |
 
 Replies go to the sender's own address, so hitting reply in your mail client
 answers the founder directly.
+
+### 3. Push
+
+Every push to the branch deploys. `vercel.json` sets the security headers and
+the cache policy; `npm run build` runs on each deploy and rewrites the page's
+URLs only if `SITE_URL` or the personal-site variables differ from the
+defaults baked into the HTML.
 
 ### Everything else
 
 | Variable | Default | Notes |
 | --- | --- | --- |
-| `SITE_URL` | `https://truemettle.com` | Canonical and Open Graph tags only |
-| `PORT` / `HOST` | `3000` / `0.0.0.0` | |
-| `TRUST_PROXY` | `0` | Set to `1` behind a proxy so rate limiting sees real IPs |
+| `SITE_URL` | `https://truemettle.com` | Canonical and Open Graph tags. Applied at build time |
 | `PERSONAL_SITE_URL` | `https://anjanluthra.com` | **TBC.** Leave *empty* and the label renders as plain text instead of a link |
 | `PERSONAL_SITE_LABEL` | `anjanluthra.com` | The visible text |
-| `DATABASE_PATH` | `./data/submissions.db` | Point at a mounted volume in production |
-| `OVERFLOW_LOG_PATH` | `./data/submissions.jsonl` | Only used if SQLite can't be opened |
 | `CONTACT_SUBJECT_PREFIX` | `True Mettle` | Subject line prefix |
 | `RATE_LIMIT_MAX` | `5` | Submissions per IP per window |
-| `RATE_LIMIT_WINDOW_MS` | `3600000` | One hour |
+| `RATE_LIMIT_WINDOW_MINUTES` | `60` | |
+| `PORT` | `3000` | Local preview only |
 
 ---
 
-## Deploying
+## Reading the enquiries
 
-The whole thing is one Node process plus one directory that must survive
-restarts (`data/`). Any host that runs a container or a Node process will do —
-Fly.io, Render, Railway, a small VPS.
+From the Vercel Postgres query console, or any `psql`:
 
-### Docker (works anywhere)
-
-```bash
-docker build -t truemettle .
-docker run -d --name truemettle -p 3000:3000 \
-  --env-file .env \
-  -v truemettle-data:/app/data \
-  truemettle
+```sql
+SELECT received_at, name, email, business, revenue, situation
+FROM submissions
+WHERE spam = false
+ORDER BY id DESC;
 ```
 
-### Static-only hosts (Vercel, Netlify, S3)
+`emailed` and `email_error` record whether the notification actually went out,
+so a silent SMTP failure is visible rather than invisible. `spam = true` marks
+a submission the filters caught — worth a glance now and then in case
+something genuine landed there.
 
-`public/` is a complete, self-sufficient static site — the HTML carries real
-URLs, not placeholders, so serving it straight off disk gives a correct page.
-The server rewrites `SITE_URL` and the personal link in place only when the
-environment asks for something different.
-
-**The form is the exception.** It posts to `/api/contact`, which only exists
-in the Node server. On a static-only deploy the page renders perfectly and the
-form 404s, so a static host needs the form rewritten as a serverless function
-plus a hosted database — see "Decisions still open".
-
-### Plain Node host
-
-```bash
-npm ci --omit=dev
-NODE_ENV=production npm start
-```
-
-Put TLS in front of it (your host's load balancer, Cloudflare, or nginx) and
-set `TRUST_PROXY=1`.
-
-> **The one thing to get right:** `data/` holds every enquiry. On a platform
-> with an ephemeral filesystem, mount a volume at that path or attach a disk.
-> Without one, a redeploy takes the submissions with it.
-
-### Reading the enquiries
-
-```bash
-sqlite3 data/submissions.db \
-  "SELECT received_at, name, email, business, revenue, situation
-   FROM submissions WHERE spam = 0 ORDER BY id DESC;"
-```
-
-`emailed` and `email_error` on each row record whether the notification
-actually went out, so a silent SMTP failure is visible rather than invisible.
-`spam = 1` marks a submission the filters caught — worth a glance now and then
-in case something genuine landed there.
+Enquiries are written to Postgres **before** the email is attempted, so a bad
+SMTP password can never lose one.
 
 ---
 
@@ -149,8 +134,6 @@ in case something genuine landed there.
    <img class="hero__plate" src="/hero.jpg" width="1600" height="700"
         alt="" decoding="async" fetchpriority="high">
    ```
-
-3. Restart the server (assets are cached at boot).
 
 Until then the slot is a green plate carrying a line of the copy as a pull
 quote, so the fold reads as a finished page rather than an empty frame. The
@@ -167,7 +150,8 @@ one photograph serves both.
 npm run images   # re-renders og.png, apple-touch-icon.png and icon-32.png
 ```
 
-Needs Chrome or Chromium; set `CHROME=/path/to/chrome` if it isn't found.
+Needs Chrome or Chromium locally; set `CHROME=/path/to/chrome` if it isn't
+found. Not part of the deploy.
 
 ---
 
@@ -177,44 +161,27 @@ No CAPTCHA. Three quiet layers instead:
 
 1. A honeypot field (`company_website`) positioned off-screen.
 2. A timing check — a form completed in under 2.5 seconds isn't being read.
-3. Rate limiting, five submissions per IP per hour.
+   No upper bound on purpose: someone who opens the page, gets pulled away and
+   sends it the next morning is exactly who this is for.
+3. Rate limiting, five submissions per IP per hour, counted in Postgres. The
+   count is taken before the insert, so a flood can't fill the table with the
+   rows it was rejected for.
 
-Anything that trips one of these gets the normal thank-you page, so a bot
-learns nothing — but it is **stored with `spam = 1` rather than thrown away**,
-and never emailed. A real person caught by a filter is still recoverable.
-
-The timing check has no upper bound on purpose: someone who opens the page,
-gets pulled away and sends it the next morning is exactly who this is for.
+Anything caught gets the ordinary thank-you page, so a bot learns nothing —
+but it is **stored with `spam = true` rather than thrown away**, and never
+emailed. A real person caught by a filter is still recoverable.
 
 ---
 
 ## Decisions still open
 
-1. **Hosting — needs your answer.** This repository is already connected to
-   Vercel; it built a preview from the first push. Vercel serves `public/`
-   fine, but it has no persistent filesystem, so `/api/contact` and the SQLite
-   file cannot run there as built.
-
-   Either:
-
-   - **Vercel** — the form becomes a serverless function under `api/` and the
-     store becomes a hosted Postgres (Vercel Postgres or Neon, both free at
-     this volume). You provision the database; the rewrite is contained.
-   - **A Node host** (Fly.io, Render, Railway, a VPS) — works as it stands
-     today, with a volume mounted at `data/`.
-
-   Until that's settled, the Vercel preview shows the page correctly and the
-   form returns 404.
-2. **SMTP provider.** No account exists yet. Postmark or Resend for a site
+1. **SMTP provider.** No account exists yet. Postmark or Resend for a site
    this size; a Google Workspace app password also works.
+2. **Domain.** `SITE_URL` is a placeholder until the domain is confirmed; it
+   affects link previews only.
 3. **`anjanluthra.com`.** Marked TBC in the brief — the link is live and
    configurable. Set `PERSONAL_SITE_URL=` (empty) to show it as plain text
    until the site exists.
-4. **Domain.** `SITE_URL` is a placeholder until the domain is confirmed; it
-   only affects link previews.
-5. **Currency.** The brief says "$50,000" and the footer says Dubai — left as
-   written, but worth deciding whether that reads as USD or AED to a UAE
-   founder.
 
 ## Deliberately not here
 

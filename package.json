@@ -2,17 +2,20 @@
   "name": "truemettle",
   "version": "1.0.0",
   "private": true,
-  "description": "True Mettle — temporary holding page",
+  "description": "True Mettle \u2014 temporary holding page",
   "type": "module",
   "engines": {
-    "node": ">=22.5.0"
+    "node": "22.x"
   },
   "scripts": {
-    "start": "node --no-warnings=ExperimentalWarning server.js",
-    "dev": "node --no-warnings=ExperimentalWarning --watch server.js",
+    "dev": "node --watch dev-server.js",
+    "start": "node dev-server.js",
+    "build": "node tools/build.js",
+    "db:init": "node tools/db-init.js",
     "images": "bash tools/make-images.sh"
   },
   "dependencies": {
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "pg": "^8.13.1"
   }
 }

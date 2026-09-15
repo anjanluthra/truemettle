@@ -1,129 +1,133 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { config } from './config.js';
+import { config, storeConfigured } from './config.js';
 
-/* Submissions are persisted before the email is attempted, so a bad SMTP
-   password can never lose an enquiry. SQLite is the store; an append-only
-   JSONL file is the parachute if SQLite is unavailable for any reason. */
+/* Enquiries are written to Postgres before the email is attempted, so a bad
+   SMTP password can never lose one.
+ *
+ * A serverless function gets a fresh process often and a reused one sometimes,
+ * so this opens a client per request and closes it — no pool to leak across
+ * invocations. At this volume the extra handshake costs nothing that matters.
+ */
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS submissions (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  received_at TEXT    NOT NULL,
-  name        TEXT    NOT NULL,
-  email       TEXT    NOT NULL,
+  id          BIGSERIAL PRIMARY KEY,
+  received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  name        TEXT        NOT NULL,
+  email       TEXT        NOT NULL,
   business    TEXT,
   revenue     TEXT,
-  situation   TEXT    NOT NULL,
+  situation   TEXT        NOT NULL,
   ip          TEXT,
   user_agent  TEXT,
-  emailed     INTEGER NOT NULL DEFAULT 0,
+  emailed     BOOLEAN     NOT NULL DEFAULT false,
   email_error TEXT,
-  spam        INTEGER NOT NULL DEFAULT 0
+  spam        BOOLEAN     NOT NULL DEFAULT false
 );
-CREATE INDEX IF NOT EXISTS submissions_received_at ON submissions (received_at);
+CREATE INDEX IF NOT EXISTS submissions_received_at ON submissions (received_at DESC);
+CREATE INDEX IF NOT EXISTS submissions_ip_received_at ON submissions (ip, received_at DESC);
 `;
 
-let db = null;
-let insert = null;
-let markEmailed = null;
+// Idempotent, but only worth running once per warm instance.
+let schemaReady = false;
 
-function ensureDir(file) {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
+async function connect() {
+  const { default: pg } = await import('pg');
+  const client = new pg.Client({
+    connectionString: config.databaseUrl,
+    // Hosted Postgres (Neon, Vercel, Supabase, RDS) is TLS-only, and their
+    // certificates are not in Node's default trust store.
+    ssl: /\bsslmode=disable\b/.test(config.databaseUrl)
+      ? false
+      : { rejectUnauthorized: false },
+    connectionTimeoutMillis: 10000,
+    query_timeout: 10000
+  });
+  await client.connect();
+  return client;
 }
 
-export async function openStore() {
-  ensureDir(config.databasePath);
-  ensureDir(config.overflowLogPath);
+export async function ensureSchema(client) {
+  if (schemaReady) return;
+  await client.query(SCHEMA);
+  schemaReady = true;
+}
 
+/**
+ * Rate-check and store one submission on a single connection.
+ *
+ * The count is taken before the insert and the insert is skipped when the
+ * limit is already spent, so a flood cannot fill the table with the rows it
+ * was rejected for.
+ *
+ * Returns { rateLimited: true } or { id }.
+ */
+export async function saveSubmission(submission) {
+  if (!storeConfigured) throw new Error('no_database_configured');
+
+  const client = await connect();
   try {
-    const { DatabaseSync } = await import('node:sqlite');
-    db = new DatabaseSync(config.databasePath);
-    db.exec('PRAGMA journal_mode = WAL;');
-    db.exec(SCHEMA);
+    await ensureSchema(client);
 
-    // Older files predate the spam column; add it rather than start over.
-    const columns = db.prepare('PRAGMA table_info(submissions)').all();
-    if (!columns.some((column) => column.name === 'spam')) {
-      db.exec('ALTER TABLE submissions ADD COLUMN spam INTEGER NOT NULL DEFAULT 0');
+    if (submission.ip) {
+      const { rows } = await client.query(
+        `SELECT count(*)::int AS count FROM submissions
+         WHERE ip = $1 AND received_at > now() - ($2 || ' minutes')::interval`,
+        [submission.ip, String(config.rateLimit.windowMinutes)]
+      );
+      if (rows[0].count >= config.rateLimit.max) return { rateLimited: true };
     }
 
-    insert = db.prepare(`
-      INSERT INTO submissions
-        (received_at, name, email, business, revenue, situation, ip, user_agent, spam)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    markEmailed = db.prepare(
-      'UPDATE submissions SET emailed = ?, email_error = ? WHERE id = ?'
+    const { rows } = await client.query(
+      `INSERT INTO submissions
+         (name, email, business, revenue, situation, ip, user_agent, spam)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id`,
+      [
+        submission.name,
+        submission.email,
+        submission.business || null,
+        submission.revenue || null,
+        submission.situation,
+        submission.ip || null,
+        submission.userAgent || null,
+        Boolean(submission.spam)
+      ]
     );
 
-    // Enquiries are private. Keep the file readable by its owner only.
-    for (const suffix of ['', '-wal', '-shm']) {
-      try {
-        fs.chmodSync(config.databasePath + suffix, 0o600);
-      } catch {
-        /* the WAL companions may not exist yet */
-      }
-    }
-    return { driver: 'sqlite', path: config.databasePath };
-  } catch (error) {
-    console.warn(
-      '[store] SQLite unavailable (%s). Falling back to %s — Node 22.5+ is required for node:sqlite.',
-      error.message,
-      config.overflowLogPath
-    );
-    db = null;
-    return { driver: 'jsonl', path: config.overflowLogPath };
+    return { id: Number(rows[0].id) };
+  } finally {
+    await client.end().catch(() => {});
   }
-}
-
-function appendJsonl(record) {
-  fs.appendFileSync(config.overflowLogPath, JSON.stringify(record) + '\n', { mode: 0o600 });
-}
-
-/** Persist a submission. Returns an id when SQLite is in use, otherwise null. */
-export function saveSubmission(submission) {
-  const record = { received_at: new Date().toISOString(), ...submission };
-
-  if (db && insert) {
-    const result = insert.run(
-      record.received_at,
-      record.name,
-      record.email,
-      record.business || null,
-      record.revenue || null,
-      record.situation,
-      record.ip || null,
-      record.userAgent || null,
-      record.spam ? 1 : 0
-    );
-    return Number(result.lastInsertRowid);
-  }
-
-  appendJsonl(record);
-  return null;
 }
 
 /** Record whether the notification email actually went out. */
-export function recordEmailResult(id, ok, error) {
-  if (!db || !markEmailed || id == null) {
-    if (!ok && error) appendJsonl({ type: 'email_failure', at: new Date().toISOString(), error });
-    return;
-  }
+export async function recordEmailResult(id, ok, error) {
+  if (!storeConfigured || id == null) return;
+
+  let client;
   try {
-    markEmailed.run(ok ? 1 : 0, error ? String(error).slice(0, 500) : null, id);
+    client = await connect();
+    await client.query('UPDATE submissions SET emailed = $1, email_error = $2 WHERE id = $3', [
+      ok,
+      error ? String(error).slice(0, 500) : null,
+      id
+    ]);
   } catch (updateError) {
+    // The enquiry is already safely stored; this is only bookkeeping.
     console.error('[store] could not record email result:', updateError.message);
+  } finally {
+    if (client) await client.end().catch(() => {});
   }
 }
 
-export function closeStore() {
-  if (db) {
-    try {
-      db.close();
-    } catch {
-      /* nothing useful to do while shutting down */
-    }
-    db = null;
+/** Used by `npm run db:init` to create the table ahead of the first enquiry. */
+export async function initSchema() {
+  if (!storeConfigured) throw new Error('no_database_configured');
+  const client = await connect();
+  try {
+    schemaReady = false;
+    await ensureSchema(client);
+  } finally {
+    await client.end().catch(() => {});
   }
 }

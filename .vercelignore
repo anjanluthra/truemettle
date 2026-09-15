@@ -1,0 +1,5 @@
+tools/icon-template.html
+tools/og-template.html
+tools/make-images.sh
+data
+*.log

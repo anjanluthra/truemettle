@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-/* A five-line .env reader, so the project keeps its single dependency. */
+/* A five-line .env reader for local development. On Vercel the environment
+   is already populated, and no .env file exists. */
 function loadDotEnv() {
   const file = path.join(ROOT, '.env');
   if (!fs.existsSync(file)) return;
@@ -23,14 +24,17 @@ function loadDotEnv() {
   }
 }
 
-loadDotEnv();
+try {
+  loadDotEnv();
+} catch {
+  /* a read-only filesystem is fine — the environment is already set */
+}
 
 const bool = (value, fallback = false) =>
   value === undefined ? fallback : /^(1|true|yes|on)$/i.test(value);
 
-/* The values baked into public/index.html, so a static host serving that file
-   straight off disk gets a correct page. The server rewrites them only when
-   the environment asks for something else. */
+/* The values baked into public/index.html, so the static host serving that
+   file gets a correct page. Only a differing environment rewrites them. */
 export const DEFAULTS = {
   siteUrl: 'https://truemettle.com',
   personalSiteUrl: 'https://anjanluthra.com',
@@ -39,8 +43,6 @@ export const DEFAULTS = {
 
 export const config = {
   port: Number(process.env.PORT || 3000),
-  host: process.env.HOST || '0.0.0.0',
-  trustProxy: bool(process.env.TRUST_PROXY, false),
 
   // Canonical origin, used for canonical/OG tags. No trailing slash.
   siteUrl: (process.env.SITE_URL || DEFAULTS.siteUrl).replace(/\/+$/, ''),
@@ -49,8 +51,13 @@ export const config = {
   personalSiteUrl: (process.env.PERSONAL_SITE_URL ?? DEFAULTS.personalSiteUrl).trim(),
   personalSiteLabel: (process.env.PERSONAL_SITE_LABEL || DEFAULTS.personalSiteLabel).trim(),
 
-  databasePath: process.env.DATABASE_PATH || path.join(ROOT, 'data', 'submissions.db'),
-  overflowLogPath: process.env.OVERFLOW_LOG_PATH || path.join(ROOT, 'data', 'submissions.jsonl'),
+  /* Vercel's Postgres and Neon integrations both set several of these; take
+     whichever is present so the project works with either, unchanged. */
+  databaseUrl:
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_PRISMA_URL ||
+    '',
 
   mail: {
     to: process.env.CONTACT_EMAIL_TO || '',
@@ -67,10 +74,12 @@ export const config = {
 
   rateLimit: {
     max: Number(process.env.RATE_LIMIT_MAX || 5),
-    windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 60 * 60 * 1000)
+    windowMinutes: Number(process.env.RATE_LIMIT_WINDOW_MINUTES || 60)
   }
 };
 
 export const mailConfigured = Boolean(
   config.mail.to && config.mail.from && config.mail.smtp.host
 );
+
+export const storeConfigured = Boolean(config.databaseUrl);

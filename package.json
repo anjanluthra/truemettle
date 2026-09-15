@@ -1,0 +1,18 @@
+{
+  "name": "truemettle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "True Mettle — temporary holding page",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning server.js",
+    "dev": "node --no-warnings=ExperimentalWarning --watch server.js",
+    "images": "bash tools/make-images.sh"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

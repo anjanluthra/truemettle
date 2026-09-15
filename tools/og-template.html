@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Source for public/og.png — the link-preview card.
+     Regenerate with `npm run images` after editing. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: 'Fraunces';
+    font-weight: 300 700;
+    src: url('../public/fonts/fraunces-latin.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Work Sans';
+    font-weight: 300 600;
+    src: url('../public/fonts/worksans-latin.woff2') format('woff2');
+  }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { background: #1E3B2C; }
+  .card {
+    position: relative;
+    width: 1200px; height: 630px;
+    background: #1E3B2C;
+    display: flex; align-items: center;
+    font-family: 'Work Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame { position: absolute; inset: 40px; border: 1px solid rgba(224,164,58,.42); }
+  .inner { padding: 0 104px; }
+  .mark {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 40;
+    font-weight: 500; font-size: 38px; line-height: 1;
+    letter-spacing: .3em; text-indent: .3em;
+    text-transform: uppercase; color: #F4EEDF;
+  }
+  .rule { width: 72px; height: 1px; background: #C8891E; margin: 42px 0; }
+  .line {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 58;
+    font-weight: 400; font-size: 58px; line-height: 1.14;
+    letter-spacing: -.016em; color: #F4EEDF; white-space: nowrap;
+  }
+  .sub {
+    margin-top: 38px; font-size: 21px; font-weight: 350;
+    letter-spacing: .02em; color: rgba(244,238,223,.66);
+  }
+  .place {
+    position: absolute; right: 104px; bottom: 88px;
+    font-size: 15px; font-weight: 500; letter-spacing: .28em;
+    text-transform: uppercase; color: #E0A43A;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="frame"></div>
+    <div class="inner">
+      <p class="mark">True Mettle</p>
+      <div class="rule"></div>
+      <p class="line">Backing resilient entrepreneurs.<br>Helping them create value.</p>
+      <p class="sub">The personal investment company of Anjan Luthra.</p>
+    </div>
+    <p class="place">Dubai</p>
+  </div>
+</body>
+</html>

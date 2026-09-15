@@ -1,0 +1,32 @@
+<!doctype html>
+<!-- Source for public/apple-touch-icon.png and public/icon-32.png.
+     A monogram, not a logo — replace when the identity is designed. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: 'Fraunces';
+    font-weight: 300 700;
+    src: url('../public/fonts/fraunces-latin.woff2') format('woff2');
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    width: 100vw; height: 100vh; background: #1E3B2C;
+    display: grid; place-items: center;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame { position: absolute; inset: 6.7%; border: 1px solid rgba(224,164,58,.55); }
+  .mono {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 20;
+    font-weight: 600; font-size: 41vw; line-height: 1;
+    letter-spacing: .04em; text-indent: .04em; color: #F4EEDF;
+  }
+</style>
+</head>
+<body>
+  <div class="frame"></div>
+  <p class="mono">TM</p>
+</body>
+</html>

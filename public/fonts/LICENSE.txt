@@ -1,0 +1,15 @@
+Fonts in this directory are self-hosted subsets served from Google Fonts.
+Both are licensed under the SIL Open Font License, Version 1.1.
+
+  Fraunces   — Undercase Type et al.
+               https://fonts.google.com/specimen/Fraunces
+  Work Sans  — Wei Huang
+               https://fonts.google.com/specimen/Work+Sans
+
+Licence text: https://openfontlicense.org/
+
+fraunces-*.woff2  variable, opsz 9–144 / wght 300–700
+worksans-*.woff2  variable, wght 300–600
+
+The -latin-ext files are only downloaded when a reader needs a character
+outside basic Latin; see the unicode-range rules in ../styles.css.

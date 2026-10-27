@@ -29,7 +29,8 @@ FULL = (720, 1080, 1440, 2160, 2880)
 
 # name: (source file, crop (x, y, w, h) as fractions of the source, widths)
 PHOTOS = {
-    'hero':    ('hero.png',    (0, 0, 1, 1), FULL),
+    # Larger Figma export of the hero frame (2000x1228), already cropped.
+    'hero':    ('hero-export-2000.webp', (0, 0, 1, 1), FULL),
     'band1':   ('band1.png',   (0, 0, 1, 1), FULL),
     # Anjan by the window, 2000x1333 copy of the shoot frame.
     'wide':    ('wide-original.jpg', (0.15, 0.17, 0.85, 0.5799), FULL),

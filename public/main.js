@@ -364,6 +364,45 @@
     });
   }
 
+  /* ── Cookie banner: ask before analytics cookies (see /analytics.js) ────── */
+  var COOKIE_KEY = 'tm-cookies';
+  var readChoice = function () { try { return localStorage.getItem(COOKIE_KEY); } catch (e) { return null; } };
+  var banner = document.createElement('section');
+  banner.className = 'cookie-banner';
+  banner.setAttribute('aria-label', 'Cookies');
+  banner.hidden = true;
+  banner.innerHTML =
+    '<p class="cookie-banner__title">Cookies</p>' +
+    '<p class="cookie-banner__text">We’d like to use Google Analytics cookies to see how people find and use this site. No advertising. ' +
+    '<a href="#cookies">Cookie policy</a></p>' +
+    '<div class="cookie-banner__actions">' +
+    '<button type="button" class="cookie-banner__decline" data-choice="denied">Decline</button>' +
+    '<button type="button" class="cta cta--button" data-choice="granted">Accept<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>' +
+    '</div>';
+  document.body.appendChild(banner);
+
+  var showBanner = function () { banner.hidden = false; };
+  Array.prototype.forEach.call(banner.querySelectorAll('[data-choice]'), function (button) {
+    button.addEventListener('click', function () {
+      var choice = button.getAttribute('data-choice');
+      try { localStorage.setItem(COOKIE_KEY, choice); } catch (e) { /* private mode: ask again next time */ }
+      if (typeof window.gtag === 'function') window.gtag('consent', 'update', { analytics_storage: choice });
+      banner.hidden = true;
+    });
+  });
+  banner.querySelector('a[href="#cookies"]').addEventListener('click', function (event) {
+    var policyLink = document.querySelector('[data-policy][href="#cookies"]');
+    if (policyLink) { event.preventDefault(); policyLink.click(); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-cookie-settings]'), function (link) {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      showBanner();
+      banner.querySelector('[data-choice="granted"]').focus();
+    });
+  });
+  if (!readChoice()) showBanner();
+
   /* ── Sideways rows (sectors, process): arrows that step them ────────────── */
   Array.prototype.forEach.call(document.querySelectorAll('[data-row-nav]'), function (nav) {
     var row = document.querySelector('[data-row="' + nav.getAttribute('data-row-nav') + '"]');

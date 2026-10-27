@@ -816,6 +816,7 @@ em { font-style: normal; }
   line-height: 1.55;
 }
 .policy__updated + p { margin-top: 2rem; }
+.policy p.policy__address { font-style: normal; line-height: 1.4; }
 .policy a { text-decoration: underline; text-underline-offset: 0.15em; }
 .policy-dialog { width: min(46rem, calc(100% - 2rem)); }
 .policy-dialog .policy { max-width: none; padding: clamp(2.75rem, 4vw, 3.5rem) clamp(1.5rem, 4vw, 3.5rem) clamp(2rem, 3.5vw, 3rem); }

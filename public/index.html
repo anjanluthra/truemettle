@@ -548,28 +548,64 @@
         <ul class="footer__small">
           <li><a href="https://anjanluthra.com" rel="noopener">Anjan Luthra</a></li>
           <!-- TBC: social profile URLs. -->
-          <li>X</li>
-          <li>TikTok</li>
-          <li>Instagram</li>
           <li>LinkedIn</li>
-          <li>YouTube</li>
+          <li>Instagram</li>
+          <li>X</li>
           <li><a href="#contact" data-open-deck>Contact</a></li>
         </ul>
       </nav>
 
       <nav class="footer__links" aria-label="Legal">
         <p class="footer__heading">Legal</p>
-        <!-- TBC: policy pages don't exist yet. The site sets no cookies. -->
         <ul class="footer__small">
-          <li>Privacy policy</li>
-          <li>Cookie policy</li>
+          <li><a href="#privacy" data-policy>Privacy policy</a></li>
+          <li><a href="#cookies" data-policy>Cookie policy</a></li>
         </ul>
       </nav>
     </div>
 
-    <p class="footer__legal">© True Mettle FZ LLC. Not a fund. Anjan Luthra’s personal investment vehicle. <span class="js-year">2026</span></p>
+    <p class="footer__legal">© True Mettle. Not a fund. Anjan Luthra’s personal investment vehicle. <span class="js-year">2026</span></p>
   </div>
 </footer>
+
+<!-- The policies. With JavaScript each opens as a popup from the footer;
+     without it they read here, at the foot of the page. -->
+<div class="policies">
+  <section class="policy" id="privacy" aria-labelledby="privacy-title">
+    <h2 class="policy__title" id="privacy-title">Privacy policy</h2>
+    <p class="policy__updated">Last updated 27 October 2026</p>
+
+    <p>True Mettle is Anjan Luthra’s personal investment vehicle. This policy explains what we collect through this website, why, and what you can ask us to do with it. Questions go to <a href="mailto:inquiries@truemettle.com">inquiries@truemettle.com</a>.</p>
+
+    <h3>What we collect</h3>
+    <p>Only what you send us. If you send your deck or a press or speaking request: your name, email, company or organisation, website, your answers to the questions in the form, your message, and your deck if you upload one. If you sign up to Fifth: your email address. With each, we also record your IP address and browser type, so we can stop spam and abuse.</p>
+
+    <h3>Why we use it</h3>
+    <p>To read and reply to your enquiry, to consider your business for investment, to arrange press or speaking, and to send you Fifth if you asked for it. We don’t sell your information, share it with advertisers, or use it for anything else.</p>
+
+    <h3>Who handles it</h3>
+    <p>Anjan and the small team who work with him. The website and uploaded decks are hosted by Vercel, form answers are kept in a TiDB Cloud database, and email notifications go through our email provider. They hold it for us and only as needed to run the site.</p>
+
+    <h3>How long we keep it</h3>
+    <p>Enquiries and decks for as long as we need them to consider and follow up on your enquiry. Your email for Fifth until you unsubscribe or ask us to remove it. You can ask us to delete anything sooner.</p>
+
+    <h3>Your rights</h3>
+    <p>You can ask to see what we hold about you, correct it, delete it, or stop us using it. Email <a href="mailto:inquiries@truemettle.com">inquiries@truemettle.com</a> and we’ll reply within 30 days.</p>
+
+    <h3>Changes</h3>
+    <p>If this policy changes, we’ll update it here and change the date at the top.</p>
+  </section>
+
+  <section class="policy" id="cookies" aria-labelledby="cookies-title">
+    <h2 class="policy__title" id="cookies-title">Cookie policy</h2>
+    <p class="policy__updated">Last updated 27 October 2026</p>
+
+    <p>This website doesn’t use cookies.</p>
+    <p>There’s no analytics, no advertising, and no tracking. Our fonts and images are served from this site, so visiting it doesn’t tell any other company you were here.</p>
+    <p>If that ever changes, we’ll update this page and ask before setting any cookie that isn’t strictly needed for the site to work.</p>
+    <p>Questions go to <a href="mailto:inquiries@truemettle.com">inquiries@truemettle.com</a>.</p>
+  </section>
+</div>
 
 <script src="/main.js" defer></script>
 </body>

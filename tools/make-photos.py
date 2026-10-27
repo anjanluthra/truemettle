@@ -32,8 +32,8 @@ PHOTOS = {
     # Larger Figma export of the hero frame (2000x1228), already cropped.
     'hero':    ('hero-export-2000.webp', (0, 0, 1, 1), FULL),
     'band1':   ('band1.png',   (0, 0, 1, 1), FULL),
-    # Anjan by the window, 2000x1333 copy of the shoot frame.
-    'wide':    ('wide-original.jpg', (0.15, 0.17, 0.85, 0.5799), FULL),
+    # Anjan on the sofa with his phone, 2000x1333: full width, head to hands.
+    'wide':    ('wide-sofa.jpg', (0, 0.28, 1, 0.6826), FULL),
     # Original sunset, 2000x1335; the band is its middle strip (Figma FILL).
     'band2':   ('band2-original.jpg', (0.0567, 0.3221, 0.8995, 0.3566), FULL),
     # Larger Figma export of the footer frame (2000x631), already cropped.

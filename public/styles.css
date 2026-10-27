@@ -357,8 +357,8 @@ em { font-style: normal; }
 .sectors { padding-top: clamp(2.5rem, 4.5vw, 4rem); }
 .sectors__grid {
   display: grid;
-  grid-template-columns: minmax(0, 30.25rem) minmax(0, 25rem) minmax(0, 25rem);
-  gap: clamp(1rem, 1.75vw, 1.6rem);
+  grid-template-columns: minmax(0, 18.5rem) repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.1vw, 1rem);
   align-items: start;
 }
 .sectors .display { padding-top: 2.4rem; max-width: 20rem; }
@@ -371,7 +371,7 @@ em { font-style: normal; }
 }
 .sector figcaption {
   margin-top: 1.1rem;
-  font-size: clamp(0.9375rem, 1.39vw, 1.25rem);
+  font-size: clamp(0.75rem, 0.9vw, 0.8125rem);
   letter-spacing: 0.11em;
   text-transform: uppercase;
 }
@@ -417,10 +417,36 @@ em { font-style: normal; }
   grid-template-columns: clamp(9rem, 26vw, 23.4rem) 1fr;
 }
 .process__label { padding: clamp(2rem, 4.4vw, 3.9rem) var(--gutter) 0; }
+/* Seven steps in a row that runs off the right edge, as in the design;
+   it scrolls sideways (trackpad, swipe, or the arrows by the label). */
 .process__steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 27.7rem));
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
 }
+.process__steps::-webkit-scrollbar { display: none; }
+.process__steps:focus-visible { outline-offset: -2px; }
+.step { flex: 0 0 clamp(16rem, 30.8vw, 27.7rem); scroll-snap-align: start; }
+.process__nav { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+.process__nav[hidden] { display: none; }
+.process__arrow {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.process__arrow svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.process__arrow:hover { background: rgba(47, 37, 37, 0.06); }
+.process__arrow:disabled { opacity: 0.3; cursor: default; background: none; }
 .step {
   display: flex;
   flex-direction: column;
@@ -727,9 +753,6 @@ em { font-style: normal; }
   .sectors .display { grid-column: 1 / -1; padding-top: 0; max-width: none; margin-bottom: 1.5rem; }
   .process__grid { grid-template-columns: 1fr; }
   .process__label { padding-bottom: 2rem; }
-  .process__steps { grid-template-columns: repeat(3, 1fr); }
-  .step:first-child { border-left: 0; }
-  .step:last-child { border-right: 0; }
   .faqs { grid-template-columns: 1fr; row-gap: 1.5rem; }
   .deck__inner { grid-template-columns: 1fr; }
   .sent { grid-column: auto; }

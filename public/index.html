@@ -144,17 +144,31 @@
       <div class="sectors__photos">
       <figure class="sector">
         <picture>
-      <source type="image/avif" data-photo="sport" srcset="/img/sport-400.avif 400w, /img/sport-800.avif 800w, /img/sport-1125.avif 1125w" sizes="(max-width: 1024px) 50vw, 400px">
-      <img data-photo="sport" src="/img/sport-1125.webp" srcset="/img/sport-400.webp 400w, /img/sport-800.webp 800w, /img/sport-1125.webp 1125w" sizes="(max-width: 1024px) 50vw, 400px" width="399" height="502" alt="Overhead view of a clay tennis court" loading="lazy" decoding="async">
+      <source type="image/avif" data-photo="sport" srcset="/img/sport-400.avif 400w, /img/sport-800.avif 800w, /img/sport-1125.avif 1125w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
+      <img data-photo="sport" src="/img/sport-1125.webp" srcset="/img/sport-400.webp 400w, /img/sport-800.webp 800w, /img/sport-1125.webp 1125w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="Overhead view of a clay tennis court" loading="lazy" decoding="async">
     </picture>
         <figcaption>Sport &amp; Fitness</figcaption>
       </figure>
       <figure class="sector">
         <picture>
-      <source type="image/avif" data-photo="media" srcset="/img/media-400.avif 400w, /img/media-800.avif 800w, /img/media-1200.avif 1200w" sizes="(max-width: 1024px) 50vw, 400px">
-      <img data-photo="media" src="/img/media-1200.webp" srcset="/img/media-400.webp 400w, /img/media-800.webp 800w, /img/media-1200.webp 1200w" sizes="(max-width: 1024px) 50vw, 400px" width="399" height="502" alt="A podcaster in headphones speaking into a studio microphone" loading="lazy" decoding="async">
+      <source type="image/avif" data-photo="media" srcset="/img/media-400.avif 400w, /img/media-800.avif 800w, /img/media-1200.avif 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
+      <img data-photo="media" src="/img/media-1200.webp" srcset="/img/media-400.webp 400w, /img/media-800.webp 800w, /img/media-1200.webp 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="A podcaster in headphones speaking into a studio microphone" loading="lazy" decoding="async">
     </picture>
         <figcaption>Media &amp; Entertainment</figcaption>
+      </figure>
+      <figure class="sector">
+        <picture>
+      <source type="image/avif" data-photo="digital" srcset="/img/digital-400.avif 400w, /img/digital-800.avif 800w, /img/digital-1200.avif 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
+      <img data-photo="digital" src="/img/digital-1200.webp" srcset="/img/digital-400.webp 400w, /img/digital-800.webp 800w, /img/digital-1200.webp 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="A laptop open on a desk among papers and a parcel" loading="lazy" decoding="async">
+    </picture>
+        <figcaption>Digital Services</figcaption>
+      </figure>
+      <figure class="sector">
+        <picture>
+      <source type="image/avif" data-photo="live" srcset="/img/live-400.avif 400w, /img/live-800.avif 800w, /img/live-1200.avif 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
+      <img data-photo="live" src="/img/live-1200.webp" srcset="/img/live-400.webp 400w, /img/live-800.webp 800w, /img/live-1200.webp 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="Silhouettes of people in front of tall, sunlit curtains" loading="lazy" decoding="async">
+    </picture>
+        <figcaption>Live Events &amp; Experiences</figcaption>
       </figure>
       </div>
     </div>
@@ -201,8 +215,14 @@
   <!-- ── THE PROCESS ──────────────────────────────────────────────────────── -->
   <section class="process" aria-labelledby="process-heading">
     <div class="process__grid">
-      <h2 class="eyebrow process__label" id="process-heading">The process</h2>
-      <ol class="process__steps">
+      <div class="process__label">
+        <h2 class="eyebrow" id="process-heading">The process</h2>
+        <div class="process__nav" hidden>
+          <button type="button" class="process__arrow" data-dir="-1" aria-label="Previous steps"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg></button>
+          <button type="button" class="process__arrow" data-dir="1" aria-label="Next steps"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
+        </div>
+      </div>
+      <ol class="process__steps" tabindex="0" aria-label="Seven steps, scroll sideways">
         <li class="step">
           <span class="numeral" aria-hidden="true">01.</span>
           <div class="step__copy">
@@ -222,6 +242,34 @@
           <div class="step__copy">
             <h3 class="step__title">A closer look</h3>
             <p class="body">Financials, customers, team, and plans. Useful even if we don’t invest.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="numeral" aria-hidden="true">04.</span>
+          <div class="step__copy">
+            <h3 class="step__title">Our offer</h3>
+            <p class="body">How much, for what share, and the help that comes with it.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="numeral" aria-hidden="true">05.</span>
+          <div class="step__copy">
+            <h3 class="step__title">Final checks</h3>
+            <p class="body">Accounts, contracts, legal, and tax.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="numeral" aria-hidden="true">06.</span>
+          <div class="step__copy">
+            <h3 class="step__title">Completion</h3>
+            <p class="body">Simple and quick.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="numeral" aria-hidden="true">07.</span>
+          <div class="step__copy">
+            <h3 class="step__title">Build together</h3>
+            <p class="body">Anjan joins your board, with a plan for the first 100 days.</p>
           </div>
         </li>
       </ol>
@@ -266,7 +314,7 @@
       </details>
       <details class="faq">
         <summary>Is True Mettle a Fund?</summary>
-        <div class="faq__answer body">No. True Mettle is Anjan Luthra’s personal investment vehicle. It’s his own capital — no fund, no committee — so we move fast.</div>
+        <div class="faq__answer body">No. True Mettle is the personal investment vehicle of Anjan Luthra, a seven-figure entrepreneur. It’s his own capital — no fund, no committee — so we move fast.</div>
       </details>
     </div>
   </section>

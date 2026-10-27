@@ -101,6 +101,7 @@ em { font-style: normal; }
 .br-wide { display: none; }
 @media (min-width: 64.0625rem) { .br-wide { display: inline; } }
 @media (min-width: 48rem) and (max-width: 64rem) { .br-not-tablet { display: none; } }
+.nowrap { white-space: nowrap; }
 .visually-hidden {
   position: absolute !important;
   width: 1px; height: 1px;
@@ -273,12 +274,13 @@ em { font-style: normal; }
   letter-spacing: -0.02em;
 }
 .statement__soft { display: block; margin-top: 0.164em; color: var(--slate); }
+.founder__lede { max-width: 40rem; margin-top: clamp(1.25rem, 2.2vw, 2rem); line-height: 1.3; }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: clamp(2rem, 4vw, 3.5rem);
-  margin-top: clamp(3rem, 8.12vw, 7.3125rem);
+  margin-top: clamp(3rem, 6.1vw, 5.5rem);
 }
 .stat {
   display: flex;
@@ -306,7 +308,7 @@ em { font-style: normal; }
 .stat__note {
   margin-top: auto;
   padding-top: clamp(1.75rem, 4.44vw, 4rem);
-  max-width: 16.4375rem;   /* 263: two lines, as in Figma */
+  max-width: 22rem;
   font-size: 0.9375rem;
   line-height: 1.07;
   letter-spacing: 0.09em;
@@ -1018,6 +1020,7 @@ em { font-style: normal; }
   .founder .cta-row { margin-top: 6.75rem; }
   .statement { font-size: 1.6875rem; line-height: 1.075; margin-top: 3.1875rem; }
   .statement__soft { display: inline; margin-top: 0; }
+  .founder__lede { margin-top: 1.25rem; }
 
   /* Swipe rows: stats, sector photos, process steps. */
   .stats,
@@ -1039,13 +1042,12 @@ em { font-style: normal; }
   .stat, .sector, .step { flex: 0 0 82%; scroll-snap-align: start; }
 
   /* Figma: rules at 37 and 327, 162 tall. */
-  .stats { margin: 8.125rem calc(var(--gutter) * -1) 0; padding-inline: 2.3125rem; scroll-padding-inline: 2.3125rem; }
+  .stats { margin: 3.5rem calc(var(--gutter) * -1) 0; padding-inline: 2.3125rem; scroll-padding-inline: 2.3125rem; }
   .stat { flex-basis: 16.875rem; padding-left: 1.1rem; border-left-width: 2px; }
   .stat__figure { font-size: 3.75rem; }
   .stat__label { margin-top: 0; font-size: 1.375rem; line-height: 0.95; }
   .stat__note { padding-top: 2rem; font-size: 0.7125rem; line-height: 1.23; }
-  .stat:first-child .stat__note { max-width: 10.875rem; }   /* Figma: 174, then 222 */
-  .stat + .stat .stat__note { max-width: 13.875rem; }
+
 
   .quote { min-height: 48.875rem; padding-inline: 2.5rem; }    /* 782 */
   .quote__text { font-size: 3.125rem; line-height: 0.96; }

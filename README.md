@@ -137,8 +137,9 @@ The browser bundle (`public/vendor/blob-upload.js`) is built from
 
 ### The admin page
 
-Set `ADMIN_PASSWORD` in Vercel, then open **`/admin`** — any username, that
-password. It lists every deck submission and newsletter sign-up, newest first,
+Set `ADMIN_PASSWORD` in Vercel, then open **`/admin`** and sign in with that
+password (no username). The sign-in lasts 14 days; **Sign out** ends it, and
+changing the password signs everyone out. It lists every deck submission and newsletter sign-up, newest first,
 with a **Download CSV** link for each (the CSV opens cleanly in Excel or
 Google Sheets, and can be imported straight into a mail tool). Spam-flagged
 rows are greyed out and left out of the counts.

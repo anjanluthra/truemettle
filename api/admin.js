@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { storeConfigured } from '../src/config.js';
 import { listAll } from '../src/store.js';
 import { cleanDeckUrl, deckLink, isPublicDeck } from '../src/decks.js';
+import { parseBody } from '../src/http.js';
 
 /* GET /api/admin — a password-protected view of every enquiry and newsletter
  * sign-up, with CSV export.
@@ -12,8 +13,11 @@ import { cleanDeckUrl, deckLink, isPublicDeck } from '../src/decks.js';
  *   /api/admin?deck=<blob url>          one uploaded deck, streamed from a
  *                                       private Blob store
  *
- * HTTP Basic auth; any username, password = ADMIN_PASSWORD. With no
- * ADMIN_PASSWORD set the page does not exist.
+ *   /api/admin?logout=1                 signs out
+ *
+ * Signing in is a password-only form (password = ADMIN_PASSWORD) that sets a
+ * signed, HttpOnly session cookie. With no ADMIN_PASSWORD set the page does
+ * not exist.
  */
 
 const escapeHtml = (value) =>
@@ -27,19 +31,110 @@ const escapeHtml = (value) =>
 
 const when = (value) => (value instanceof Date ? value.toISOString().replace('T', ' ').slice(0, 16) : String(value ?? ''));
 
-function authorised(req) {
-  const expected = process.env.ADMIN_PASSWORD || '';
-  if (!expected) return false;
+const COOKIE = 'tm_admin';
+const SESSION_DAYS = 14;
 
-  const header = String(req.headers.authorization || '');
-  if (!header.startsWith('Basic ')) return false;
-  const decoded = Buffer.from(header.slice(6), 'base64').toString('utf8');
-  const given = decoded.slice(decoded.indexOf(':') + 1);
+// Compare digests so the comparison is constant-time whatever the lengths.
+const same = (a, b) =>
+  crypto.timingSafeEqual(crypto.createHash('sha256').update(a).digest(), crypto.createHash('sha256').update(b).digest());
 
-  // Compare digests so the comparison is constant-time whatever the lengths.
-  const a = crypto.createHash('sha256').update(given).digest();
-  const b = crypto.createHash('sha256').update(expected).digest();
-  return crypto.timingSafeEqual(a, b);
+// The session is "<expiry>.<hmac>", keyed on the password itself, so changing
+// ADMIN_PASSWORD signs everyone out.
+const sign = (expires) => crypto.createHmac('sha256', process.env.ADMIN_PASSWORD).update(`admin:${expires}`).digest('base64url');
+
+function signedIn(req) {
+  const match = String(req.headers.cookie || '').match(/(?:^|;\s*)tm_admin=([^;]+)/);
+  if (!match) return false;
+  const [expires, mac] = match[1].split('.');
+  return Number(expires) > Date.now() && same(String(mac || ''), sign(expires));
+}
+
+function setSession(res) {
+  const expires = Date.now() + SESSION_DAYS * 86_400_000;
+  res.setHeader('Set-Cookie', `${COOKIE}=${expires}.${sign(expires)}; Path=/; Max-Age=${SESSION_DAYS * 86_400}; HttpOnly; Secure; SameSite=Lax`);
+}
+
+const clearSession = (res) => res.setHeader('Set-Cookie', `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`);
+
+// Back to the page that asked for a sign-in: only ever /admin itself, keeping
+// a ?deck= so a deck link opened while signed out still lands on the deck.
+function backTo(params) {
+  const deck = params.get('deck');
+  return deck ? `/admin?deck=${encodeURIComponent(deck)}` : '/admin';
+}
+
+const SLIDES = [
+  { name: 'live', widths: [400, 800, 1200] },
+  { name: 'sport', widths: [400, 800, 1125] },
+  { name: 'hero', widths: [720, 1080, 1440, 2000] }
+];
+
+const slide = ({ name, widths }, i) => {
+  const set = (ext) => widths.map((w) => `/img/${name}-${w}.${ext} ${w}w`).join(', ');
+  const mid = widths[Math.min(1, widths.length - 1)];
+  return `<picture class="login__slide login__slide--${name}${i === 0 ? ' is-active' : ''}">
+      <source type="image/avif" srcset="${set('avif')}" sizes="(max-width: 47.9375rem) 100vw, 58vw">
+      <img src="/img/${name}-${mid}.webp" srcset="${set('webp')}" sizes="(max-width: 47.9375rem) 100vw, 58vw" alt=""${i === 0 ? ' fetchpriority="high"' : ' loading="lazy"'}>
+    </picture>`;
+};
+
+const ARROW = '<svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6h22M17 1l5 5-5 5"/></svg>';
+
+function loginPage({ action, error }) {
+  const year = new Date().getFullYear();
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sign in — True Mettle</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/nanummyeongjo-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body class="login">
+<main class="login__layout">
+  <section class="login__visual" aria-hidden="true">
+    ${SLIDES.map(slide).join('\n    ')}
+    <a class="login__wordmark" href="/" tabindex="-1"><img src="/brand/wordmark.svg" width="1287" height="229" alt=""></a>
+    <div class="login__caption">
+      <p class="login__eyebrow">Personal investment company</p>
+      <p class="login__headline">Backing the resilient.</p>
+    </div>
+    <div class="login__dots">${SLIDES.map((_, i) => `<span${i === 0 ? ' class="is-active"' : ''}></span>`).join('')}</div>
+  </section>
+
+  <section class="login__panel">
+    <header class="login__top">
+      <a href="/" aria-label="True Mettle — home"><img class="login__mark" src="/brand/monogram-ink.svg" width="50" height="37" alt=""></a>
+      <span class="login__label">Private</span>
+    </header>
+
+    <form class="login__form" method="post" action="${escapeHtml(action)}" novalidate>
+      <p class="login__kicker">Admin</p>
+      <h1 class="login__title">Welcome back.</h1>
+      <p class="login__lede">Decks, press requests and Fifth sign-ups, in one place.</p>
+
+      <label class="login__field-label" for="password">Password</label>
+      <div class="login__field${error ? ' is-invalid' : ''}">
+        <input id="password" name="password" type="password" autocomplete="current-password" required autofocus${error ? ' aria-invalid="true" aria-describedby="login-error"' : ''}>
+        <button class="login__show" type="button" aria-controls="password" aria-pressed="false" hidden>Show</button>
+      </div>
+      ${error ? `<p class="login__error" id="login-error" role="alert">${escapeHtml(error)}</p>` : ''}
+
+      <button class="login__submit" type="submit"><span>Sign in</span>${ARROW}</button>
+    </form>
+
+    <footer class="login__foot">
+      <a href="/"><svg viewBox="0 0 24 12" aria-hidden="true"><path d="M24 6H2M7 1L2 6l5 5"/></svg>truemettle.co</a>
+      <span>&copy; True Mettle ${year}</span>
+    </footer>
+  </section>
+</main>
+<script src="/admin-login.js"></script>
+</body>
+</html>`;
 }
 
 // Leading = + - @ would be read as a formula by a spreadsheet.
@@ -107,11 +202,15 @@ function page({ submissions, subscribers }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Admin — True Mettle</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/admin.css">
 </head>
-<body>
+<body class="tables">
 <main>
-  <h1>True Mettle — admin</h1>
+  <div class="tables__top">
+    <h1><img src="/brand/monogram-ink.svg" width="50" height="37" alt="">Admin</h1>
+    <a href="?logout=1">Sign out</a>
+  </div>
 
   <section>
     <header>
@@ -185,21 +284,50 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (!authorised(req)) {
-    res.setHeader('WWW-Authenticate', 'Basic realm="True Mettle admin", charset="UTF-8"');
-    res.status(401).send('Authentication required');
+  const params = new URL(req.url, 'http://localhost').searchParams;
+
+  if (params.has('logout')) {
+    clearSession(res);
+    res.setHeader('Location', '/admin');
+    res.status(303).send('');
+    return;
+  }
+
+  if (req.method === 'POST') {
+    let password = '';
+    try {
+      password = String((await parseBody(req)).password ?? '');
+    } catch {
+      // An oversized body is just a wrong password.
+    }
+    if (password && same(password, process.env.ADMIN_PASSWORD)) {
+      setSession(res);
+      res.setHeader('Location', backTo(params));
+      res.status(303).send('');
+      return;
+    }
+    // A short pause makes guessing slow without bothering a person.
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(401).send(loginPage({ action: backTo(params), error: password ? 'That password isn’t right.' : 'Enter the password.' }));
     return;
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
-    res.setHeader('Allow', 'GET');
+    res.setHeader('Allow', 'GET, POST');
     res.status(405).send('Method not allowed');
+    return;
+  }
+
+  if (!signedIn(req)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(200).send(loginPage({ action: backTo(params) }));
     return;
   }
 
   // A deck in the private Blob store: only the store's token can read it, so
   // it is streamed through here, behind the same password.
-  const deckParam = new URL(req.url, 'http://localhost').searchParams.get('deck');
+  const deckParam = params.get('deck');
   if (deckParam !== null) {
     await sendDeck(res, deckParam);
     return;
@@ -219,7 +347,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const exportKind = new URL(req.url, 'http://localhost').searchParams.get('export');
+  const exportKind = params.get('export');
   if (exportKind === 'submissions' || exportKind === 'subscribers') {
     const csv =
       exportKind === 'submissions'

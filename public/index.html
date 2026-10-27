@@ -29,7 +29,7 @@
 
 <link rel="preload" href="/fonts/nanummyeongjo-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/worksans-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/img/hero.webp" as="image" fetchpriority="high">
+<link rel="preload" as="image" type="image/avif" data-photo="hero" imagesrcset="/img/hero-720.avif 720w, /img/hero-1080.avif 1080w, /img/hero-1440.avif 1440w" imagesizes="100vw" fetchpriority="high">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -49,7 +49,10 @@
 
   <!-- ── HERO ─────────────────────────────────────────────────────────────── -->
   <section class="hero">
-    <img class="hero__bg" src="/img/hero.webp" width="1440" height="884" alt="" fetchpriority="high">
+    <picture>
+      <source type="image/avif" data-photo="hero" srcset="/img/hero-720.avif 720w, /img/hero-1080.avif 1080w, /img/hero-1440.avif 1440w" sizes="100vw">
+      <img class="hero__bg" data-photo="hero" src="/img/hero-1440.webp" srcset="/img/hero-720.webp 720w, /img/hero-1080.webp 1080w, /img/hero-1440.webp 1440w" sizes="100vw" width="1440" height="884" alt="" fetchpriority="high">
+    </picture>
     <div class="hero__content">
       <h1 class="hero__wordmark">
         <img src="/brand/wordmark.svg" width="1287" height="229" alt="True Mettle">
@@ -67,7 +70,10 @@
     <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Send your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
   </section>
 
-  <img class="band" src="/img/band1.webp" width="1440" height="381" alt="A lone figure standing on a rocky ridge above a misty valley" loading="lazy" decoding="async">
+  <picture>
+      <source type="image/avif" data-photo="band1" srcset="/img/band1-720.avif 720w, /img/band1-1080.avif 1080w, /img/band1-1440.avif 1440w" sizes="100vw">
+      <img class="band" data-photo="band1" src="/img/band1-1440.webp" srcset="/img/band1-720.webp 720w, /img/band1-1080.webp 1080w, /img/band1-1440.webp 1440w" sizes="100vw" width="1440" height="381" alt="A lone figure standing on a rocky ridge above a misty valley" loading="lazy" decoding="async">
+    </picture>
 
   <!-- ── ANJAN LUTHRA ─────────────────────────────────────────────────────── -->
   <section class="block founder" aria-labelledby="founder-heading">
@@ -125,18 +131,27 @@
     <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Send us your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
   </section>
 
-  <img class="band band--tall" src="/img/wide.webp" width="1440" height="655" alt="Anjan Luthra leaning against a wall, reading his phone by a window" loading="lazy" decoding="async">
+  <picture>
+      <source type="image/avif" data-photo="wide" srcset="/img/wide-720.avif 720w, /img/wide-1080.avif 1080w, /img/wide-1440.avif 1440w" sizes="100vw">
+      <img class="band band--tall" data-photo="wide" src="/img/wide-1440.webp" srcset="/img/wide-720.webp 720w, /img/wide-1080.webp 1080w, /img/wide-1440.webp 1440w" sizes="100vw" width="1440" height="655" alt="Anjan Luthra leaning against a wall, reading his phone by a window" loading="lazy" decoding="async">
+    </picture>
 
   <!-- ── WHERE WE INVEST ──────────────────────────────────────────────────── -->
   <section class="block sectors" aria-labelledby="sectors-heading">
     <div class="sectors__grid">
       <h2 class="display" id="sectors-heading">Where we invest</h2>
       <figure class="sector">
-        <img src="/img/sport.webp" width="399" height="502" alt="Overhead view of a clay tennis court" loading="lazy" decoding="async">
+        <picture>
+      <source type="image/avif" data-photo="sport" srcset="/img/sport-399.avif 399w" sizes="(max-width: 1024px) 50vw, 400px">
+      <img data-photo="sport" src="/img/sport-399.webp" srcset="/img/sport-399.webp 399w" sizes="(max-width: 1024px) 50vw, 400px" width="399" height="502" alt="Overhead view of a clay tennis court" loading="lazy" decoding="async">
+    </picture>
         <figcaption>Sport &amp; Fitness</figcaption>
       </figure>
       <figure class="sector">
-        <img src="/img/media.webp" width="399" height="502" alt="A podcaster in headphones speaking into a studio microphone" loading="lazy" decoding="async">
+        <picture>
+      <source type="image/avif" data-photo="media" srcset="/img/media-399.avif 399w" sizes="(max-width: 1024px) 50vw, 400px">
+      <img data-photo="media" src="/img/media-399.webp" srcset="/img/media-399.webp 399w" sizes="(max-width: 1024px) 50vw, 400px" width="399" height="502" alt="A podcaster in headphones speaking into a studio microphone" loading="lazy" decoding="async">
+    </picture>
         <figcaption>Media &amp; Entertainment</figcaption>
       </figure>
     </div>
@@ -175,7 +190,10 @@
     <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Send us your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
   </section>
 
-  <img class="band" src="/img/band2.webp" width="1440" height="381" alt="A figure silhouetted on a hillside against hazy mountains at sunset" loading="lazy" decoding="async">
+  <picture>
+      <source type="image/avif" data-photo="band2" srcset="/img/band2-720.avif 720w, /img/band2-1080.avif 1080w, /img/band2-1440.avif 1440w" sizes="100vw">
+      <img class="band" data-photo="band2" src="/img/band2-1440.webp" srcset="/img/band2-720.webp 720w, /img/band2-1080.webp 1080w, /img/band2-1440.webp 1440w" sizes="100vw" width="1440" height="381" alt="A figure silhouetted on a hillside against hazy mountains at sunset" loading="lazy" decoding="async">
+    </picture>
 
   <!-- ── THE PROCESS ──────────────────────────────────────────────────────── -->
   <section class="process" aria-labelledby="process-heading">
@@ -215,7 +233,10 @@
       <p class="closing__text">The ones who refuse <br class="br-wide">to fold. The ones who <br class="br-wide">find a way. The ones <br class="br-wide">with <span class="closing__accent">true mettle.</span></p>
     </div>
     <div class="closing__photo">
-      <img src="/img/founder.webp" width="720" height="684" alt="Anjan Luthra, mid-conversation" loading="lazy" decoding="async">
+      <picture>
+      <source type="image/avif" data-photo="founder" srcset="/img/founder-720.avif 720w, /img/founder-1080.avif 1080w, /img/founder-1440.avif 1440w, /img/founder-2149.avif 2149w" sizes="(max-width: 767px) 100vw, 50vw">
+      <img data-photo="founder" src="/img/founder-1440.webp" srcset="/img/founder-720.webp 720w, /img/founder-1080.webp 1080w, /img/founder-1440.webp 1440w, /img/founder-2149.webp 2149w" sizes="(max-width: 767px) 100vw, 50vw" width="720" height="684" alt="Anjan Luthra, mid-conversation" loading="lazy" decoding="async">
+    </picture>
       <p class="cta-row cta-row--light"><a class="cta" href="#contact" data-open-deck>Send us your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
     </div>
   </section>
@@ -319,7 +340,10 @@
 </main>
 
 <footer class="footer">
-  <img class="footer__bg" src="/img/footer.webp" width="1440" height="454" alt="" loading="lazy" decoding="async">
+  <picture>
+      <source type="image/avif" data-photo="footer" srcset="/img/footer-720.avif 720w, /img/footer-1080.avif 1080w, /img/footer-1440.avif 1440w" sizes="100vw">
+      <img class="footer__bg" data-photo="footer" src="/img/footer-1440.webp" srcset="/img/footer-720.webp 720w, /img/footer-1080.webp 1080w, /img/footer-1440.webp 1440w" sizes="100vw" width="1440" height="454" alt="" loading="lazy" decoding="async">
+    </picture>
   <div class="footer__inner">
     <div class="footer__top">
       <img src="/brand/monogram.svg" width="50" height="37" alt="Anjan Luthra">

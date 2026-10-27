@@ -80,6 +80,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 img, svg { display: block; max-width: 100%; }
+picture { display: contents; }
 ul, ol { list-style: none; }
 a { color: inherit; }
 button, input, textarea { font: inherit; color: inherit; }

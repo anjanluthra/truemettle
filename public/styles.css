@@ -980,6 +980,55 @@ em { font-style: normal; }
   text-align: right;
 }
 
+/* ── Cookie banner (main.js): a white card like the deck flow, serif title,
+   spaced-caps actions ──────────────────────────────────────────────────── */
+.cookie-banner {
+  position: fixed;
+  left: clamp(1rem, 2.5vw, 2.25rem);
+  bottom: clamp(1rem, 2.5vw, 2.25rem);
+  z-index: 20;
+  width: min(25.5rem, calc(100% - 2rem));
+  padding: 1.75rem 1.75rem 1.5rem;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 18px 50px rgba(47, 37, 37, 0.28);
+}
+.cookie-banner[hidden] { display: none; }
+.cookie-banner__title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.875rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #242729;
+}
+.cookie-banner__text {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+.cookie-banner__text a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+.cookie-banner__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.75rem;
+  margin-top: 1.5rem;
+}
+.cookie-banner__decline {
+  padding: 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(47, 37, 37, 0.6);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.cookie-banner__decline:hover { color: var(--ink); }
+.cookie-banner .cta { font-size: 0.875rem; color: var(--ink); }
+
 /* ── Reveal (main.js adds .reveal only to things below the fold) ──────────── */
 .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .reveal.is-in { opacity: 1; transform: none; }
@@ -1133,6 +1182,7 @@ em { font-style: normal; }
   .subscribe .cta { font-size: 0.88rem; }
   .footer__small { font-size: 0.875rem; line-height: 1.07; }
   .footer__links .footer__small { font-size: 0.77rem; }
+  .cookie-banner { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; width: auto; padding: 1.5rem 1.375rem 1.25rem; }
   .footer__legal { margin-right: 0.25rem; font-size: 0.75rem; line-height: 1.17; }
 }
 

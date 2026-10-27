@@ -693,6 +693,14 @@ em { font-style: normal; }
   font-size: 0.9375rem;
 }
 .subscribe__status { min-height: 1.2em; margin-top: 0.75rem; font-size: 0.8125rem; letter-spacing: 0.04em; }
+.subscribe.is-done .cta { display: none; }
+.subscribe.is-done .subscribe__status {
+  margin-top: 1.1rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
 .footer__legal {
   margin-top: auto;

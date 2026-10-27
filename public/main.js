@@ -104,8 +104,12 @@
         .then(function (response) {
           return response.json().catch(function () { return {}; }).then(function (body) {
             if (response.ok && body.ok) {
+              // The design's success state: the field reads "Success!" and
+              // the button gives way to the thank-you line.
               subscribe.reset();
-              status.textContent = 'You’re in. The next essay will land in your inbox.';
+              subscribe.elements.email.placeholder = 'Success!';
+              subscribe.classList.add('is-done');
+              status.textContent = 'Thank you! Your submission has been received!';
               return;
             }
             status.textContent = body.message || 'Something went wrong. Please try again.';

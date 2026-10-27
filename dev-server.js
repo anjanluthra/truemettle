@@ -5,9 +5,11 @@ import path from 'node:path';
 import { config, mailConfigured, storeConfigured, ROOT } from './src/config.js';
 import { renderHtml } from './src/render.js';
 import contactHandler from './api/contact.js';
+import subscribeHandler from './api/subscribe.js';
+import adminHandler from './api/admin.js';
 
 /* Local preview only — production is Vercel, which serves public/ statically
-   and runs api/contact.js as a function. This stands in for both so the page
+   and runs api/*.js as functions. This stands in for both so the page
    can be worked on without the Vercel CLI. It is not a deployment target. */
 
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -64,9 +66,16 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (pathname === '/api/contact') {
+  const handler = {
+    '/api/contact': contactHandler,
+    '/api/subscribe': subscribeHandler,
+    '/api/admin': adminHandler,
+    '/admin': adminHandler
+  }[pathname];
+
+  if (handler) {
     try {
-      await contactHandler(...adapt(req, res));
+      await handler(...adapt(req, res));
     } catch (error) {
       console.error('[dev] handler threw:', error);
       if (!res.headersSent) res.writeHead(500).end('Server error');

@@ -5,8 +5,6 @@ import { config, DEFAULTS } from './config.js';
    This rewrites those defaults in place, and only when the environment asks
    for something different. Run at build time by tools/build.js. */
 
-const PERSONAL_LINK_REGION = /<!--personal-link-->[\s\S]*?<!--\/personal-link-->/;
-
 const escapeHtml = (value) =>
   String(value).replace(/[&<>"']/g, (char) => ({
     '&': '&amp;',
@@ -16,14 +14,6 @@ const escapeHtml = (value) =>
     "'": '&#39;'
   })[char]);
 
-function personalLink() {
-  const label = escapeHtml(config.personalSiteLabel);
-  const inner = config.personalSiteUrl
-    ? `<a href="${escapeHtml(config.personalSiteUrl)}" rel="noopener">${label}</a>`
-    : `<span class="tbc">${label}</span>`;
-  return `<!--personal-link-->${inner}<!--/personal-link-->`;
-}
-
 export function renderHtml(html) {
   let out = html;
 
@@ -31,11 +21,13 @@ export function renderHtml(html) {
     out = out.replaceAll(DEFAULTS.siteUrl, escapeHtml(config.siteUrl));
   }
 
-  if (
-    config.personalSiteUrl !== DEFAULTS.personalSiteUrl ||
-    config.personalSiteLabel !== DEFAULTS.personalSiteLabel
-  ) {
-    out = out.replace(PERSONAL_LINK_REGION, personalLink());
+  // Every link to the personal site. Empty drops the href, which leaves the
+  // label in place as plain text.
+  if (config.personalSiteUrl !== DEFAULTS.personalSiteUrl) {
+    out = out.replaceAll(
+      ` href="${DEFAULTS.personalSiteUrl}"`,
+      config.personalSiteUrl ? ` href="${escapeHtml(config.personalSiteUrl)}"` : ''
+    );
   }
 
   return out;

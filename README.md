@@ -214,8 +214,6 @@ emailed. A real person caught by a filter is still recoverable.
    affects link previews only.
 3. **Copy the design doesn't have yet** — all marked `TBC` in
    `public/index.html`:
-   - Process step 03 (cut off at the edge of the Figma frame). The page says
-     "Partnership — If it's a fit, we invest and get to work beside you."
    - The FAQ answers. Drafted from the copy elsewhere on the page.
    - Social profile URLs (X, TikTok, Instagram, LinkedIn, YouTube) — shown as
      plain text until there are links.

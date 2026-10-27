@@ -360,6 +360,7 @@ em { font-style: normal; }
   align-items: start;
 }
 .sectors .display { padding-top: 2.4rem; max-width: 20rem; }
+.sectors__photos { display: contents; }
 .sector img {
   width: 100%;
   height: auto;
@@ -732,44 +733,104 @@ em { font-style: normal; }
   .sent { grid-column: auto; }
 }
 
-/* ═══ Phone ════════════════════════════════════════════════════════════════ */
+/* ═══ Phone ════════════════════════════════════════════════════════════════
+   From the Figma "TRUE METTLE - Mobile" frame (402 wide). Rows of cards that
+   sit side by side on desktop become swipeable rows here, one card in view
+   with the next peeking in. */
 @media (max-width: 47.9375rem) {
-  .topbar { padding-left: var(--gutter); padding-top: 1rem; }
-  .topbar__nav { gap: 1rem; font-size: 0.8125rem; }
-  .hero { height: min(100svh, 40rem); }
-  .hero__content { padding-bottom: 2rem; }
+  :root { --gutter: 1.9375rem; } /* 31px */
 
-  .cta-row { justify-content: flex-start; }
-  .mission__text { margin-left: 0; }
+  .topbar { padding: 1.375rem 1.25rem 0 1.625rem; }
+  .topbar__nav { gap: 1rem; padding-top: 0.25rem; font-size: 0.75rem; }
 
+  .hero { height: min(100svh, 51rem); }
+  .hero__content { padding: 0 1rem 4.75rem; }
+  .hero__tagline { max-width: 12rem; margin-top: 2rem; font-size: 1.075rem; line-height: 1.3; }
+
+  .body { line-height: 1.12; }
+  .eyebrow { font-size: 0.8125rem; }
+  .cta { font-size: 0.9rem; }
+
+  .mission { padding-top: 6.5rem; }
+  .mission__text { margin-left: 0; font-size: 1.9375rem; line-height: 1; }
+  .band { height: 20.75rem; }       /* 332 */
+  .band--tall { height: 23.6rem; object-position: 62% 50%; }  /* 378 */
+  .band--figure { object-position: 34% 50%; }  /* keep the lone figure in frame */
+
+  .founder { padding-top: 3rem; }
+  .statement { font-size: 1.6875rem; line-height: 1.075; margin-top: 3.5rem; }
+
+  /* Swipe rows: stats, sector photos, process steps. */
   .stats,
-  .formula__list,
-  .why__grid { grid-template-columns: 1fr; }
-  .stats { gap: 2.75rem; }
-  .stat__note { padding-top: 1.25rem; }
-  .formula__head { flex-direction: row; align-items: flex-end; gap: 1rem; }
-  .point { min-height: 0; }
+  .sectors__photos,
+  .process__steps {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .stats::-webkit-scrollbar,
+  .sectors__photos::-webkit-scrollbar,
+  .process__steps::-webkit-scrollbar { display: none; }
+  .stat, .sector, .step { flex: 0 0 82%; scroll-snap-align: start; }
 
-  .sectors__grid { gap: 1.5rem 0.75rem; }
+  .stats { margin: 3.5rem calc(var(--gutter) * -1) 0; padding-inline: var(--gutter); }
+  .stat { padding-left: 1.1rem; border-left-width: 2px; }
+  .stat__figure { font-size: 3.75rem; }
+  .stat__label { font-size: 1.375rem; line-height: 0.95; }
+  .stat__note { padding-top: 1.75rem; font-size: 0.7125rem; }
+
+  .quote { min-height: 48.875rem; padding-inline: 2.5rem; }    /* 782 */
+  .quote__text { font-size: 3.125rem; line-height: 0.96; }
+
+  .formula__list { grid-template-columns: 1fr; gap: 2.75rem; margin-top: 3rem; }
+  .formula__head { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+  .formula__head .numeral { font-size: 3.75rem; }
+  .formula__title { font-size: 1.875rem; text-align: right; }
+
+  .sectors { padding-top: 3.5rem; }
+  .sectors__grid { display: block; }
+  .sectors .display { font-size: 3.125rem; line-height: 0.86; padding-top: 0; margin-bottom: 2.5rem; max-width: 12rem; }
+  .sectors__photos { margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); }
   .sector figcaption { font-size: 0.8125rem; }
 
-  .process__steps { grid-template-columns: 1fr; padding-inline: var(--gutter); }
+  .why__grid { grid-template-columns: 1fr; row-gap: 1.75rem; margin-top: 3rem; }
+  .point { min-height: 0; padding-left: 1.05rem; border-left-width: 2px; }
+  .point__title { font-size: 1.875rem; line-height: 0.77; margin-bottom: 0.7rem; }
+
+  .process__grid { grid-template-columns: 1fr; }
+  .process__label { padding: 2.5rem var(--gutter) 1.5rem; }
+  .process__steps { padding-inline: var(--gutter); gap: 0; }
   .step {
-    min-height: 0;
-    gap: 1.5rem;
-    padding: 1.75rem 0 2rem;
-    border-left: 0;
-    border-top: 1px solid var(--hairline);
+    min-height: 15.5rem;
+    padding: 1.6rem 1.5rem 0;
+    border-left: 1px solid var(--hairline);
+    border-right: 1px solid var(--hairline);
+    margin-right: 1.25rem;
   }
+  .step:first-child, .step:last-child { border-left: 1px solid var(--hairline); border-right: 1px solid var(--hairline); }
+  .step .numeral { font-size: 3.2rem; }
+  .step__title { font-size: 1.875rem; line-height: 0.6; margin-bottom: 0.9rem; }
+  .process .cta-row { padding-top: 4rem; }
 
   .closing { grid-template-columns: 1fr; }
-  .closing__photo { aspect-ratio: 720 / 684; }
-  .closing__photo .cta-row { right: auto; left: var(--gutter); }
+  .closing__photo { aspect-ratio: 402 / 362; }
 
-  .footer__inner { padding-left: var(--gutter); }
-  .footer__cols { grid-template-columns: 1fr 1fr; padding-left: 0; }
+  .faqs { padding-top: 3rem; }
+
+  .footer__inner { min-height: 41.25rem; padding: 2rem 1.5rem 3.5rem 2rem; }  /* 660 */
+  .footer__top img:first-child { width: 2.25rem; }
+  .footer__wordmark { width: 8rem; }
+  .footer__cols { grid-template-columns: auto 1fr; column-gap: 4rem; padding-left: 0; margin-top: 4.5rem; }
   .footer__fifth { grid-column: 1 / -1; }
-  .footer__legal { align-self: flex-start; text-align: left; line-height: 1.5; }
+  .footer__heading--lg { font-size: 1.875rem; }
+  .footer__small { font-size: 0.875rem; line-height: 1.07; }
+  .footer__links .footer__small { font-size: 0.77rem; }
+  .footer__legal { font-size: 0.75rem; line-height: 1.5; }
 }
 
 /* ── No-JS result pages (src/contact.js) ──────────────────────────────────── */

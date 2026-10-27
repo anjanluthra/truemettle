@@ -58,6 +58,7 @@
   --page: 90rem;                         /* 1440 */
   --gutter: clamp(1.25rem, 4vw, 3.625rem); /* ~58px at 1440 */
   --block-y: clamp(4rem, 9vw, 8rem);
+  --cta-inset: 0.8125rem;   /* CTAs end 13px inside the gutter, as in Figma */
 }
 
 /* ── Reset ────────────────────────────────────────────────────────────────── */
@@ -99,6 +100,7 @@ em { font-style: normal; }
 .skip-link:focus { left: 0; }
 .br-wide { display: none; }
 @media (min-width: 64.0625rem) { .br-wide { display: inline; } }
+@media (min-width: 48rem) and (max-width: 64rem) { .br-not-tablet { display: none; } }
 .visually-hidden {
   position: absolute !important;
   width: 1px; height: 1px;
@@ -143,6 +145,7 @@ em { font-style: normal; }
   display: flex;
   justify-content: flex-end;
   margin-top: clamp(3rem, 5vw, 4.5rem);
+  padding-right: var(--cta-inset);
 }
 .cta {
   display: inline-flex;
@@ -195,13 +198,13 @@ em { font-style: normal; }
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 1.375rem var(--gutter) 0 1.625rem;
+  padding: 1.375rem calc(var(--gutter) - 0.5rem) 0 1.625rem;
   color: var(--paper);
 }
 .topbar__mark img { width: clamp(2.25rem, 3.5vw, 3.125rem); height: auto; }
 .topbar__nav {
   display: flex;
-  gap: 1.25rem;
+  gap: 1.75rem;
   padding-top: 0.5rem;
   font-size: 0.9375rem;
   text-transform: uppercase;
@@ -230,7 +233,7 @@ em { font-style: normal; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 clamp(1rem, 5.35vw, 4.8rem) clamp(1.5rem, 1.6vw, 1.5rem);
+  padding: 0 clamp(1rem, 5.35vw, 4.8rem) clamp(1.5rem, 2.78vw, 2.5rem);
 }
 .hero__wordmark { width: 100%; }
 .hero__wordmark img { width: 100%; height: auto; }
@@ -257,22 +260,23 @@ em { font-style: normal; }
 .accent { color: var(--rust); }
 
 /* ── Founder ──────────────────────────────────────────────────────────────── */
-.founder { padding-top: clamp(3rem, 4.5vw, 4rem); }
+.founder { padding-top: clamp(3rem, 4.5vw, 4rem); padding-bottom: clamp(2.5rem, 4.6vw, 4.125rem); }
+.founder .cta-row { margin-top: clamp(3rem, 8.9vw, 8rem); }
 .statement {
-  margin-top: clamp(1.25rem, 2.2vw, 2rem);
+  margin-top: clamp(1.25rem, 3.05vw, 2.75rem);
   font-family: var(--serif);
   font-weight: 700;
   font-size: clamp(2rem, 3.82vw, 3.4375rem);  /* 55 */
   line-height: 0.98;
   letter-spacing: -0.02em;
 }
-.statement__soft { color: var(--slate); }
+.statement__soft { display: block; margin-top: 0.164em; color: var(--slate); }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: clamp(2rem, 4vw, 3.5rem);
-  margin-top: clamp(3rem, 6.5vw, 5.75rem);
+  margin-top: clamp(3rem, 8.12vw, 7.3125rem);
 }
 .stat {
   display: flex;
@@ -288,7 +292,7 @@ em { font-style: normal; }
   letter-spacing: -0.02em;
 }
 .stat__label {
-  margin-top: 0.75rem;
+  margin-top: 0.375rem;
   max-width: 22rem;
   font-family: var(--serif);
   font-weight: 700;
@@ -299,8 +303,8 @@ em { font-style: normal; }
 .stat__label b { font-weight: 800; }
 .stat__note {
   margin-top: auto;
-  padding-top: clamp(1.75rem, 3vw, 2.75rem);
-  max-width: 14rem;
+  padding-top: clamp(1.75rem, 4.44vw, 4rem);
+  max-width: 16.4375rem;   /* 263: two lines, as in Figma */
   font-size: 0.9375rem;
   line-height: 1.07;
   letter-spacing: 0.09em;
@@ -317,6 +321,7 @@ em { font-style: normal; }
   color: var(--paper);
 }
 .quote__text {
+  margin-top: clamp(0rem, 2.08vw, 1.875rem);
   max-width: 56rem;
   font-family: var(--serif);
   font-weight: 700;
@@ -327,21 +332,23 @@ em { font-style: normal; }
 }
 
 /* ── Formula ──────────────────────────────────────────────────────────────── */
-.formula { padding-top: clamp(3.5rem, 3.6vw, 3.25rem); }
+.formula { padding-top: clamp(3.0625rem, 3.68vw, 3.3125rem); padding-bottom: clamp(2.5rem, 7vw, 6.3125rem); }
+.formula .cta-row { margin-top: clamp(3rem, 7.43vw, 6.6875rem); }
 .formula__list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(2.5rem, 7vw, 6.5rem);
-  margin-top: clamp(3rem, 6vw, 5.5rem);
+  grid-template-columns: 474fr 456fr 395fr;   /* Figma columns: 55, 532, 988 */
+  gap: 0;
+  margin-top: clamp(3rem, 6.6vw, 5.9375rem);
 }
+.formula__item { padding-right: 0.75rem; }
 .formula__head {
   display: flex;
   align-items: flex-start;
-  gap: clamp(1rem, 2.6vw, 2.4rem);
-  margin-bottom: clamp(1.25rem, 2vw, 1.75rem);
+  gap: clamp(1rem, 3.33vw, 3rem);
+  margin-bottom: clamp(1.25rem, 1.46vw, 1.3125rem);
 }
 .formula__title {
-  padding-top: 0.15em;
+  padding-top: 0.247em;   /* title centre 19.5 above the numeral's */
   font-family: var(--serif);
   font-weight: 800;
   font-size: clamp(1.5rem, 2.5vw, 2.25rem);
@@ -350,12 +357,17 @@ em { font-style: normal; }
   color: var(--slate);
 }
 .formula .body { max-width: 24rem; }
+/* Figma's text boxes, so each description breaks where the design does. */
+.formula__item:nth-child(1) .body { max-width: 23.0625rem; }   /* 369 */
+.formula__item:nth-child(2) .body { max-width: 23.4375rem; }   /* 375 */
+.formula__item:nth-child(3) .body { max-width: 23.8125rem; }   /* 381 */
 
 /* ── Where we invest ──────────────────────────────────────────────────────
    Figma: heading at x45, cards 399×502 from x529 with 25px gaps, the row
    running on past the right edge (two in full, the third peeking). */
 .sectors {
   padding-top: clamp(1.25rem, 1.875vw, 1.6875rem);      /* 27 */
+  padding-bottom: clamp(3rem, 10.8vw, 9.75rem);
   padding-left: clamp(1.25rem, 3.125vw, 2.8125rem);     /* 45 */
   padding-right: 0;
 }
@@ -392,20 +404,22 @@ em { font-style: normal; }
   text-transform: uppercase;
   white-space: nowrap;
 }
-.sectors .cta-row { padding-right: var(--gutter); }
+.sectors .cta-row { margin-top: clamp(3rem, 5.4vw, 4.875rem); padding-right: calc(var(--gutter) + var(--cta-inset)); }
 
 /* ── Why ──────────────────────────────────────────────────────────────────── */
-.why { padding-top: 0; }
+.why { padding-top: 0; padding-bottom: clamp(2.5rem, 2.9vw, 2.625rem); }
+.why .cta-row { margin-top: clamp(3rem, 5.5vw, 4.9375rem); }
 .why .eyebrow {
-  padding-top: clamp(2rem, 3.5vw, 3.25rem);
+  margin-inline: -0.375rem;
+  padding: clamp(2rem, 3.68vw, 3.3125rem) 0.375rem 0;
   border-top: 0.5px solid var(--hairline);
 }
 .why__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: clamp(2rem, 2.5vw, 2.25rem);
+  grid-template-columns: 471fr 471fr 383fr;   /* Figma rules at 58, 529, 1000 */
+  column-gap: 0;
   row-gap: clamp(2.5rem, 4.3vw, 3.9rem);
-  margin-top: clamp(3rem, 7.5vw, 7rem);
+  margin-top: clamp(3rem, 7vw, 6.3125rem);
 }
 .point {
   padding-left: clamp(1rem, 1.6vw, 1.5rem);
@@ -421,11 +435,18 @@ em { font-style: normal; }
   letter-spacing: -0.03em;
 }
 .point .body { max-width: 24rem; }
+/* Figma's text boxes, so each description breaks where the design does. */
+.point:nth-child(1) .body { max-width: 22.875rem; }   /* 366 */
+.point:nth-child(2) .body { max-width: 22.125rem; }   /* 354 */
+.point:nth-child(3) .body { max-width: 22.1875rem; }  /* 355 */
+.point:nth-child(4) .body,
+.point:nth-child(5) .body { max-width: 24.9375rem; }  /* 399 */
+.point:nth-child(6) .body { max-width: 20.8125rem; }  /* 333 */
 
 /* ── Process ──────────────────────────────────────────────────────────────── */
 .process {
   background: var(--sand);
-  padding-bottom: clamp(2rem, 4.5vw, 4.5rem);
+  padding-bottom: clamp(2rem, 5.28vw, 4.75rem);
   overflow: hidden;
 }
 .process__grid {
@@ -434,7 +455,7 @@ em { font-style: normal; }
   display: grid;
   grid-template-columns: clamp(9rem, 26vw, 23.4rem) 1fr;
 }
-.process__label { padding: clamp(2rem, 4.4vw, 3.9rem) var(--gutter) 0; }
+.process__label { padding: clamp(2rem, 3.47vw, 3.125rem) var(--gutter) 0; }
 /* Seven steps in a row that runs off the right edge, as in the design;
    it scrolls sideways (trackpad, swipe, or the arrows by the label). */
 .process__steps {
@@ -469,17 +490,15 @@ em { font-style: normal; }
 .step {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 3rem;
-  min-height: clamp(18rem, 31vw, 27.7rem);
-  padding: clamp(2rem, 3vw, 2.7rem) clamp(1.25rem, 3vw, 2.6rem) 0;
+  min-height: clamp(18rem, 30.7vw, 27.625rem);         /* 442 */
+  padding: clamp(2rem, 3.33vw, 3rem) clamp(1.25rem, 1.6vw, 1.4375rem) 0 clamp(1.25rem, 3.06vw, 2.75rem);
   border-left: 1px solid var(--hairline);
 }
 .step:last-child { border-right: 1px solid var(--hairline); }
-/* Room for the longest description, so every title sits on the same line. */
-.step__copy { min-height: var(--step-copy, 8.5rem); }
+/* The title sits a fixed distance below the numeral, so every title shares a line. */
+.step__copy { margin-top: clamp(4rem, 13.7vw, 12.3125rem); }   /* 197 */
 .step__title {
-  margin-bottom: 0.6rem;
+  margin-bottom: clamp(0.9rem, 1.74vw, 1.5625rem);
   font-family: var(--serif);
   font-weight: 700;
   font-size: clamp(1.625rem, 2.5vw, 2.25rem);
@@ -489,7 +508,7 @@ em { font-style: normal; }
 .process .cta-row {
   max-width: var(--page);
   margin-inline: auto;
-  padding: clamp(3rem, 8.5vw, 7.5rem) var(--gutter) 0;
+  padding: clamp(3rem, 8.06vw, 7.25rem) calc(var(--gutter) + var(--cta-inset)) 0 var(--gutter);
   margin-top: 0;
 }
 
@@ -500,7 +519,7 @@ em { font-style: normal; }
   min-height: clamp(30rem, 47.5vw, 42.75rem);  /* 684 */
   background: var(--rust);
 }
-.closing__panel { padding: clamp(2.5rem, 4.7vw, 4.25rem) var(--gutter) 3rem clamp(1.25rem, 3.3vw, 3rem); }
+.closing__panel { padding: clamp(2.5rem, 4.86vw, 4.375rem) var(--gutter) 3rem clamp(1.25rem, 3.3vw, 3rem); }
 .closing__text {
   max-width: 39.2rem;
   font-family: var(--serif);
@@ -527,7 +546,7 @@ em { font-style: normal; }
 .closing__photo .cta-row {
   position: absolute;
   right: var(--gutter);
-  bottom: 1.25rem;
+  bottom: clamp(1.25rem, 3.9vw, 3.5rem);
   margin: 0;
 }
 
@@ -536,17 +555,16 @@ em { font-style: normal; }
   display: grid;
   grid-template-columns: clamp(9rem, 19vw, 17rem) 1fr;
   padding-top: clamp(3rem, 3.5vw, 3.1rem);
-  padding-bottom: clamp(4rem, 7.5vw, 7rem);
+  padding-bottom: clamp(4rem, 8vw, 7.1875rem);
 }
-.faqs__list { max-width: 65.7rem; }
+.faqs__list { max-width: 65.7rem; margin-top: clamp(0rem, 1.39vw, 1.25rem); }
 .faq { border-bottom: 0.5px solid var(--hairline); }
 .faq summary {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  min-height: 5.25rem;   /* 84 */
-  padding: 0.75rem 0.35rem 0.75rem 0;
+  padding: clamp(0.75rem, 1.49vw, 1.34rem) 0.35rem clamp(0.75rem, 1.8vw, 1.625rem) 0;   /* 84 a row */
   font-family: var(--serif);
   font-weight: 700;
   font-size: clamp(1.375rem, 2.5vw, 2.25rem);
@@ -868,7 +886,7 @@ em { font-style: normal; }
   max-width: var(--page);
   margin-inline: auto;
   min-height: 28.4rem;  /* 454 */
-  padding: 3.25rem var(--gutter) 2.75rem 3.75rem;
+  padding: 3.25rem 4rem 2.9375rem 3.75rem;
   display: flex;
   flex-direction: column;
 }
@@ -881,8 +899,8 @@ em { font-style: normal; }
 .footer__wordmark { width: clamp(7.5rem, 10.5vw, 9.5rem); margin-top: 0.15rem; }
 .footer__cols {
   display: grid;
-  grid-template-columns: minmax(0, 22rem) auto auto;
-  gap: 2rem clamp(2rem, 6vw, 5.3rem);
+  grid-template-columns: minmax(0, 26.875rem) 11rem auto;   /* 430 | 176 | … */
+  gap: 2rem 0;
   justify-content: start;
   margin-top: clamp(2.5rem, 5.3vw, 4.75rem);
   padding-left: 0.75rem;
@@ -895,7 +913,8 @@ em { font-style: normal; }
   line-height: 1;
   letter-spacing: -0.03em;
 }
-.footer__heading--lg { font-size: clamp(1.75rem, 2.36vw, 2.125rem); margin-bottom: 0.75rem; }
+.footer__heading--lg { font-size: clamp(1.75rem, 2.36vw, 2.125rem); margin-bottom: 1.125rem; }
+.footer__links .footer__heading { line-height: 1.55; margin-bottom: 0.125rem; }
 .footer__small {
   font-size: 0.9375rem;
   line-height: 1.07;
@@ -906,7 +925,7 @@ em { font-style: normal; }
 .footer__small a:hover { text-decoration: underline; text-underline-offset: 0.25em; }
 .footer__fifth .footer__small { max-width: 20rem; }
 
-.subscribe { margin-top: 1.75rem; max-width: 21rem; }
+.subscribe { position: relative; margin-top: 2rem; max-width: 21rem; }
 .subscribe__input {
   display: block;
   width: 100%;
@@ -927,7 +946,8 @@ em { font-style: normal; }
   margin: 1rem 0 0 auto;
   font-size: 0.9375rem;
 }
-.subscribe__status { min-height: 1.2em; margin-top: 0.75rem; font-size: 0.8125rem; letter-spacing: 0.04em; }
+/* Out of the flow, so an empty status line doesn't push the copyright down. */
+.subscribe__status { position: absolute; top: 100%; left: 0; right: 0; margin-top: 0.75rem; font-size: 0.8125rem; letter-spacing: 0.04em; }
 .subscribe.is-done .cta { display: none; }
 .subscribe.is-done .subscribe__status {
   margin-top: 1.1rem;
@@ -939,7 +959,7 @@ em { font-style: normal; }
 
 .footer__legal {
   margin-top: auto;
-  padding-top: 3rem;
+  padding-top: 1.5rem;
   align-self: flex-end;
   font-size: 0.8125rem;
   letter-spacing: 0.11em;
@@ -954,6 +974,7 @@ em { font-style: normal; }
 /* ═══ Tablet ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 64rem) {
   .formula__list { gap: 2.5rem; }
+  .why__grid { column-gap: 2rem; }
   .formula__head { flex-direction: column; gap: 0.5rem; }
   .sectors__grid { grid-template-columns: 1fr; }
   .sectors__head { padding-top: 0; margin-bottom: 2rem; }
@@ -969,27 +990,31 @@ em { font-style: normal; }
    sit side by side on desktop become swipeable rows here, one card in view
    with the next peeking in. */
 @media (max-width: 47.9375rem) {
-  :root { --gutter: 1.9375rem; } /* 31px */
+  :root { --gutter: 1.9375rem; --cta-inset: 0.4375rem; } /* 31px; CTAs end at 364 */
 
-  .topbar { padding: 1.375rem 1.25rem 0 1.625rem; }
-  .topbar__nav { gap: 1rem; padding-top: 0.25rem; font-size: 0.75rem; }
+  .row-nav { display: none; }       /* swipe on the phone, as in Figma: no arrows */
+
+  .topbar { padding: 1.375rem 1.75rem 0 1.625rem; }
+  .topbar__nav { gap: 1.3rem; padding-top: 0.0625rem; font-size: 0.75rem; }
 
   .hero { height: min(100svh, 51rem); }
-  .hero__content { padding: 0 1rem 4.75rem; }
+  .hero__content { padding: 0 1rem 4.25rem; }
   .hero__tagline { max-width: 12rem; margin-top: 2rem; font-size: 1.075rem; line-height: 1.3; }
 
   .body { line-height: 1.12; }
   .eyebrow { font-size: 0.8125rem; }
   .cta { font-size: 0.9rem; }
 
-  .mission { padding-top: 6.5rem; }
+  .mission { padding-top: 6.9375rem; }
   .mission__text { margin-left: 0; font-size: 1.9375rem; line-height: 1; }
   .band { height: 20.75rem; }       /* 332 */
   .band--tall { height: 23.6rem; object-position: 62% 50%; }  /* 378 */
   .band--figure { object-position: 34% 50%; }  /* keep the lone figure in frame */
 
-  .founder { padding-top: 3rem; }
-  .statement { font-size: 1.6875rem; line-height: 1.075; margin-top: 3.5rem; }
+  .founder { padding-top: 3rem; padding-bottom: 3.6875rem; }
+  .founder .cta-row { margin-top: 6.75rem; }
+  .statement { font-size: 1.6875rem; line-height: 1.075; margin-top: 3.1875rem; }
+  .statement__soft { display: inline; margin-top: 0; }
 
   /* Swipe rows: stats, sector photos, process steps. */
   .stats,
@@ -1010,50 +1035,71 @@ em { font-style: normal; }
   .process__steps::-webkit-scrollbar { display: none; }
   .stat, .sector, .step { flex: 0 0 82%; scroll-snap-align: start; }
 
-  .stats { margin: 3.5rem calc(var(--gutter) * -1) 0; padding-inline: var(--gutter); }
-  .stat { padding-left: 1.1rem; border-left-width: 2px; }
+  /* Figma: rules at 37 and 327, 162 tall. */
+  .stats { margin: 8.125rem calc(var(--gutter) * -1) 0; padding-inline: 2.3125rem; scroll-padding-inline: 2.3125rem; }
+  .stat { flex-basis: 16.875rem; padding-left: 1.1rem; border-left-width: 2px; }
   .stat__figure { font-size: 3.75rem; }
-  .stat__label { font-size: 1.375rem; line-height: 0.95; }
-  .stat__note { padding-top: 1.75rem; font-size: 0.7125rem; }
+  .stat__label { margin-top: 0; font-size: 1.375rem; line-height: 0.95; }
+  .stat__note { padding-top: 2rem; font-size: 0.7125rem; line-height: 1.23; }
+  .stat:first-child .stat__note { max-width: 10.875rem; }   /* Figma: 174, then 222 */
+  .stat + .stat .stat__note { max-width: 13.875rem; }
 
   .quote { min-height: 48.875rem; padding-inline: 2.5rem; }    /* 782 */
   .quote__text { font-size: 3.125rem; line-height: 0.96; }
 
-  .formula__list { grid-template-columns: 1fr; gap: 2.75rem; margin-top: 3rem; }
-  .formula__head { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+  .formula { padding-top: 3.0625rem; padding-bottom: 5.625rem; }
+  .formula .cta-row { margin-top: 4rem; }
+  .formula__list { grid-template-columns: 1fr; gap: 3.1875rem; margin-top: 4.9375rem; }
+  .formula__item { padding-right: 0; }
+  .formula__head { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
   .formula__head .numeral { font-size: 3.75rem; }
   .formula__title { font-size: 1.875rem; text-align: right; }
 
-  .sectors { padding: 3.5rem var(--gutter) 2.5rem; }
+  .sectors { padding: 2.8125rem var(--gutter) 5.8125rem; }
   .sectors__grid { display: block; }
+  .sectors__head { margin-bottom: 2.4375rem; }
   .sectors .display { font-size: 3.125rem; line-height: 0.86; max-width: 12rem; }
   .sectors__photos { margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); gap: 1.25rem; }
-  .sector figcaption { font-size: 0.8125rem; white-space: normal; }
-  .sectors .cta-row { padding-right: 0; }
+  .sector figcaption { margin-top: 0.8125rem; font-size: 0.875rem; white-space: normal; }
+  .sectors .cta-row { margin-top: 5.8125rem; padding-right: var(--cta-inset); }
 
-  .why__grid { grid-template-columns: 1fr; row-gap: 1.75rem; margin-top: 3rem; }
-  .point { min-height: 0; padding-left: 1.05rem; border-left-width: 2px; }
-  .point__title { font-size: 1.875rem; line-height: 0.77; margin-bottom: 0.7rem; }
+  .why { padding-bottom: 5.0625rem; }
+  .why .eyebrow { margin-inline: -0.4375rem; padding: 2.0625rem 0.4375rem 0; }   /* rule 24 → 383 */
+  .why .cta-row { margin-top: 1.375rem; }
+  .why__grid { grid-template-columns: 1fr; row-gap: 1.9rem; margin-top: 3.5rem; }
+  .point { min-height: 6.9375rem; padding-left: 1.05rem; border-left-width: 2px; }   /* 111 */
+  .point__title { font-size: 1.875rem; line-height: 0.77; margin-bottom: 0.95rem; }
+  img[data-photo="band2"] { height: 23.8125rem; }   /* 381 */
 
   .process__grid { grid-template-columns: 1fr; }
-  .process__label { padding: 2.5rem var(--gutter) 1.5rem; }
-  .process__steps { padding-inline: var(--gutter); gap: 0; }
+  .process { padding-bottom: 4.5625rem; }
+  .process__label { padding: 3rem var(--gutter) 2.65rem; }
+  /* Figma: cards 286 wide sharing one rule, the first at 34; 283 tall. */
+  .process__steps { padding-inline: 2.125rem; scroll-padding-inline: 2.125rem; gap: 0; }
   .step {
-    min-height: 15.5rem;
-    padding: 1.6rem 1.5rem 0;
+    flex-basis: 17.875rem;
+    min-height: 17.6875rem;
+    padding: 1.7125rem 0.5rem 0 1.5rem;
     border-left: 1px solid var(--hairline);
-    border-right: 1px solid var(--hairline);
-    margin-right: 1.25rem;
+    border-right: 0;
   }
-  .step:first-child, .step:last-child { border-left: 1px solid var(--hairline); border-right: 1px solid var(--hairline); }
+  .step:last-child { border-right: 1px solid var(--hairline); }
   .step .numeral { font-size: 3.2rem; }
-  .step__title { font-size: 1.875rem; line-height: 0.6; margin-bottom: 0.9rem; }
-  .process .cta-row { padding-top: 4rem; }
+  .step__copy { margin-top: 7.275rem; }
+  .step__title { font-size: 1.875rem; line-height: 0.6; margin-bottom: 1.0625rem; }
+  .process .cta-row { padding-top: 5.625rem; }
 
   .closing { grid-template-columns: 1fr; }
+  /* Figma mobile: a 368-tall rust block, text 35 from the top and 25 in. */
+  .closing__panel { min-height: 23rem; padding: 2.1875rem var(--gutter) 2.5rem 1.5625rem; }
+  .closing__text { font-size: 2.473rem; line-height: 1.06; }   /* 39.6 / 42 */
   .closing__photo { aspect-ratio: 402 / 362; }
+  .closing__photo .cta-row { bottom: 2.0625rem; }
 
-  .faqs { padding-top: 3rem; }
+  /* Figma: a question every 50, 14 under the line above. */
+  .faqs { padding-top: 3.5rem; padding-bottom: 5.3125rem; row-gap: 2.0625rem; }
+  .faqs__list { margin-top: 0; }
+  .faq summary { gap: 0.5rem; padding: 0.77rem 0 0.95rem 0; }
 
   .flow__screen { grid-template-columns: 1fr; gap: 1.75rem; }
   .flow__lede { margin-top: 0.9rem; max-width: 16rem; }
@@ -1062,15 +1108,18 @@ em { font-style: normal; }
   .deck-dialog { width: calc(100% - 2.5rem); }
   .deck-dialog .deck { padding: 2.75rem 1.5rem 1.75rem; }
 
-  .footer__inner { min-height: 41.25rem; padding: 2rem 1.5rem 3.5rem 2rem; }  /* 660 */
+  .footer__inner { min-height: 41.25rem; padding: 2rem 1.5rem 1.6875rem 2rem; }  /* 660 */
   .footer__top img:first-child { width: 2.25rem; }
   .footer__wordmark { width: 8rem; }
-  .footer__cols { grid-template-columns: auto 1fr; column-gap: 4rem; padding-left: 0; margin-top: 4.5rem; }
+  .footer__cols { grid-template-columns: auto 1fr; gap: 4.625rem 2.4375rem; padding-left: 0; margin-top: 5.78rem; }
   .footer__fifth { grid-column: 1 / -1; }
-  .footer__heading--lg { font-size: 1.875rem; }
+  .footer__heading--lg { font-size: 1.875rem; margin-bottom: 0.0625rem; }
+  .footer__links .footer__heading { font-size: 1.025rem; line-height: 1.55; }
+  .subscribe { max-width: 19.875rem; }   /* line 31 → 349 */
+  .subscribe .cta { font-size: 0.88rem; }
   .footer__small { font-size: 0.875rem; line-height: 1.07; }
   .footer__links .footer__small { font-size: 0.77rem; }
-  .footer__legal { font-size: 0.75rem; line-height: 1.5; }
+  .footer__legal { margin-right: 0.25rem; font-size: 0.75rem; line-height: 1.17; }
 }
 
 /* ── No-JS result pages (src/contact.js) ──────────────────────────────────── */

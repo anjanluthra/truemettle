@@ -1,18 +1,19 @@
-import { handleUpload } from '@vercel/blob/client';
-import { blobConfigured } from '../src/config.js';
+import { issueSignedToken } from '@vercel/blob';
+import { handleUploadPresigned } from '@vercel/blob/client';
+import { blobAuth, blobConfigured } from '../src/config.js';
 import { parseBody } from '../src/http.js';
 
 /* Deck uploads, via Vercel Blob.
  *
  * A function can't take a 20 MB body, so the browser uploads the PDF straight
- * to Blob storage; this endpoint only hands out a one-time token for it, and
- * only for a PDF under 20 MB in decks/. The resulting link travels with the
- * form to /api/contact.
+ * to Blob storage; this endpoint only hands out a short-lived presigned upload
+ * URL for it, and only for a PDF under 20 MB in decks/. The resulting link
+ * travels with the form to /api/contact.
  *
  *   GET  /api/deck-upload   { enabled }  — the form hides the upload when false
- *   POST /api/deck-upload   the token exchange @vercel/blob/client performs
+ *   POST /api/deck-upload   the exchange @vercel/blob/client's uploadPresigned performs
  *
- * Off until the project has a Blob store (BLOB_READ_WRITE_TOKEN).
+ * Off until the project has a Blob store (BLOB_STORE_ID or a read-write token).
  */
 
 const MAX_BYTES = 20 * 1024 * 1024;
@@ -39,19 +40,17 @@ export default async function handler(req, res) {
 
   try {
     const body = await parseBody(req);
-    const result = await handleUpload({
+    const result = await handleUploadPresigned({
       body,
       request: req,
-      onBeforeGenerateToken: async (pathname) => {
+      // Only checked on upload-completed callbacks, which this never asks for.
+      webhookPublicKey: process.env.BLOB_WEBHOOK_PUBLIC_KEY || 'unused',
+      getSignedToken: async (pathname) => {
         if (!/^decks\/[^/]+\.pdf$/i.test(pathname)) throw new Error('Only PDF decks can be uploaded.');
-        return {
-          allowedContentTypes: ['application/pdf'],
-          maximumSizeInBytes: MAX_BYTES,
-          addRandomSuffix: true
-        };
-      },
-      // The link is saved with the enquiry itself, so nothing to do here.
-      onUploadCompleted: async () => {}
+        const rules = { allowedContentTypes: ['application/pdf'], maximumSizeInBytes: MAX_BYTES };
+        const token = await issueSignedToken({ ...blobAuth(req), ...rules, pathname, operations: ['put'], validUntil: Date.now() + 15 * 60_000 });
+        return { token, urlOptions: { ...rules, addRandomSuffix: true } };
+      }
     });
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.status(200).send(JSON.stringify(result));

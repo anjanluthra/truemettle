@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { storeConfigured } from '../src/config.js';
+import { blobAuth, storeConfigured } from '../src/config.js';
 import { listAll } from '../src/store.js';
 import { cleanDeckUrl, deckLink, isPublicDeck } from '../src/decks.js';
 import { parseBody } from '../src/http.js';
@@ -250,7 +250,7 @@ ${subscriberRows}
 </html>`;
 }
 
-async function sendDeck(res, value) {
+async function sendDeck(req, res, value) {
   const url = cleanDeckUrl(value);
   if (!url) {
     res.status(400).send('Not a deck link.');
@@ -258,7 +258,7 @@ async function sendDeck(res, value) {
   }
   try {
     const { get } = await import('@vercel/blob');
-    const result = await get(url, { access: isPublicDeck(url) ? 'public' : 'private' });
+    const result = await get(url, { access: isPublicDeck(url) ? 'public' : 'private', ...blobAuth(req) });
     if (!result || result.statusCode !== 200) {
       res.status(404).send('That deck is no longer in storage.');
       return;
@@ -329,7 +329,7 @@ export default async function handler(req, res) {
   // it is streamed through here, behind the same password.
   const deckParam = params.get('deck');
   if (deckParam !== null) {
-    await sendDeck(res, deckParam);
+    await sendDeck(req, res, deckParam);
     return;
   }
 

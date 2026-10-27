@@ -91,4 +91,16 @@ export const storeConfigured = Boolean(
 );
 
 // Vercel Blob, for deck uploads. Without it the form asks for a few lines instead.
-export const blobConfigured = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+// A store connected the current way sets only BLOB_STORE_ID, and the function
+// signs in with the deployment's own OIDC identity. An older connection sets a
+// read-write token instead: BLOB_READ_WRITE_TOKEN, or <PREFIX>_READ_WRITE_TOKEN
+// when the store was given a custom prefix.
+export const blobToken =
+  process.env.BLOB_READ_WRITE_TOKEN ||
+  Object.entries(process.env).find(([key, value]) => /_READ_WRITE_TOKEN$/.test(key) && /^vercel_blob_rw_/.test(value || ''))?.[1] ||
+  '';
+export const blobConfigured = Boolean(blobToken || process.env.BLOB_STORE_ID);
+
+// Credentials for @vercel/blob calls made while answering a request.
+export const blobAuth = (req) =>
+  blobToken ? { token: blobToken } : { oidcToken: String(req.headers['x-vercel-oidc-token'] || process.env.VERCEL_OIDC_TOKEN || '') || undefined };

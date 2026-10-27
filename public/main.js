@@ -8,7 +8,7 @@
 
   if ('IntersectionObserver' in window && !reduced) {
     var targets = document.querySelectorAll(
-      '.hero__type, .hero__plate, .section .measure, .criteria__item, .position, .contact__intro, .form'
+      '.mission__text, .statement, .stat, .quote__text, .formula__item, .sectors .display, .sector, .point, .step, .closing__text, .faq'
     );
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -24,6 +24,101 @@
       el.classList.add('reveal');
       el.style.transitionDelay = (i % 5) * 60 + 'ms';
       observer.observe(el);
+    });
+  }
+
+  /* ── Year in the footer ───────────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll('.js-year'), function (node) {
+    node.textContent = String(new Date().getFullYear());
+  });
+
+  /* ── "Send your deck" opens the form in a dialog ──────────────────────────
+     Without JavaScript the form is a section at the foot of the page and the
+     links simply jump to it. */
+  var deck = document.getElementById('contact');
+  if (deck && typeof HTMLDialogElement === 'function') {
+    var dialog = document.createElement('dialog');
+    dialog.className = 'deck-dialog';
+    dialog.setAttribute('aria-labelledby', 'contact-heading');
+
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'deck-dialog__close';
+    close.setAttribute('aria-label', 'Close');
+    close.textContent = '×';
+    close.addEventListener('click', function () { dialog.close(); });
+
+    deck.parentNode.insertBefore(dialog, deck);
+    dialog.appendChild(close);
+    dialog.appendChild(deck);
+
+    // A click on the backdrop lands on the dialog element itself.
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', function () {
+      document.documentElement.classList.remove('is-deck-open');
+    });
+
+    var open = function (event) {
+      if (event) event.preventDefault();
+      if (dialog.open) return;
+      dialog.showModal();
+      document.documentElement.classList.add('is-deck-open');
+      var first = dialog.querySelector('input:not([type=hidden]):not([tabindex="-1"])');
+      if (first && !document.getElementById('contact-form').hidden) first.focus();
+    };
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-open-deck]'), function (link) {
+      link.addEventListener('click', open);
+    });
+    if (location.hash === '#contact') open();
+  }
+
+  /* ── Newsletter sign-up ───────────────────────────────────────────────── */
+  var subscribe = document.getElementById('subscribe-form');
+  if (subscribe && window.fetch && window.FormData) {
+    var status = document.getElementById('subscribe-status');
+    var subscribeButton = subscribe.querySelector('button');
+    var SIMPLE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    subscribe.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var values = {};
+      new FormData(subscribe).forEach(function (value, key) { values[key] = String(value).trim(); });
+
+      if (!SIMPLE_EMAIL.test(values.email || '')) {
+        status.textContent = 'That email address doesn’t look right.';
+        subscribe.elements.email.focus();
+        return;
+      }
+
+      subscribeButton.disabled = true;
+      status.textContent = '';
+
+      fetch(subscribe.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(values)
+      })
+        .then(function (response) {
+          return response.json().catch(function () { return {}; }).then(function (body) {
+            if (response.ok && body.ok) {
+              // The design's success state: the field reads "Success!" and
+              // the button gives way to the thank-you line.
+              subscribe.reset();
+              subscribe.elements.email.placeholder = 'Success!';
+              subscribe.classList.add('is-done');
+              status.textContent = 'Thank you! Your submission has been received!';
+              return;
+            }
+            status.textContent = body.message || 'Something went wrong. Please try again.';
+          });
+        })
+        .catch(function () {
+          status.textContent = 'Something went wrong. Please try again.';
+        })
+        .then(function () { subscribeButton.disabled = false; });
     });
   }
 
@@ -97,7 +192,7 @@
     }
 
     button.disabled = true;
-    var label = button.textContent;
+    var label = button.innerHTML;
     button.textContent = 'Sending…';
 
     fetch(form.action, {
@@ -128,11 +223,11 @@
         summary.hidden = false;
         summary.textContent =
           'Something went wrong sending that — nothing has been lost, please try again. ' +
-          'If it keeps failing, email me directly.';
+          'If it keeps failing, email us directly.';
       })
       .then(function () {
         button.disabled = false;
-        button.textContent = label;
+        button.innerHTML = label;
       });
   });
 })();

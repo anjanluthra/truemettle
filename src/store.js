@@ -14,7 +14,7 @@ import { config, storeConfigured } from './config.js';
    MySQL 8 has no CREATE INDEX IF NOT EXISTS, and one statement keeps mysql2's
    multi-statement guard off. utf8mb4 throughout — the copy has typographic
    quotes in it and a founder's name can be in any script. */
-const SCHEMA = `
+const SCHEMA = [`
 CREATE TABLE IF NOT EXISTS submissions (
   id          BIGINT       NOT NULL AUTO_INCREMENT,
   received_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -32,7 +32,19 @@ CREATE TABLE IF NOT EXISTS submissions (
   INDEX submissions_received_at (received_at),
   INDEX submissions_ip_received_at (ip, received_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-`;
+`, `
+CREATE TABLE IF NOT EXISTS subscribers (
+  id          BIGINT       NOT NULL AUTO_INCREMENT,
+  email       VARCHAR(255) NOT NULL,
+  subscribed_at TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ip          VARCHAR(64)  NULL,
+  user_agent  VARCHAR(320) NULL,
+  spam        BOOLEAN      NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (id),
+  UNIQUE KEY subscribers_email (email),
+  INDEX subscribers_ip_subscribed_at (ip, subscribed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`];
 
 // Idempotent, but only worth running once per warm instance.
 let schemaReady = false;
@@ -63,7 +75,7 @@ async function connect() {
 
 async function ensureSchema(connection) {
   if (schemaReady) return;
-  await connection.query(SCHEMA);
+  for (const statement of SCHEMA) await connection.query(statement);
   schemaReady = true;
 }
 
@@ -133,6 +145,64 @@ export async function recordEmailResult(id, ok, error) {
     console.error('[store] could not record email result:', updateError.message);
   } finally {
     if (connection) await connection.end().catch(() => {});
+  }
+}
+
+/**
+ * Add one newsletter sign-up. Signing up twice is not an error: the second
+ * time just leaves the original row alone. Same rate limit as the form.
+ *
+ * Returns { rateLimited: true } or { ok: true }.
+ */
+export async function saveSubscriber(subscriber) {
+  if (!storeConfigured) throw new Error('no_database_configured');
+
+  const connection = await connect();
+  try {
+    await ensureSchema(connection);
+
+    if (subscriber.ip) {
+      const cutoff = new Date(Date.now() - config.rateLimit.windowMinutes * 60_000);
+      const [rows] = await connection.execute(
+        'SELECT COUNT(*) AS count FROM subscribers WHERE ip = ? AND subscribed_at > ?',
+        [subscriber.ip, cutoff]
+      );
+      if (Number(rows[0].count) >= config.rateLimit.max) return { rateLimited: true };
+    }
+
+    await connection.execute(
+      `INSERT IGNORE INTO subscribers (email, ip, user_agent, spam) VALUES (?, ?, ?, ?)`,
+      [
+        subscriber.email.toLowerCase(),
+        subscriber.ip || null,
+        subscriber.userAgent || null,
+        subscriber.spam ? 1 : 0
+      ]
+    );
+    return { ok: true };
+  } finally {
+    await connection.end().catch(() => {});
+  }
+}
+
+/** Everything the admin page shows, newest first. */
+export async function listAll({ limit = 1000 } = {}) {
+  if (!storeConfigured) throw new Error('no_database_configured');
+
+  const connection = await connect();
+  try {
+    await ensureSchema(connection);
+    const cap = Math.max(1, Math.min(Number(limit) || 1000, 10000));
+    const [submissions] = await connection.query(
+      `SELECT id, received_at, name, email, business, revenue, situation, emailed, email_error, spam
+         FROM submissions ORDER BY id DESC LIMIT ${cap}`
+    );
+    const [subscribers] = await connection.query(
+      `SELECT id, subscribed_at, email, spam FROM subscribers ORDER BY id DESC LIMIT ${cap}`
+    );
+    return { submissions, subscribers };
+  } finally {
+    await connection.end().catch(() => {});
   }
 }
 

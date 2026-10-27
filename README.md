@@ -1,10 +1,9 @@
 # True Mettle
 
-A one-page holding site for True Mettle, built to stand in while the brand
-identity is designed. No logo, no photography — it works on type, space and
-colour, with a marked slot where the hero image will go.
-
-Expected life: 8–12 weeks.
+The True Mettle one-page site, built from the Figma file
+**True Mettle Website** (frame `TRUE METTLE`, 1440 wide). Sizes are fluid and
+top out at the design's own pixel values at 1440; below that it reflows for
+tablet and phone.
 
 Deploys to **Vercel**, which this repository is already connected to.
 
@@ -12,21 +11,19 @@ Deploys to **Vercel**, which this repository is already connected to.
 
 ## The stack, and why
 
-The repository was empty, so nothing had to be inherited. The page is static;
-the only thing needing a server is the contact form, which has to email you
-*and* keep a private copy. That's one serverless function.
+The page is static. The server side is three small serverless functions:
+the deck form (emails you *and* keeps a private copy), newsletter sign-ups,
+and a password-protected admin page to read both.
 
 | Piece | Choice | Why |
 | --- | --- | --- |
-| Page | Hand-written HTML, CSS and ~5 KB of JS | No framework, no build to relearn in eight weeks |
+| Page | Hand-written HTML, CSS and ~8 KB of JS | No framework, no build step to relearn |
 | Hosting | Vercel, serving `public/` statically | Already wired to the repo; deploys on push |
-| Form | One serverless function, `api/contact.js` | The only server-side code in the project |
+| Functions | `api/contact.js`, `api/subscribe.js`, `api/admin.js` | The only server-side code in the project |
 | Storage | TiDB via `mysql2` | Vercel has no disk; a hosted table is the equivalent |
 | Email | `nodemailer` over SMTP | Provider-agnostic |
-| Type | Fraunces + Work Sans, self-hosted | No Google Fonts request, no third party watching visitors |
-
-Five requests, ~129 KB total on a cold load, most of it the two fonts. Vercel
-compresses everything at the edge.
+| Type | Nanum Myeongjo + Work Sans, self-hosted latin subsets | No Google Fonts request, no third party watching visitors |
+| Images | Responsive AVIF + WebP from `tools/make-photos.py` | Sized per screen; everything below the fold lazy-loads |
 
 ---
 
@@ -39,7 +36,7 @@ npm run dev              # http://localhost:3000
 ```
 
 `dev-server.js` stands in for Vercel: it serves `public/` and routes
-`/api/contact` to the same function, so the whole page works without the
+`/api/*` (and `/admin`) to the same functions, so the whole page works without the
 Vercel CLI. It is a preview tool, not a deployment target — production is
 Vercel, and only Vercel.
 
@@ -104,8 +101,8 @@ defaults baked into the HTML.
 | Variable | Default | Notes |
 | --- | --- | --- |
 | `SITE_URL` | `https://truemettle.com` | Canonical and Open Graph tags. Applied at build time |
-| `PERSONAL_SITE_URL` | `https://anjanluthra.com` | **TBC.** Leave *empty* and the label renders as plain text instead of a link |
-| `PERSONAL_SITE_LABEL` | `anjanluthra.com` | The visible text |
+| `PERSONAL_SITE_URL` | `https://anjanluthra.com` | Every "Anjan Luthra" / "Anjan's story" link. Leave *empty* to render them as plain text |
+| `ADMIN_PASSWORD` | — | Turns on `/admin`. Unset, the page 404s |
 | `CONTACT_SUBJECT_PREFIX` | `True Mettle` | Subject line prefix |
 | `RATE_LIMIT_MAX` | `5` | Submissions per IP per window |
 | `RATE_LIMIT_WINDOW_MINUTES` | `60` | |
@@ -113,7 +110,17 @@ defaults baked into the HTML.
 
 ---
 
-## Reading the enquiries
+## Reading enquiries and sign-ups
+
+### The admin page
+
+Set `ADMIN_PASSWORD` in Vercel, then open **`/admin`** — any username, that
+password. It lists every deck submission and newsletter sign-up, newest first,
+with a **Download CSV** link for each (the CSV opens cleanly in Excel or
+Google Sheets, and can be imported straight into a mail tool). Spam-flagged
+rows are greyed out and left out of the counts.
+
+### Straight from the database
 
 From TiDB Cloud's SQL Editor, or any MySQL client:
 
@@ -132,28 +139,42 @@ something genuine landed there.
 Enquiries are written to TiDB **before** the email is attempted, so a bad SMTP
 password can never lose one.
 
+Newsletter sign-ups live in `subscribers` (one row per address — signing up
+twice is harmless). They are stored, not emailed; nothing sends the newsletter
+itself yet, so export the CSV into whatever tool sends "Fifth".
+
+```sql
+SELECT subscribed_at, email FROM subscribers WHERE spam = 0 ORDER BY id DESC;
+```
+
 ---
 
-## Adding the hero image
+## Updating the images
 
-1. Drop the file in `public/` as `hero.jpg` (or `.webp`). Roughly 1600 × 700
-   or wider; anything landscape-ish crops cleanly.
-2. In `public/index.html`, find the block marked `HERO IMAGE SLOT` and replace
-   the entire `<figure class="hero__plate">…</figure>` with:
+Photos ship as responsive AVIF + WebP in `public/img/` (`<name>-<width>.avif`),
+up to 2880 px wide for full-bleed images, so Retina and phone screens get
+sharp files and nobody downloads more than their screen needs. They are
+generated by one script from sources in `photos/` (gitignored — originals are
+large; only the outputs are committed):
 
-   ```html
-   <img class="hero__plate" src="/hero.jpg" width="1600" height="700"
-        alt="" decoding="async" fetchpriority="high">
-   ```
+```bash
+python3 tools/make-photos.py           # all of them (needs Pillow >= 11.3)
+python3 tools/make-photos.py founder   # just one
+```
 
-Until then the slot is a green plate carrying a line of the copy as a pull
-quote, so the fold reads as a finished page rather than an empty frame. The
-slot crops with `object-fit: cover` — 16:6.5 on a desktop, 4:5 on a phone — so
-one photograph serves both.
+Each entry in `tools/make-photos.py` names its source file, the crop that
+reproduces the Figma frame, and the widths to emit. The script never upscales,
+and it rewrites the `srcset`s in `public/index.html` itself.
+
+**Current sources:** the closing portrait (`founder`) is cut from the 2731×4096
+original. The rest are still the 1× exports from Figma, so they top out at
+1440 px — to sharpen one, put its original in `photos/`, point its entry at
+it (adjusting the crop if the Figma frame cropped it), and re-run the script.
+The wordmark, monogram and arrows are SVGs and are sharp at any size.
 
 ## Replacing the mark and the link preview
 
-- `public/favicon.svg` — a typographic "TM" placeholder, hand-editable.
+- `public/favicon.svg` — still the typographic "TM" placeholder, hand-editable.
 - `tools/og-template.html` and `tools/icon-template.html` — the sources for
   `public/og.png` (the link preview card) and the touch icons.
 
@@ -170,11 +191,12 @@ found. Not part of the deploy.
 
 No CAPTCHA. Three quiet layers instead:
 
-1. A honeypot field (`company_website`) positioned off-screen.
+1. A honeypot field (`company_website`) positioned off-screen — on both the
+   deck form and the newsletter form.
 2. A timing check — a form completed in under 2.5 seconds isn't being read.
    No upper bound on purpose: someone who opens the page, gets pulled away and
    sends it the next morning is exactly who this is for.
-3. Rate limiting, five submissions per IP per hour, counted in TiDB. The
+3. Rate limiting, five per IP per hour (for each form), counted in TiDB. The
    count is taken before the insert, so a flood can't fill the table with the
    rows it was rejected for.
 
@@ -186,15 +208,18 @@ emailed. A real person caught by a filter is still recoverable.
 
 ## Decisions still open
 
-1. **SMTP provider.** No account exists yet. Postmark or Resend for a site
-   this size; a Google Workspace app password also works.
+1. **SMTP provider.** Postmark or Resend for a site this size; a Google
+   Workspace app password also works.
 2. **Domain.** `SITE_URL` is a placeholder until the domain is confirmed; it
    affects link previews only.
-3. **`anjanluthra.com`.** Marked TBC in the brief — the link is live and
-   configurable. Set `PERSONAL_SITE_URL=` (empty) to show it as plain text
-   until the site exists.
-
-## Deliberately not here
-
-Logo, photography, extra pages, CMS, newsletter, social links, portfolio,
-testimonials, analytics, cookie banner.
+3. **Copy the design doesn't have yet** — all marked `TBC` in
+   `public/index.html`:
+   - The FAQ answers. Drafted from the copy elsewhere on the page.
+   - Social profile URLs (X, TikTok, Instagram, LinkedIn, YouTube) — shown as
+     plain text until there are links.
+   - Privacy and cookie policy pages. "Cookie settings" was dropped: the site
+     sets no cookies.
+4. **Sending the newsletter.** Sign-ups are collected; picking the tool that
+   sends "Fifth" (and importing the CSV) is still to do.
+5. **Brand fonts.** The nav in the design is Inter; it is set in Work Sans
+   here to save a font download.

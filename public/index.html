@@ -3,17 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>True Mettle — Backing resilient entrepreneurs</title>
-<meta name="description" content="The personal investment company of Anjan Luthra. Minority stakes in cash flow positive businesses, alongside owners who want a partner rather than just a cheque.">
+<title>True Mettle — Backing the resilient</title>
+<meta name="description" content="True Mettle invests in resilient entrepreneurs and helps them realise the full value of what they’ve built. Anjan Luthra’s personal investment vehicle.">
 <link rel="canonical" href="https://truemettle.com/">
-<meta name="theme-color" content="#F4EEDF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1E3B2C" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#4A2A24">
 <meta name="color-scheme" content="light">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="True Mettle">
 <meta property="og:title" content="True Mettle">
-<meta property="og:description" content="Backing resilient entrepreneurs. Helping them create value. The personal investment company of Anjan Luthra.">
+<meta property="og:description" content="Backing the resilient. True Mettle invests in resilient entrepreneurs and helps them realise the full value of what they’ve built.">
 <meta property="og:url" content="https://truemettle.com/">
 <meta property="og:image" content="https://truemettle.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -21,181 +20,265 @@
 <meta property="og:image:alt" content="True Mettle">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="True Mettle">
-<meta name="twitter:description" content="Backing resilient entrepreneurs. Helping them create value.">
+<meta name="twitter:description" content="Backing the resilient.">
 <meta name="twitter:image" content="https://truemettle.com/og.png">
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/icon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/nanummyeongjo-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/worksans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" type="image/avif" data-photo="hero" imagesrcset="/img/hero-720.avif 720w, /img/hero-1080.avif 1080w, /img/hero-1440.avif 1440w, /img/hero-2000.avif 2000w" imagesizes="100vw" fetchpriority="high">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<a class="skip-link" href="#contact">Skip to the contact form</a>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<header class="masthead">
-  <div class="shell masthead__inner">
-    <h1 class="wordmark">True&nbsp;Mettle</h1>
-    <p class="masthead__place">Dubai</p>
-  </div>
+<header class="topbar">
+  <a class="topbar__mark" href="/" aria-label="True Mettle — home">
+    <img src="/brand/monogram.svg" width="50" height="37" alt="">
+  </a>
+  <nav class="topbar__nav" aria-label="Primary">
+    <a href="https://anjanluthra.com" rel="noopener">Anjan Luthra</a>
+    <a href="#contact" data-open-deck>Contact</a>
+  </nav>
 </header>
 
 <main id="main">
 
-  <!-- ─────────────────────────────────────────────────────────────────────
-       HERO
-       ───────────────────────────────────────────────────────────────────── -->
-  <section class="hero" aria-labelledby="hero-headline">
-    <div class="shell hero__grid">
-      <div class="hero__type">
-        <p class="hero__headline" id="hero-headline">
-          Backing resilient entrepreneurs.<br>
-          Helping them create value.
-        </p>
-        <p class="hero__sub">The personal investment company of Anjan&nbsp;Luthra.</p>
-      </div>
+  <!-- ── HERO ─────────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <picture>
+      <source type="image/avif" data-photo="hero" srcset="/img/hero-720.avif 720w, /img/hero-1080.avif 1080w, /img/hero-1440.avif 1440w, /img/hero-2000.avif 2000w" sizes="100vw">
+      <img class="hero__bg" data-photo="hero" src="/img/hero-1440.webp" srcset="/img/hero-720.webp 720w, /img/hero-1080.webp 1080w, /img/hero-1440.webp 1440w, /img/hero-2000.webp 2000w" sizes="100vw" width="1440" height="884" alt="" fetchpriority="high">
+    </picture>
+    <div class="hero__content">
+      <h1 class="hero__wordmark">
+        <img src="/brand/wordmark.svg" width="1287" height="229" alt="True Mettle">
+      </h1>
+      <p class="hero__tagline">Backing the resilient</p>
+    </div>
+  </section>
 
-      <!-- ═══════════════════ HERO IMAGE SLOT ═══════════════════
-           This plate holds the space reserved for the hero image. Until the
-           photography exists it earns its keep as a pull quote, so the fold
-           reads as a finished page rather than an empty frame.
+  <!-- ── MISSION ──────────────────────────────────────────────────────────── -->
+  <section class="block mission">
+    <div class="mission__text">
+      <p>True Mettle exists to invest in resilient entrepreneurs and help them realise <em class="accent">the full value of what they’ve built.</em></p>
+      <p>We’re drawn to founders who don’t fold when things get hard. Our aim is to help them win, by unlocking more profit from the business they already have and creating the leverage that gives them their time back.</p>
+    </div>
+    <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Send your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
+  </section>
 
-           To drop the image in, replace this entire <figure> with:
+  <picture>
+      <source type="image/avif" data-photo="band1" srcset="/img/band1-720.avif 720w, /img/band1-1080.avif 1080w, /img/band1-1440.avif 1440w" sizes="100vw">
+      <img class="band band--figure" data-photo="band1" src="/img/band1-1440.webp" srcset="/img/band1-720.webp 720w, /img/band1-1080.webp 1080w, /img/band1-1440.webp 1440w" sizes="100vw" width="1440" height="381" alt="A lone figure standing on a rocky ridge above a misty valley" loading="lazy" decoding="async">
+    </picture>
 
-             <img class="hero__plate" src="/hero.jpg" width="1600" height="700"
-                  alt="" decoding="async" fetchpriority="high">
+  <!-- ── ANJAN LUTHRA ─────────────────────────────────────────────────────── -->
+  <section class="block founder" aria-labelledby="founder-heading">
+    <p class="eyebrow">Anjan Luthra</p>
+    <h2 class="statement" id="founder-heading">
+      Not a VC. Not a PE investor.<br>
+      <span class="statement__soft">A founder who’s been in the arena, and still is.</span>
+    </h2>
 
-           The slot crops with object-fit: cover — 16:6.5 on a desktop, 4:5 on
-           a phone — so one wide-ish photograph serves both.
-           See README.md → "Adding the hero image".
-           ═══════════════════════════════════════════════════════ -->
-      <figure class="hero__plate">
-        <blockquote class="hero__plate-quote">
-          Mettle is what’s revealed under pressure, not before it.
-        </blockquote>
+    <ul class="stats">
+      <li class="stat">
+        <p class="stat__figure">$0</p>
+        <p class="stat__label"><b>raised</b> to build Indexed to seven figures</p>
+        <p class="stat__note">One failure, one seven-figure firm</p>
+      </li>
+      <li class="stat">
+        <p class="stat__figure">15</p>
+        <p class="stat__label"><b>years</b> investing, building and running businesses</p>
+        <p class="stat__note">Youngest ever chairman of Cricket Scotland</p>
+      </li>
+      <li class="stat">
+        <p class="stat__figure">$186bn</p>
+        <p class="stat__label"><b>Partners Group,</b><br>a private equity firm</p>
+        <p class="stat__note">Chartered accountant, EY restructuring</p>
+      </li>
+    </ul>
+
+    <p class="cta-row"><a class="cta" href="https://anjanluthra.com" rel="noopener">Anjan’s story<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
+  </section>
+
+  <!-- ── QUOTE ────────────────────────────────────────────────────────────── -->
+  <section class="quote">
+    <blockquote class="quote__text">
+      <p>“Resilience wasn’t something I was born with.<br> It was something I had to build.”</p>
+    </blockquote>
+  </section>
+
+  <!-- ── THE TRUE METTLE FORMULA ──────────────────────────────────────────── -->
+  <section class="block formula" aria-labelledby="formula-heading">
+    <h2 class="eyebrow" id="formula-heading">The True Mettle formula</h2>
+    <ol class="formula__list">
+      <li class="formula__item">
+        <p class="formula__head"><span class="numeral" aria-hidden="true">01.</span><span class="formula__title">The Founder</span></p>
+        <p class="body">All in, expert in your field, and ready for help to get more out of it. For you, success isn’t growth at all costs. It’s the right clients, the right team, and the right processes, so your business and your life both thrive.</p>
+      </li>
+      <li class="formula__item">
+        <p class="formula__head"><span class="numeral" aria-hidden="true">02.</span><span class="formula__title">The Business</span></p>
+        <p class="body">Trading for two years or more, profitable, with good fundamentals. Growing slower, or paying you less, than it should.</p>
+      </li>
+      <li class="formula__item">
+        <p class="formula__head"><span class="numeral" aria-hidden="true">03.</span><span class="formula__title">True Mettle</span></p>
+        <p class="body">We invest, our team works beside you, and together we grow the profit and give you time back. We work on operations, AI, social media growth, hiring, running lean, running profitably, and your finances and governance.</p>
+      </li>
+    </ol>
+    <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Send us your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
+  </section>
+
+  <picture>
+      <source type="image/avif" data-photo="wide" srcset="/img/wide-720.avif 720w, /img/wide-1080.avif 1080w, /img/wide-1440.avif 1440w, /img/wide-1700.avif 1700w" sizes="100vw">
+      <img class="band band--tall" data-photo="wide" src="/img/wide-1440.webp" srcset="/img/wide-720.webp 720w, /img/wide-1080.webp 1080w, /img/wide-1440.webp 1440w, /img/wide-1700.webp 1700w" sizes="100vw" width="1440" height="655" alt="Anjan Luthra leaning against a wall, reading his phone by a window" loading="lazy" decoding="async">
+    </picture>
+
+  <!-- ── WHERE WE INVEST ──────────────────────────────────────────────────── -->
+  <section class="block sectors" aria-labelledby="sectors-heading">
+    <div class="sectors__grid">
+      <h2 class="display" id="sectors-heading">Where we invest</h2>
+      <div class="sectors__photos">
+      <figure class="sector">
+        <picture>
+      <source type="image/avif" data-photo="sport" srcset="/img/sport-400.avif 400w, /img/sport-800.avif 800w, /img/sport-1125.avif 1125w" sizes="(max-width: 1024px) 50vw, 400px">
+      <img data-photo="sport" src="/img/sport-1125.webp" srcset="/img/sport-400.webp 400w, /img/sport-800.webp 800w, /img/sport-1125.webp 1125w" sizes="(max-width: 1024px) 50vw, 400px" width="399" height="502" alt="Overhead view of a clay tennis court" loading="lazy" decoding="async">
+    </picture>
+        <figcaption>Sport &amp; Fitness</figcaption>
       </figure>
-    </div>
-  </section>
-
-  <!-- ─────────────────────────────────────────────────────────────────────
-       WHAT IT IS
-       ───────────────────────────────────────────────────────────────────── -->
-  <section class="section" aria-labelledby="about-heading">
-    <div class="shell">
-      <div class="measure">
-        <p class="numeral" aria-hidden="true">I</p>
-        <h2 class="section__heading" id="about-heading">What it is</h2>
-        <p class="prose prose--lead">
-          True Mettle invests my own capital in businesses that already work — and I work
-          alongside the owners to help them get more out of what they’ve built.
-        </p>
-        <p class="prose">
-          Mettle is what’s revealed under pressure, not before it. I back people who’ve been
-          tested and kept going, because I’ve been tested myself.
-        </p>
+      <figure class="sector">
+        <picture>
+      <source type="image/avif" data-photo="media" srcset="/img/media-400.avif 400w, /img/media-800.avif 800w, /img/media-1200.avif 1200w" sizes="(max-width: 1024px) 50vw, 400px">
+      <img data-photo="media" src="/img/media-1200.webp" srcset="/img/media-400.webp 400w, /img/media-800.webp 800w, /img/media-1200.webp 1200w" sizes="(max-width: 1024px) 50vw, 400px" width="399" height="502" alt="A podcaster in headphones speaking into a studio microphone" loading="lazy" decoding="async">
+    </picture>
+        <figcaption>Media &amp; Entertainment</figcaption>
+      </figure>
       </div>
     </div>
+    <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Send us your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
   </section>
 
-  <!-- ─────────────────────────────────────────────────────────────────────
-       WHAT I INVEST IN
-       ───────────────────────────────────────────────────────────────────── -->
-  <section class="section section--rule" aria-labelledby="criteria-heading">
-    <div class="shell">
-      <div class="measure">
-        <p class="numeral" aria-hidden="true">II</p>
-        <h2 class="section__heading" id="criteria-heading">What I invest in</h2>
-        <p class="prose prose--lead">Five things I look for:</p>
-      </div>
+  <!-- ── WHY TRUE METTLE ──────────────────────────────────────────────────── -->
+  <section class="block why" aria-labelledby="why-heading">
+    <h2 class="eyebrow" id="why-heading">Why True Mettle</h2>
+    <ul class="why__grid">
+      <li class="point">
+        <h3 class="point__title">More than a cheque</h3>
+        <p class="body">We’ve built, failed, and built again. Now we sit beside you as operators, with capital and Anjan’s media behind you.</p>
+      </li>
+      <li class="point">
+        <h3 class="point__title">Personal Investment</h3>
+        <p class="body">Anjan’s own capital. No fund, no committee. So we move fast.</p>
+      </li>
+      <li class="point">
+        <h3 class="point__title">Horses not unicorns</h3>
+        <p class="body">We help good businesses make more, not chase a billion or bloat valuations.</p>
+      </li>
+      <li class="point">
+        <h3 class="point__title">The whole story</h3>
+        <p class="body">Anjan shares what went wrong as openly as what went right, so you can skip the expensive mistakes and get to growth faster.</p>
+      </li>
+      <li class="point">
+        <h3 class="point__title">From Experience</h3>
+        <p class="body">Finance, deals, AI, operations and people. Not from the boardroom, from building and running businesses ourselves.</p>
+      </li>
+      <li class="point">
+        <h3 class="point__title">Access</h3>
+        <p class="body">Beyond Anjan: founders, investors, operators, and partners in your corner.</p>
+      </li>
+    </ul>
+    <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Send us your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
+  </section>
 
-      <ol class="criteria">
-        <li class="criteria__item">
-          <p class="criteria__index" aria-hidden="true">01</p>
-          <p class="criteria__body"><b>Cash flow positive</b> — profitable or breakeven today, on real numbers.</p>
+  <picture>
+      <source type="image/avif" data-photo="band2" srcset="/img/band2-720.avif 720w, /img/band2-1080.avif 1080w, /img/band2-1440.avif 1440w, /img/band2-1799.avif 1799w" sizes="100vw">
+      <img class="band band--figure" data-photo="band2" src="/img/band2-1440.webp" srcset="/img/band2-720.webp 720w, /img/band2-1080.webp 1080w, /img/band2-1440.webp 1440w, /img/band2-1799.webp 1799w" sizes="100vw" width="1440" height="381" alt="A figure silhouetted on a hillside against hazy mountains at sunset" loading="lazy" decoding="async">
+    </picture>
+
+  <!-- ── THE PROCESS ──────────────────────────────────────────────────────── -->
+  <section class="process" aria-labelledby="process-heading">
+    <div class="process__grid">
+      <h2 class="eyebrow process__label" id="process-heading">The process</h2>
+      <ol class="process__steps">
+        <li class="step">
+          <span class="numeral" aria-hidden="true">01.</span>
+          <div class="step__copy">
+            <h3 class="step__title">Send your deck</h3>
+            <p class="body">Or a few lines.<br>Everyone gets honest feedback.</p>
+          </div>
         </li>
-        <li class="criteria__item">
-          <p class="criteria__index" aria-hidden="true">02</p>
-          <p class="criteria__body"><b>Proven demand</b> — a full diary, a waiting list, a referral pipeline. Demand I didn’t have to create.</p>
+        <li class="step">
+          <span class="numeral" aria-hidden="true">02.</span>
+          <div class="step__copy">
+            <h3 class="step__title">Intro call</h3>
+            <p class="body">Your story, your numbers, where you want to go.</p>
+          </div>
         </li>
-        <li class="criteria__item">
-          <p class="criteria__index" aria-hidden="true">03</p>
-          <p class="criteria__body"><b>Recurring or repeat revenue.</b></p>
-        </li>
-        <li class="criteria__item">
-          <p class="criteria__index" aria-hidden="true">04</p>
-          <p class="criteria__body"><b>Clear, unrealised upside</b> — I can name where the value is before I’ve seen the accounts.</p>
-        </li>
-        <li class="criteria__item">
-          <p class="criteria__index" aria-hidden="true">05</p>
-          <p class="criteria__body"><b>An owner who wants a partner</b>, not just a cheque.</p>
+        <li class="step">
+          <span class="numeral" aria-hidden="true">03.</span>
+          <div class="step__copy">
+            <h3 class="step__title">A closer look</h3>
+            <p class="body">Financials, customers, team, and plans. Useful even if we don’t invest.</p>
+          </div>
         </li>
       </ol>
+    </div>
+    <p class="cta-row"><a class="cta" href="#contact" data-open-deck>Complete step 1<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
+  </section>
 
-      <div class="position">
-        <p class="position__label">Typical position</p>
-        <dl class="figures">
-          <div class="figures__item">
-            <dt class="figures__key">Stake</dt>
-            <dd class="figures__value">Minority</dd>
-          </div>
-          <div class="figures__item">
-            <dt class="figures__key">Average cheque</dt>
-            <dd class="figures__value"><span class="tnum">$50,000</span></dd>
-          </div>
-          <div class="figures__item">
-            <dt class="figures__key">Businesses</dt>
-            <dd class="figures__value"><span class="tnum">10–20</span></dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="measure">
-        <p class="prose prose--aside">
-          <b class="aside__label">What I’ll pass on:</b> pre-revenue businesses, anything with a
-          demand problem, opaque accounts, or a founder who wants capital but not involvement.
-        </p>
-      </div>
+  <!-- ── CLOSING ──────────────────────────────────────────────────────────── -->
+  <section class="closing">
+    <div class="closing__panel">
+      <p class="closing__text">The ones who refuse <br class="br-wide">to fold. The ones who <br class="br-wide">find a way. The ones <br class="br-wide">with <span class="closing__accent">true mettle.</span></p>
+    </div>
+    <div class="closing__photo">
+      <picture>
+      <source type="image/avif" data-photo="founder" srcset="/img/founder-720.avif 720w, /img/founder-1080.avif 1080w, /img/founder-1440.avif 1440w, /img/founder-2149.avif 2149w" sizes="(max-width: 767px) 100vw, 50vw">
+      <img data-photo="founder" src="/img/founder-1440.webp" srcset="/img/founder-720.webp 720w, /img/founder-1080.webp 1080w, /img/founder-1440.webp 1440w, /img/founder-2149.webp 2149w" sizes="(max-width: 767px) 100vw, 50vw" width="720" height="684" alt="Anjan Luthra, mid-conversation" loading="lazy" decoding="async">
+    </picture>
+      <p class="cta-row cta-row--light"><a class="cta" href="#contact" data-open-deck>Send us your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a></p>
     </div>
   </section>
 
-  <!-- ─────────────────────────────────────────────────────────────────────
-       WHO I AM
-       ───────────────────────────────────────────────────────────────────── -->
-  <section class="section section--rule" aria-labelledby="bio-heading">
-    <div class="shell">
-      <div class="measure">
-        <p class="numeral" aria-hidden="true">III</p>
-        <h2 class="section__heading" id="bio-heading">Who I am</h2>
-        <p class="prose prose--lead">
-          Chartered accountant by training. Turned round a distillery in liquidation at
-          <span class="tnum">21</span>. Private equity at Partners Group. Then I left to build
-          my own company — failed at one, lost my own money, started again, and built a
-          profitable multi-million dollar business.
-        </p>
-        <p class="prose">I’ve also sat on boards and chaired a national sports body.</p>
-        <p class="prose">I’ve seen business from most angles. But I’m an entrepreneur at heart.</p>
-        <!-- TBC. Configurable via PERSONAL_SITE_URL / PERSONAL_SITE_LABEL; the
-             server rewrites everything between the markers, and renders the
-             label as plain text when PERSONAL_SITE_URL is empty. -->
-        <p class="prose personal-link"><!--personal-link--><a href="https://anjanluthra.com" rel="noopener">anjanluthra.com</a><!--/personal-link--></p>
-      </div>
+  <!-- ── FAQS ─────────────────────────────────────────────────────────────── -->
+  <section class="block faqs" aria-labelledby="faq-heading">
+    <h2 class="eyebrow" id="faq-heading">FAQs</h2>
+    <!-- Answers are drafts written from the copy elsewhere on this page; confirm before launch. -->
+    <div class="faqs__list">
+      <details class="faq">
+        <summary>Do you invest in startups?</summary>
+        <div class="faq__answer body">Not usually. We back businesses that have been trading for two years or more and are already profitable, with good fundamentals. If you’re earlier than that, send it anyway — everyone gets honest feedback.</div>
+      </details>
+      <details class="faq">
+        <summary>How much do you invest?</summary>
+        <div class="faq__answer body">It depends on the business and what it needs to grow its profit. We’ll talk numbers properly on the intro call, once we understand your story and where you want to go.</div>
+      </details>
+      <details class="faq">
+        <summary>Do I keep control?</summary>
+        <div class="faq__answer body">Yes. We take a minority stake and work beside you. It’s your business; our job is to help you get more out of it.</div>
+      </details>
+      <details class="faq">
+        <summary>What do I get beyond the money?</summary>
+        <div class="faq__answer body">Operators in your corner: operations, AI, social media growth, hiring, running lean and profitably, and your finances and governance — plus Anjan’s media and a network of founders, investors and partners.</div>
+      </details>
+      <details class="faq">
+        <summary>Is True Mettle a Fund?</summary>
+        <div class="faq__answer body">No. True Mettle is Anjan Luthra’s personal investment vehicle. It’s his own capital — no fund, no committee — so we move fast.</div>
+      </details>
     </div>
   </section>
 
-  <!-- ─────────────────────────────────────────────────────────────────────
-       CONTACT
-       ───────────────────────────────────────────────────────────────────── -->
-  <section class="contact" id="contact" aria-labelledby="contact-heading">
-    <div class="shell contact__inner">
-      <div class="contact__intro measure">
-        <p class="numeral numeral--dark" aria-hidden="true">IV</p>
-        <h2 class="section__heading section__heading--dark" id="contact-heading">Tell me about your business</h2>
-        <p class="prose prose--dark">
-          If you’re running something that works and you think it could be worth more, send me
-          the details. I read everything.
-        </p>
+  <!-- ── SEND YOUR DECK ───────────────────────────────────────────────────────
+       Without JavaScript this is an ordinary section at the foot of the page.
+       main.js lifts it into a dialog that every "send your deck" link opens. -->
+  <section class="deck" id="contact" aria-labelledby="contact-heading">
+    <div class="deck__inner">
+      <div class="deck__intro">
+        <p class="eyebrow">Step 01</p>
+        <h2 class="display display--sm" id="contact-heading">Send your deck</h2>
+        <p class="body">Or a few lines. Your story, your numbers, where you want to go. Everyone gets honest feedback.</p>
       </div>
 
       <form class="form" id="contact-form" method="post" action="/api/contact" novalidate>
@@ -228,8 +311,8 @@
         </div>
 
         <div class="form__row">
-          <label class="field__label" for="f-situation">What’s the situation?</label>
-          <textarea class="field__input field__input--area" id="f-situation" name="situation" rows="6"
+          <label class="field__label" for="f-situation">Your story — or a link to your deck</label>
+          <textarea class="field__input field__input--area" id="f-situation" name="situation" rows="5"
                     required aria-describedby="e-situation" maxlength="5000"></textarea>
           <p class="field__error" id="e-situation" data-error-for="situation"></p>
         </div>
@@ -244,24 +327,72 @@
         <p class="form__summary" id="form-summary" role="alert" hidden></p>
 
         <div class="form__actions">
-          <button class="button" type="submit" id="submit-button">Send it over</button>
+          <button class="cta cta--button" type="submit" id="submit-button">Send it over<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
           <p class="form__note">Nothing you send is shared or used publicly without your permission.</p>
         </div>
       </form>
 
       <div class="sent" id="sent-panel" hidden tabindex="-1">
-        <p class="sent__mark" aria-hidden="true">✦</p>
-        <p class="sent__heading">Thank you — it’s with me.</p>
-        <p class="sent__body">I read everything myself. If it looks like a fit you’ll hear back from me directly.</p>
+        <p class="sent__heading">Thank you — it’s with us.</p>
+        <p class="body">Anjan reads everything. If it looks like a fit you’ll hear back directly.</p>
       </div>
     </div>
   </section>
 </main>
 
 <footer class="footer">
-  <div class="shell footer__inner">
-    <p class="footer__mark">True Mettle</p>
-    <p class="footer__meta">Dubai</p>
+  <picture>
+      <source type="image/avif" data-photo="footer" srcset="/img/footer-720.avif 720w, /img/footer-1080.avif 1080w, /img/footer-1440.avif 1440w, /img/footer-2000.avif 2000w" sizes="100vw">
+      <img class="footer__bg" data-photo="footer" src="/img/footer-1440.webp" srcset="/img/footer-720.webp 720w, /img/footer-1080.webp 1080w, /img/footer-1440.webp 1440w, /img/footer-2000.webp 2000w" sizes="100vw" width="1440" height="454" alt="" loading="lazy" decoding="async">
+    </picture>
+  <div class="footer__inner">
+    <div class="footer__top">
+      <img src="/brand/monogram.svg" width="50" height="37" alt="Anjan Luthra">
+      <img class="footer__wordmark" src="/brand/wordmark-small.svg" width="152" height="27" alt="True Mettle">
+    </div>
+
+    <div class="footer__cols">
+      <div class="footer__fifth">
+        <p class="footer__heading footer__heading--lg">Fifth</p>
+        <p class="footer__small">One essay a week on the lessons I paid for, so you don’t have to. Anjan.</p>
+        <form class="subscribe" id="subscribe-form" method="post" action="/api/subscribe" novalidate>
+          <label class="visually-hidden" for="s-email">Email address</label>
+          <input class="subscribe__input" type="email" id="s-email" name="email" autocomplete="email"
+                 inputmode="email" required placeholder="Enter email here" maxlength="200">
+          <div class="hp" aria-hidden="true">
+            <label for="s-website">Website</label>
+            <input type="text" id="s-website" name="company_website" tabindex="-1" autocomplete="off">
+          </div>
+          <button class="cta cta--button" type="submit">Subscribe<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
+          <p class="subscribe__status" id="subscribe-status" role="status"></p>
+        </form>
+      </div>
+
+      <nav class="footer__links" aria-label="Links">
+        <p class="footer__heading">Links</p>
+        <ul class="footer__small">
+          <li><a href="https://anjanluthra.com" rel="noopener">Anjan Luthra</a></li>
+          <!-- TBC: social profile URLs. -->
+          <li>X</li>
+          <li>TikTok</li>
+          <li>Instagram</li>
+          <li>LinkedIn</li>
+          <li>YouTube</li>
+          <li><a href="#contact" data-open-deck>Contact</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer__links" aria-label="Legal">
+        <p class="footer__heading">Legal</p>
+        <!-- TBC: policy pages don't exist yet. The site sets no cookies. -->
+        <ul class="footer__small">
+          <li>Privacy policy</li>
+          <li>Cookie policy</li>
+        </ul>
+      </nav>
+    </div>
+
+    <p class="footer__legal">© True Mettle FZ LLC. Not a fund. Anjan Luthra’s personal investment vehicle. <span class="js-year">2026</span></p>
   </div>
 </footer>
 

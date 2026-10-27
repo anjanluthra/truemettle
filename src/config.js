@@ -37,8 +37,7 @@ const bool = (value, fallback = false) =>
    file gets a correct page. Only a differing environment rewrites them. */
 export const DEFAULTS = {
   siteUrl: 'https://truemettle.com',
-  personalSiteUrl: 'https://anjanluthra.com',
-  personalSiteLabel: 'anjanluthra.com'
+  personalSiteUrl: 'https://anjanluthra.com'
 };
 
 export const config = {
@@ -47,9 +46,8 @@ export const config = {
   // Canonical origin, used for canonical/OG tags. No trailing slash.
   siteUrl: (process.env.SITE_URL || DEFAULTS.siteUrl).replace(/\/+$/, ''),
 
-  // TBC — the personal site. Empty renders the label as plain text, not a link.
+  // The personal site. Empty renders "Anjan Luthra" as plain text, not a link.
   personalSiteUrl: (process.env.PERSONAL_SITE_URL ?? DEFAULTS.personalSiteUrl).trim(),
-  personalSiteLabel: (process.env.PERSONAL_SITE_LABEL || DEFAULTS.personalSiteLabel).trim(),
 
   /* TiDB, which speaks MySQL. TiDB Cloud's connect dialog hands you either a
      connection string or the five parts separately — take whichever is set. */

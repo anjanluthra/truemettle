@@ -1,0 +1,24 @@
+/* The /api/admin page. Plain on purpose. */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #fff;
+  color: #2F2525;
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+main { max-width: 90rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+h1 { margin: 0 0 2rem; font-size: 1.5rem; }
+section + section { margin-top: 3rem; }
+section header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+h2 { margin: 0; font-size: 1.125rem; }
+h2 small { margin-left: 0.4rem; font-weight: 400; color: #A7472F; }
+a { color: #A7472F; }
+.scroll { overflow-x: auto; border: 1px solid #e5e2da; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.55rem 0.75rem; text-align: left; vertical-align: top; border-bottom: 1px solid #eee; }
+th { position: sticky; top: 0; background: #E7E4D1; font-weight: 600; white-space: nowrap; }
+td.nowrap { white-space: nowrap; }
+td.wrap { min-width: 22rem; max-width: 40rem; white-space: pre-wrap; }
+tr.is-spam td { color: #aaa; }
+.empty, .note { color: #777; }
+.note { margin-top: 2rem; font-size: 0.8125rem; }

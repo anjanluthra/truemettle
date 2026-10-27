@@ -32,7 +32,8 @@ PHOTOS = {
     'hero':    ('hero.png',    (0, 0, 1, 1), FULL),
     'band1':   ('band1.png',   (0, 0, 1, 1), FULL),
     'wide':    ('wide.png',    (0, 0, 1, 1), FULL),
-    'band2':   ('band2.png',   (0, 0, 1, 1), FULL),
+    # Original sunset, 2000x1335; the band is its middle strip (Figma FILL).
+    'band2':   ('band2-original.jpg', (0.0567, 0.3221, 0.8995, 0.3566), FULL),
     'footer':  ('footer.png',  (0, 0, 1, 1), FULL),
     'sport':   ('sport.png',   (0, 0, 1, 1), (400, 800, 1200)),
     'media':   ('media.png',   (0, 0, 1, 1), (400, 800, 1200)),

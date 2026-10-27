@@ -828,6 +828,8 @@ em { font-style: normal; }
   line-height: 1.55;
 }
 .policy__updated + p { margin-top: 2rem; }
+.policy p.policy__action { margin-top: 1.5rem; }
+.policy__action .cta { font-size: 0.9375rem; }
 .policy p.policy__address { font-style: normal; line-height: 1.4; }
 .policy a { text-decoration: underline; text-underline-offset: 0.15em; }
 .policy code { font-family: inherit; font-size: 0.95em; }

@@ -397,6 +397,9 @@
   Array.prototype.forEach.call(document.querySelectorAll('[data-cookie-settings]'), function (link) {
     link.addEventListener('click', function (event) {
       event.preventDefault();
+      // From inside the cookie policy popup: close it so the banner isn't behind it.
+      var popup = link.closest('dialog');
+      if (popup && popup.open) popup.close();
       showBanner();
       banner.querySelector('[data-choice="granted"]').focus();
     });

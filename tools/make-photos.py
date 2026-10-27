@@ -36,8 +36,9 @@ PHOTOS = {
     # Original sunset, 2000x1335; the band is its middle strip (Figma FILL).
     'band2':   ('band2-original.jpg', (0.0567, 0.3221, 0.8995, 0.3566), FULL),
     'footer':  ('footer.png',  (0, 0, 1, 1), FULL),
-    'sport':   ('sport.png',   (0, 0, 1, 1), (400, 800, 1200)),
-    'media':   ('media.png',   (0, 0, 1, 1), (400, 800, 1200)),
+    # Originals 1125x2000 and 1333x2000, centre-cropped to the 399:502 frame.
+    'sport':   ('sport-original.jpg', (0, 0.1462, 1, 0.7077), (400, 800, 1200)),
+    'media':   ('media-original.jpg', (0, 0.0808, 1, 0.8385), (400, 800, 1200)),
     # Original portrait, 2731x4096. The crop is the Figma image fill (FILL into
     # a 915x687 box) clipped by its mask to the right half of the closing panel.
     'founder': ('founder-original.jpeg', (0.0995, 0.2515, 0.787, 0.4983), (720, 1080, 1440, 2160)),

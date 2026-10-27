@@ -343,6 +343,27 @@
     if (location.hash) openPolicy(location.hash.slice(1));
   }
 
+  /* ── Header: solid once the hero has gone; the mark goes back to the top ── */
+  var topbar = document.querySelector('.topbar');
+  var hero = document.querySelector('.hero');
+  if (topbar && hero && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      topbar.classList.toggle('is-solid', !entries[0].isIntersecting);
+    }, { rootMargin: '-' + topbar.offsetHeight + 'px 0px 0px 0px' }).observe(hero);
+  } else if (topbar) {
+    topbar.classList.add('is-solid');
+  }
+  var mark = document.querySelector('.topbar__mark');
+  if (mark) {
+    mark.addEventListener('click', function (event) {
+      event.preventDefault();
+      // Jump (not glide) to the top first, so the reload doesn't restore the old position.
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      if (location.pathname === '/' && !location.hash && !location.search) location.reload();
+      else location.assign('/');
+    });
+  }
+
   /* ── Sideways rows (sectors, process): arrows that step them ────────────── */
   Array.prototype.forEach.call(document.querySelectorAll('[data-row-nav]'), function (nav) {
     var row = document.querySelector('[data-row="' + nav.getAttribute('data-row-nav') + '"]');

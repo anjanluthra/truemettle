@@ -192,15 +192,23 @@ em { font-style: normal; }
 .band--tall { height: clamp(18rem, 45.5vw, 41rem); } /* 655 */
 
 /* ── Top bar ──────────────────────────────────────────────────────────────── */
+/* Fixed: clear over the hero, solid once the hero has scrolled away
+   (main.js adds .is-solid). */
 .topbar {
-  position: absolute;
+  position: fixed;
   inset: 0 0 auto 0;
   z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 1.375rem calc(var(--gutter) - 0.5rem) 0 1.625rem;
+  padding: 1.375rem calc(var(--gutter) - 0.5rem) 1.375rem 1.625rem;
   color: var(--paper);
+  transition: background-color 0.3s ease, padding 0.3s ease;
+}
+.topbar.is-solid {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  background: #3B2421;
 }
 .topbar__mark img { width: clamp(2.25rem, 3.5vw, 3.125rem); height: auto; }
 .topbar__nav {
@@ -474,23 +482,22 @@ em { font-style: normal; }
 .process__steps::-webkit-scrollbar { display: none; }
 .process__steps:focus-visible { outline-offset: -2px; }
 .step { flex: 0 0 clamp(16rem, 30.8vw, 27.7rem); scroll-snap-align: start; }
-.row-nav { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+.row-nav { display: flex; gap: 0.25rem; margin: 1.25rem 0 0 -0.6rem; }
 .row-nav[hidden] { display: none; }
 .row-arrow {
   width: 2.5rem;
   height: 2.5rem;
   display: grid;
   place-items: center;
-  border: 1px solid var(--hairline);
-  border-radius: 50%;
+  border: 0;
   background: none;
   color: var(--ink);
   cursor: pointer;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.row-arrow svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 1.4; }
-.row-arrow:hover { background: rgba(47, 37, 37, 0.06); }
-.row-arrow:disabled { opacity: 0.3; cursor: default; background: none; }
+.row-arrow svg { width: 1.375rem; height: 1.375rem; fill: none; stroke: currentColor; stroke-width: 1.1; }
+.row-arrow:hover { opacity: 0.6; }
+.row-arrow:disabled { opacity: 0.25; cursor: default; }
 .step {
   display: flex;
   flex-direction: column;
@@ -999,7 +1006,8 @@ em { font-style: normal; }
 
   .row-nav { display: none; }       /* swipe on the phone, as in Figma: no arrows */
 
-  .topbar { padding: 1.375rem 1.75rem 0 1.625rem; }
+  .topbar { padding: 1.375rem 1.75rem 1.375rem 1.625rem; }
+  .topbar.is-solid { padding-top: 0.75rem; padding-bottom: 0.75rem; }
   .topbar__nav { gap: 1.3rem; padding-top: 0.0625rem; font-size: 0.75rem; }
 
   .hero { height: min(100svh, 51rem); }

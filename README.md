@@ -20,7 +20,7 @@ and a password-protected admin page to read both.
 | Page | Hand-written HTML, CSS and ~8 KB of JS | No framework, no build step to relearn |
 | Hosting | Vercel, serving `public/` statically | Already wired to the repo; deploys on push |
 | Functions | `api/contact.js`, `api/subscribe.js`, `api/admin.js` | The only server-side code in the project |
-| Storage | TiDB via `mysql2` | Vercel has no disk; a hosted table is the equivalent |
+| Storage | Postgres (Vercel Storage → Neon) via `pg`, or TiDB/MySQL via `mysql2` | Vercel has no disk; a hosted table is the equivalent. The connection string picks the driver |
 | Email | `nodemailer` over SMTP | Provider-agnostic |
 | Type | Nanum Myeongjo + Work Sans, self-hosted latin subsets | No Google Fonts request, no third party watching visitors |
 | Images | Responsive AVIF + WebP from `tools/make-photos.py` | Sized per screen; everything below the fold lazy-loads |
@@ -49,9 +49,14 @@ showing a thank-you for an enquiry nobody will read.
 
 ### 1. Attach a database
 
-Create a cluster in [TiDB Cloud](https://tidbcloud.com) (the serverless tier is
-free at this volume) and a database called `truemettle`. Its **Connect** dialog
-gives you either a connection string or the parts separately.
+**The simple way, all in Vercel:** in the project, open **Storage → Create
+Database → Neon (Postgres)**, pick the free plan and connect it to this
+project. Vercel adds `DATABASE_URL` (a `postgres://…` string) for you, and the
+tables are created on the first enquiry. Nothing else to set.
+
+**Or TiDB:** create a cluster in [TiDB Cloud](https://tidbcloud.com) (the
+serverless tier is free at this volume) and a database called `truemettle`. Its
+**Connect** dialog gives you either a connection string or the parts separately.
 
 Set **one** of these in the Vercel project's Environment Variables:
 
@@ -100,7 +105,7 @@ defaults baked into the HTML.
 
 | Variable | Default | Notes |
 | --- | --- | --- |
-| `SITE_URL` | `https://truemettle.com` | Canonical and Open Graph tags. Applied at build time |
+| `SITE_URL` | `https://truemettle.co` | Canonical and Open Graph tags. Applied at build time |
 | `PERSONAL_SITE_URL` | `https://anjanluthra.com` | Every "Anjan Luthra" / "Anjan's story" link. Leave *empty* to render them as plain text |
 | `ADMIN_PASSWORD` | — | Turns on `/admin`. Unset, the page 404s |
 | `BLOB_READ_WRITE_TOKEN` | — | Turns on deck uploads (PDF, up to 20MB). Added automatically when you connect a Vercel Blob store |
@@ -136,12 +141,12 @@ rows are greyed out and left out of the counts.
 
 ### Straight from the database
 
-From TiDB Cloud's SQL Editor, or any MySQL client:
+From Neon's SQL Editor (Vercel → Storage → your database → Open in Neon), TiDB Cloud's SQL Editor, or any client:
 
 ```sql
 SELECT received_at, name, email, business, revenue, situation
 FROM submissions
-WHERE spam = 0
+WHERE NOT spam
 ORDER BY id DESC;
 ```
 
@@ -150,7 +155,7 @@ so a silent SMTP failure is visible rather than invisible. `spam = true` marks
 a submission the filters caught — worth a glance now and then in case
 something genuine landed there.
 
-Enquiries are written to TiDB **before** the email is attempted, so a bad SMTP
+Enquiries are written to the database **before** the email is attempted, so a bad SMTP
 password can never lose one.
 
 Newsletter sign-ups live in `subscribers` (one row per address — signing up
@@ -210,7 +215,7 @@ No CAPTCHA. Three quiet layers instead:
 2. A timing check — a form completed in under 2.5 seconds isn't being read.
    No upper bound on purpose: someone who opens the page, gets pulled away and
    sends it the next morning is exactly who this is for.
-3. Rate limiting, five per IP per hour (for each form), counted in TiDB. The
+3. Rate limiting, five per IP per hour (for each form), counted in the database. The
    count is taken before the insert, so a flood can't fill the table with the
    rows it was rejected for.
 

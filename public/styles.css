@@ -367,6 +367,7 @@ em { font-style: normal; }
   line-height: 0.92;
   letter-spacing: -0.03em;
   color: var(--slate);
+  white-space: nowrap;
 }
 .formula .body { max-width: 24rem; }
 /* Figma's text boxes, so each description breaks where the design does. */

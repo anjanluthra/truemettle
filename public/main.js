@@ -250,7 +250,7 @@
             summary.hidden = false;
             summary.textContent = (error && error.message && error.message !== 'rejected' && error.message.length < 160)
               ? error.message
-              : 'Something went wrong sending that. Nothing has been lost — please try again, or email inquiries@truemettle.com.';
+              : 'Something went wrong sending that. Nothing has been lost — please try again, or email anjan@joindeployed.com.';
           })
           .then(function () {
             button.disabled = false;

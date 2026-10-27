@@ -304,6 +304,45 @@
     if (location.hash === '#contact') open();
   }
 
+  /* ── Privacy and cookie policies: each a popup from the footer ──────────── */
+  if (typeof HTMLDialogElement === 'function') {
+    var policies = {};
+    Array.prototype.forEach.call(document.querySelectorAll('.policy'), function (policy) {
+      var box = document.createElement('dialog');
+      box.className = 'deck-dialog policy-dialog';
+      box.setAttribute('aria-labelledby', policy.getAttribute('aria-labelledby'));
+      var shut = document.createElement('button');
+      shut.type = 'button';
+      shut.className = 'deck-dialog__close';
+      shut.setAttribute('aria-label', 'Close');
+      shut.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14"/></svg>';
+      shut.addEventListener('click', function () { box.close(); });
+      box.addEventListener('click', function (event) { if (event.target === box) box.close(); });
+      box.addEventListener('close', function () { document.documentElement.classList.remove('is-deck-open'); });
+      box.appendChild(shut);
+      box.appendChild(policy);
+      document.body.appendChild(box);
+      policies[policy.id] = box;
+    });
+    var holder = document.querySelector('.policies');
+    if (holder) holder.parentNode.removeChild(holder);
+
+    var openPolicy = function (id) {
+      var box = policies[id];
+      if (!box || box.open) return false;
+      box.showModal();
+      box.scrollTop = 0;
+      document.documentElement.classList.add('is-deck-open');
+      return true;
+    };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-policy]'), function (link) {
+      link.addEventListener('click', function (event) {
+        if (openPolicy(link.getAttribute('href').slice(1))) event.preventDefault();
+      });
+    });
+    if (location.hash) openPolicy(location.hash.slice(1));
+  }
+
   /* ── Sideways rows (sectors, process): arrows that step them ────────────── */
   Array.prototype.forEach.call(document.querySelectorAll('[data-row-nav]'), function (nav) {
     var row = document.querySelector('[data-row="' + nav.getAttribute('data-row-nav') + '"]');

@@ -3,7 +3,7 @@ import { saveSubscriber } from '../src/store.js';
 import { resultPage } from '../src/contact.js';
 import { parseBody, wantsJson, clientIp, reply } from '../src/http.js';
 
-/* POST /api/subscribe — newsletter ("Fifth") sign-ups, stored in TiDB.
+/* POST /api/subscribe — newsletter ("Fifth") sign-ups, stored in the database.
  *
  * JSON for the page's fetch; a plain result page for a browser posting the
  * footer form without JavaScript.

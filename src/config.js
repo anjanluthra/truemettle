@@ -36,7 +36,7 @@ const bool = (value, fallback = false) =>
 /* The values baked into public/index.html, so the static host serving that
    file gets a correct page. Only a differing environment rewrites them. */
 export const DEFAULTS = {
-  siteUrl: 'https://truemettle.com',
+  siteUrl: 'https://truemettle.co',
   personalSiteUrl: 'https://anjanluthra.com'
 };
 
@@ -52,7 +52,8 @@ export const config = {
   /* TiDB, which speaks MySQL. TiDB Cloud's connect dialog hands you either a
      connection string or the five parts separately — take whichever is set. */
   database: {
-    url: process.env.DATABASE_URL || process.env.TIDB_URL || '',
+    // Vercel's Postgres (Neon) sets DATABASE_URL and POSTGRES_URL; TiDB's is a mysql:// one.
+    url: process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.TIDB_URL || '',
     host: process.env.TIDB_HOST || '',
     port: Number(process.env.TIDB_PORT || 4000),
     user: process.env.TIDB_USER || '',

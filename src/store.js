@@ -1,14 +1,18 @@
 import { config, storeConfigured } from './config.js';
 
-/* Enquiries are written to TiDB before the email is attempted, so a bad SMTP
- * password can never lose one.
+/* Enquiries are written to the database before the email is attempted, so a
+ * bad SMTP password can never lose one.
  *
- * TiDB speaks the MySQL protocol, so this is mysql2 talking to it. A
- * serverless function gets a fresh process often and a reused one sometimes,
- * so this opens a connection per request and closes it in a finally — no pool
- * to leak across invocations. At this volume the handshake costs nothing that
- * matters.
+ * Two databases are supported, chosen by the connection string:
+ *   postgres://…  Postgres (Vercel's Storage tab: Neon), through pg
+ *   mysql://…     TiDB or MySQL, through mysql2
+ * A serverless function gets a fresh process often and a reused one
+ * sometimes, so this opens a connection per request and closes it in a
+ * finally — no pool to leak across invocations. At this volume the handshake
+ * costs nothing that matters.
  */
+
+const isPostgres = /^postgres(ql)?:/i.test(config.database.url);
 
 /* Indexes are declared inline rather than as separate CREATE INDEX statements:
    MySQL 8 has no CREATE INDEX IF NOT EXISTS, and one statement keeps mysql2's
@@ -49,10 +53,68 @@ CREATE TABLE IF NOT EXISTS subscribers (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `];
 
+const PG_SCHEMA = [`
+CREATE TABLE IF NOT EXISTS submissions (
+  id          BIGSERIAL    PRIMARY KEY,
+  received_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  name        VARCHAR(160) NOT NULL,
+  email       VARCHAR(255) NOT NULL,
+  business    VARCHAR(255) NULL,
+  revenue     VARCHAR(160) NULL,
+  situation   TEXT         NOT NULL,
+  ip          VARCHAR(64)  NULL,
+  user_agent  VARCHAR(320) NULL,
+  emailed     BOOLEAN      NOT NULL DEFAULT FALSE,
+  email_error VARCHAR(512) NULL,
+  spam        BOOLEAN      NOT NULL DEFAULT FALSE,
+  kind        VARCHAR(16)  NULL,
+  details     TEXT         NULL,
+  deck_url    VARCHAR(600) NULL
+)`,
+'CREATE INDEX IF NOT EXISTS submissions_received_at ON submissions (received_at)',
+'CREATE INDEX IF NOT EXISTS submissions_ip_received_at ON submissions (ip, received_at)', `
+CREATE TABLE IF NOT EXISTS subscribers (
+  id            BIGSERIAL    PRIMARY KEY,
+  email         VARCHAR(255) NOT NULL UNIQUE,
+  subscribed_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  ip            VARCHAR(64)  NULL,
+  user_agent    VARCHAR(320) NULL,
+  spam          BOOLEAN      NOT NULL DEFAULT FALSE
+)`,
+'CREATE INDEX IF NOT EXISTS subscribers_ip_subscribed_at ON subscribers (ip, subscribed_at)'];
+
 // Idempotent, but only worth running once per warm instance.
 let schemaReady = false;
 
+/* One small interface over both drivers: run(sql, params) → rows, with `?`
+   placeholders either way; insert(sql, params) → the new row's id. */
 async function connect() {
+  if (isPostgres) {
+    const { default: pg } = await import('pg');
+    const client = new pg.Client({ connectionString: config.database.url, connectionTimeoutMillis: 10000 });
+    await client.connect();
+    const run = async (sql, params = []) => {
+      let n = 0;
+      const result = await client.query(sql.replace(/\?/g, () => `$${++n}`), params);
+      return result.rows;
+    };
+    return {
+      run,
+      insert: async (sql, params) => Number((await run(`${sql} RETURNING id`, params))[0].id),
+      end: () => client.end()
+    };
+  }
+
+  const connection = await connectMysql();
+  return {
+    run: async (sql, params) => (await connection.query(sql, params))[0],
+    // MySQL has no RETURNING; the insert id comes back on the result.
+    insert: async (sql, params) => Number((await connection.execute(sql, params))[0].insertId),
+    end: () => connection.end()
+  };
+}
+
+async function connectMysql() {
   const { default: mysql } = await import('mysql2/promise');
 
   const options = {
@@ -85,12 +147,17 @@ const LATER_COLUMNS = [
   'ALTER TABLE submissions ADD COLUMN deck_url VARCHAR(600) NULL'
 ];
 
-async function ensureSchema(connection) {
+async function ensureSchema(db) {
   if (schemaReady) return;
-  for (const statement of SCHEMA) await connection.query(statement);
+  if (isPostgres) {
+    for (const statement of PG_SCHEMA) await db.run(statement);
+    schemaReady = true;
+    return;
+  }
+  for (const statement of SCHEMA) await db.run(statement);
   for (const statement of LATER_COLUMNS) {
     try {
-      await connection.query(statement);
+      await db.run(statement);
     } catch (error) {
       if (error.code !== 'ER_DUP_FIELDNAME' && error.errno !== 1060) throw error;
     }
@@ -110,23 +177,22 @@ async function ensureSchema(connection) {
 export async function saveSubmission(submission) {
   if (!storeConfigured) throw new Error('no_database_configured');
 
-  const connection = await connect();
+  const db = await connect();
   try {
-    await ensureSchema(connection);
+    await ensureSchema(db);
 
     if (submission.ip) {
       // The cutoff is computed here rather than with INTERVAL ? MINUTE, which
       // is the kind of thing drivers disagree about.
       const cutoff = new Date(Date.now() - config.rateLimit.windowMinutes * 60_000);
-      const [rows] = await connection.execute(
+      const rows = await db.run(
         'SELECT COUNT(*) AS count FROM submissions WHERE ip = ? AND received_at > ?',
         [submission.ip, cutoff]
       );
       if (Number(rows[0].count) >= config.rateLimit.max) return { rateLimited: true };
     }
 
-    // MySQL has no RETURNING; the insert id comes back on the result.
-    const [result] = await connection.execute(
+    const id = await db.insert(
       `INSERT INTO submissions
          (name, email, business, revenue, situation, ip, user_agent, spam, kind, details, deck_url)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -138,16 +204,16 @@ export async function saveSubmission(submission) {
         submission.situation || '',
         submission.ip || null,
         submission.userAgent || null,
-        submission.spam ? 1 : 0,
+        Boolean(submission.spam),
         submission.kind || null,
         submission.details ? JSON.stringify(submission.details) : null,
         submission.deckUrl || null
       ]
     );
 
-    return { id: Number(result.insertId) };
+    return { id };
   } finally {
-    await connection.end().catch(() => {});
+    await db.end().catch(() => {});
   }
 }
 
@@ -155,18 +221,18 @@ export async function saveSubmission(submission) {
 export async function recordEmailResult(id, ok, error) {
   if (!storeConfigured || id == null) return;
 
-  let connection;
+  let db;
   try {
-    connection = await connect();
-    await connection.execute(
+    db = await connect();
+    await db.run(
       'UPDATE submissions SET emailed = ?, email_error = ? WHERE id = ?',
-      [ok ? 1 : 0, error ? String(error).slice(0, 500) : null, id]
+      [Boolean(ok), error ? String(error).slice(0, 500) : null, id]
     );
   } catch (updateError) {
     // The enquiry is already safely stored; this is only bookkeeping.
     console.error('[store] could not record email result:', updateError.message);
   } finally {
-    if (connection) await connection.end().catch(() => {});
+    if (db) await db.end().catch(() => {});
   }
 }
 
@@ -179,31 +245,33 @@ export async function recordEmailResult(id, ok, error) {
 export async function saveSubscriber(subscriber) {
   if (!storeConfigured) throw new Error('no_database_configured');
 
-  const connection = await connect();
+  const db = await connect();
   try {
-    await ensureSchema(connection);
+    await ensureSchema(db);
 
     if (subscriber.ip) {
       const cutoff = new Date(Date.now() - config.rateLimit.windowMinutes * 60_000);
-      const [rows] = await connection.execute(
+      const rows = await db.run(
         'SELECT COUNT(*) AS count FROM subscribers WHERE ip = ? AND subscribed_at > ?',
         [subscriber.ip, cutoff]
       );
       if (Number(rows[0].count) >= config.rateLimit.max) return { rateLimited: true };
     }
 
-    await connection.execute(
-      `INSERT IGNORE INTO subscribers (email, ip, user_agent, spam) VALUES (?, ?, ?, ?)`,
+    await db.run(
+      isPostgres
+        ? 'INSERT INTO subscribers (email, ip, user_agent, spam) VALUES (?, ?, ?, ?) ON CONFLICT (email) DO NOTHING'
+        : 'INSERT IGNORE INTO subscribers (email, ip, user_agent, spam) VALUES (?, ?, ?, ?)',
       [
         subscriber.email.toLowerCase(),
         subscriber.ip || null,
         subscriber.userAgent || null,
-        subscriber.spam ? 1 : 0
+        Boolean(subscriber.spam)
       ]
     );
     return { ok: true };
   } finally {
-    await connection.end().catch(() => {});
+    await db.end().catch(() => {});
   }
 }
 
@@ -211,32 +279,32 @@ export async function saveSubscriber(subscriber) {
 export async function listAll({ limit = 1000 } = {}) {
   if (!storeConfigured) throw new Error('no_database_configured');
 
-  const connection = await connect();
+  const db = await connect();
   try {
-    await ensureSchema(connection);
+    await ensureSchema(db);
     const cap = Math.max(1, Math.min(Number(limit) || 1000, 10000));
-    const [submissions] = await connection.query(
+    const submissions = await db.run(
       `SELECT id, received_at, kind, name, email, business, revenue, situation, details, deck_url,
               emailed, email_error, spam
          FROM submissions ORDER BY id DESC LIMIT ${cap}`
     );
-    const [subscribers] = await connection.query(
+    const subscribers = await db.run(
       `SELECT id, subscribed_at, email, spam FROM subscribers ORDER BY id DESC LIMIT ${cap}`
     );
     return { submissions, subscribers };
   } finally {
-    await connection.end().catch(() => {});
+    await db.end().catch(() => {});
   }
 }
 
 /** Used by `npm run db:init` to create the table ahead of the first enquiry. */
 export async function initSchema() {
   if (!storeConfigured) throw new Error('no_database_configured');
-  const connection = await connect();
+  const db = await connect();
   try {
     schemaReady = false;
-    await ensureSchema(connection);
+    await ensureSchema(db);
   } finally {
-    await connection.end().catch(() => {});
+    await db.end().catch(() => {});
   }
 }

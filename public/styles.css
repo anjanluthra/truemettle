@@ -727,9 +727,15 @@ em { font-style: normal; }
   overscroll-behavior: contain;
 }
 .deck-dialog::backdrop {
-  background: rgba(47, 37, 37, 0.35);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  /* The hero, blurred, as in the Figma flow frames. */
+  background: #4a2a24 url("/img/deck-backdrop.webp") center / cover no-repeat;
+  background-image: image-set(url("/img/deck-backdrop.avif") type("image/avif"), url("/img/deck-backdrop.webp") type("image/webp"));
+}
+@media (max-aspect-ratio: 4/5) {
+  .deck-dialog::backdrop {
+    background-image: url("/img/deck-backdrop-portrait.webp");
+    background-image: image-set(url("/img/deck-backdrop-portrait.avif") type("image/avif"), url("/img/deck-backdrop-portrait.webp") type("image/webp"));
+  }
 }
 .deck-dialog .deck { padding: clamp(2.75rem, 3.75vw, 3.4rem) clamp(1.5rem, 3.4vw, 3rem) clamp(1.75rem, 2.5vw, 2.25rem); border: 0; }
 .deck-dialog .flow__screen + .flow__screen { margin-top: 0; }

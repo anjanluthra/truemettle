@@ -36,8 +36,8 @@ const TYPES = {
 const SECURITY_HEADERS = {
   'Content-Security-Policy':
     "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
-    "form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self'; " +
-    "script-src 'self'; connect-src 'self' https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com",
+    "form-action 'self'; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self'; style-src 'self'; " +
+    "script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com",
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'geolocation=(), camera=(), microphone=(), interest-cohort=()'

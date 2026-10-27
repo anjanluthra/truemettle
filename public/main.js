@@ -304,27 +304,28 @@
     if (location.hash === '#contact') open();
   }
 
-  /* ── Process: arrows that step the row sideways ───────────────────────── */
-  var steps = document.querySelector('.process__steps');
-  var nav = document.querySelector('.process__nav');
-  if (steps && nav) {
-    var arrows = nav.querySelectorAll('.process__arrow');
+  /* ── Sideways rows (sectors, process): arrows that step them ────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-row-nav]'), function (nav) {
+    var row = document.querySelector('[data-row="' + nav.getAttribute('data-row-nav') + '"]');
+    if (!row) return;
+    var arrows = nav.querySelectorAll('.row-arrow');
     var sync = function () {
-      var max = steps.scrollWidth - steps.clientWidth - 2;
-      arrows[0].disabled = steps.scrollLeft <= 2;
-      arrows[1].disabled = steps.scrollLeft >= max;
+      var max = row.scrollWidth - row.clientWidth - 2;
+      arrows[0].disabled = row.scrollLeft <= 2;
+      arrows[1].disabled = row.scrollLeft >= max;
       nav.hidden = max <= 0;
     };
     Array.prototype.forEach.call(arrows, function (button) {
       button.addEventListener('click', function () {
-        var step = steps.querySelector('.step');
-        steps.scrollBy({ left: Number(button.dataset.dir) * (step ? step.offsetWidth : 300), behavior: 'smooth' });
+        var item = row.firstElementChild;
+        var gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+        row.scrollBy({ left: Number(button.dataset.dir) * (item ? item.offsetWidth + gap : 300), behavior: 'smooth' });
       });
     });
-    steps.addEventListener('scroll', sync, { passive: true });
+    row.addEventListener('scroll', sync, { passive: true });
     window.addEventListener('resize', sync);
     sync();
-  }
+  });
 
   /* ── Newsletter sign-up ───────────────────────────────────────────────── */
   var subscribe = document.getElementById('subscribe-form');

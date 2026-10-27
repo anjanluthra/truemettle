@@ -351,16 +351,32 @@ em { font-style: normal; }
 }
 .formula .body { max-width: 24rem; }
 
-/* ── Where we invest ──────────────────────────────────────────────────────── */
-.sectors { padding-top: clamp(2.5rem, 4.5vw, 4rem); }
+/* ── Where we invest ──────────────────────────────────────────────────────
+   Figma: heading at x45, cards 399×502 from x529 with 25px gaps, the row
+   running on past the right edge (two in full, the third peeking). */
+.sectors {
+  padding-top: clamp(1.25rem, 1.875vw, 1.6875rem);      /* 27 */
+  padding-left: clamp(1.25rem, 3.125vw, 2.8125rem);     /* 45 */
+  padding-right: 0;
+}
 .sectors__grid {
   display: grid;
-  grid-template-columns: minmax(0, 18.5rem) repeat(4, minmax(0, 1fr));
-  gap: clamp(0.75rem, 1.1vw, 1rem);
+  grid-template-columns: clamp(14rem, 33.6vw, 30.25rem) minmax(0, 1fr);  /* 484 */
   align-items: start;
 }
-.sectors .display { padding-top: 2.4rem; max-width: 20rem; }
-.sectors__photos { display: contents; }
+.sectors__head { padding-top: clamp(1.5rem, 2.7vw, 2.4375rem); }       /* 39 */
+.sectors .display { max-width: 19.75rem; }                              /* 316 */
+.sectors__photos {
+  display: flex;
+  gap: clamp(1rem, 1.736vw, 1.5625rem);                                 /* 25 */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.sectors__photos::-webkit-scrollbar { display: none; }
+.sector { flex: 0 0 clamp(15rem, 27.7vw, 24.9375rem); scroll-snap-align: start; }  /* 399 */
 .sector img {
   width: 100%;
   height: auto;
@@ -368,11 +384,14 @@ em { font-style: normal; }
   object-fit: cover;
 }
 .sector figcaption {
-  margin-top: 1.1rem;
-  font-size: clamp(0.75rem, 0.9vw, 0.8125rem);
+  margin-top: 1.1875rem;                                                /* 19 */
+  font-size: clamp(0.9375rem, 1.39vw, 1.25rem);                         /* 20 */
+  line-height: 1.05;
   letter-spacing: 0.11em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
+.sectors .cta-row { padding-right: var(--gutter); }
 
 /* ── Why ──────────────────────────────────────────────────────────────────── */
 .why { padding-top: 0; }
@@ -428,9 +447,9 @@ em { font-style: normal; }
 .process__steps::-webkit-scrollbar { display: none; }
 .process__steps:focus-visible { outline-offset: -2px; }
 .step { flex: 0 0 clamp(16rem, 30.8vw, 27.7rem); scroll-snap-align: start; }
-.process__nav { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
-.process__nav[hidden] { display: none; }
-.process__arrow {
+.row-nav { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+.row-nav[hidden] { display: none; }
+.row-arrow {
   width: 2.5rem;
   height: 2.5rem;
   display: grid;
@@ -442,9 +461,9 @@ em { font-style: normal; }
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
-.process__arrow svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 1.4; }
-.process__arrow:hover { background: rgba(47, 37, 37, 0.06); }
-.process__arrow:disabled { opacity: 0.3; cursor: default; background: none; }
+.row-arrow svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.row-arrow:hover { background: rgba(47, 37, 37, 0.06); }
+.row-arrow:disabled { opacity: 0.3; cursor: default; background: none; }
 .step {
   display: flex;
   flex-direction: column;
@@ -884,8 +903,8 @@ em { font-style: normal; }
 @media (max-width: 64rem) {
   .formula__list { gap: 2.5rem; }
   .formula__head { flex-direction: column; gap: 0.5rem; }
-  .sectors__grid { grid-template-columns: 1fr 1fr; }
-  .sectors .display { grid-column: 1 / -1; padding-top: 0; max-width: none; margin-bottom: 1.5rem; }
+  .sectors__grid { grid-template-columns: 1fr; }
+  .sectors__head { padding-top: 0; margin-bottom: 2rem; }
   .process__grid { grid-template-columns: 1fr; }
   .process__label { padding-bottom: 2rem; }
   .faqs { grid-template-columns: 1fr; row-gap: 1.5rem; }
@@ -952,11 +971,12 @@ em { font-style: normal; }
   .formula__head .numeral { font-size: 3.75rem; }
   .formula__title { font-size: 1.875rem; text-align: right; }
 
-  .sectors { padding-top: 3.5rem; }
+  .sectors { padding: 3.5rem var(--gutter) 2.5rem; }
   .sectors__grid { display: block; }
-  .sectors .display { font-size: 3.125rem; line-height: 0.86; padding-top: 0; margin-bottom: 2.5rem; max-width: 12rem; }
-  .sectors__photos { margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); }
-  .sector figcaption { font-size: 0.8125rem; }
+  .sectors .display { font-size: 3.125rem; line-height: 0.86; max-width: 12rem; }
+  .sectors__photos { margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); gap: 1.25rem; }
+  .sector figcaption { font-size: 0.8125rem; white-space: normal; }
+  .sectors .cta-row { padding-right: 0; }
 
   .why__grid { grid-template-columns: 1fr; row-gap: 1.75rem; margin-top: 3rem; }
   .point { min-height: 0; padding-left: 1.05rem; border-left-width: 2px; }

@@ -140,33 +140,39 @@
   <!-- ── WHERE WE INVEST ──────────────────────────────────────────────────── -->
   <section class="block sectors" aria-labelledby="sectors-heading">
     <div class="sectors__grid">
-      <h2 class="display" id="sectors-heading">Where we invest</h2>
-      <div class="sectors__photos">
+      <div class="sectors__head">
+        <h2 class="display" id="sectors-heading">Where we invest</h2>
+        <div class="row-nav" data-row-nav="sectors" hidden>
+          <button type="button" class="row-arrow" data-dir="-1" aria-label="Previous sectors"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg></button>
+          <button type="button" class="row-arrow" data-dir="1" aria-label="More sectors"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
+        </div>
+      </div>
+      <div class="sectors__photos" data-row="sectors" tabindex="0" aria-label="Four sectors, scroll sideways">
       <figure class="sector">
         <picture>
-      <source type="image/avif" data-photo="sport" srcset="/img/sport-400.avif 400w, /img/sport-800.avif 800w, /img/sport-1125.avif 1125w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
-      <img data-photo="sport" src="/img/sport-1125.webp" srcset="/img/sport-400.webp 400w, /img/sport-800.webp 800w, /img/sport-1125.webp 1125w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="Overhead view of a clay tennis court" loading="lazy" decoding="async">
+      <source type="image/avif" data-photo="sport" srcset="/img/sport-400.avif 400w, /img/sport-800.avif 800w, /img/sport-1125.avif 1125w" sizes="(max-width: 767px) 82vw, 400px">
+      <img data-photo="sport" src="/img/sport-1125.webp" srcset="/img/sport-400.webp 400w, /img/sport-800.webp 800w, /img/sport-1125.webp 1125w" sizes="(max-width: 767px) 82vw, 400px" width="399" height="502" alt="Overhead view of a clay tennis court" loading="lazy" decoding="async">
     </picture>
         <figcaption>Sport &amp; Fitness</figcaption>
       </figure>
       <figure class="sector">
         <picture>
-      <source type="image/avif" data-photo="media" srcset="/img/media-400.avif 400w, /img/media-800.avif 800w, /img/media-1200.avif 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
-      <img data-photo="media" src="/img/media-1200.webp" srcset="/img/media-400.webp 400w, /img/media-800.webp 800w, /img/media-1200.webp 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="A podcaster in headphones speaking into a studio microphone" loading="lazy" decoding="async">
+      <source type="image/avif" data-photo="media" srcset="/img/media-400.avif 400w, /img/media-800.avif 800w, /img/media-1200.avif 1200w" sizes="(max-width: 767px) 82vw, 400px">
+      <img data-photo="media" src="/img/media-1200.webp" srcset="/img/media-400.webp 400w, /img/media-800.webp 800w, /img/media-1200.webp 1200w" sizes="(max-width: 767px) 82vw, 400px" width="399" height="502" alt="A podcaster in headphones speaking into a studio microphone" loading="lazy" decoding="async">
     </picture>
         <figcaption>Media &amp; Entertainment</figcaption>
       </figure>
       <figure class="sector">
         <picture>
-      <source type="image/avif" data-photo="digital" srcset="/img/digital-400.avif 400w, /img/digital-800.avif 800w, /img/digital-1200.avif 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
-      <img data-photo="digital" src="/img/digital-1200.webp" srcset="/img/digital-400.webp 400w, /img/digital-800.webp 800w, /img/digital-1200.webp 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="A laptop open on a desk among papers and a parcel" loading="lazy" decoding="async">
+      <source type="image/avif" data-photo="digital" srcset="/img/digital-400.avif 400w, /img/digital-800.avif 800w, /img/digital-1200.avif 1200w" sizes="(max-width: 767px) 82vw, 400px">
+      <img data-photo="digital" src="/img/digital-1200.webp" srcset="/img/digital-400.webp 400w, /img/digital-800.webp 800w, /img/digital-1200.webp 1200w" sizes="(max-width: 767px) 82vw, 400px" width="399" height="502" alt="A laptop open on a desk among papers and a parcel" loading="lazy" decoding="async">
     </picture>
         <figcaption>Digital Services</figcaption>
       </figure>
       <figure class="sector">
         <picture>
-      <source type="image/avif" data-photo="live" srcset="/img/live-400.avif 400w, /img/live-800.avif 800w, /img/live-1200.avif 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px">
-      <img data-photo="live" src="/img/live-1200.webp" srcset="/img/live-400.webp 400w, /img/live-800.webp 800w, /img/live-1200.webp 1200w" sizes="(max-width: 767px) 82vw, (max-width: 1024px) 50vw, 300px" width="399" height="502" alt="Silhouettes of people in front of tall, sunlit curtains" loading="lazy" decoding="async">
+      <source type="image/avif" data-photo="live" srcset="/img/live-400.avif 400w, /img/live-800.avif 800w, /img/live-1200.avif 1200w" sizes="(max-width: 767px) 82vw, 400px">
+      <img data-photo="live" src="/img/live-1200.webp" srcset="/img/live-400.webp 400w, /img/live-800.webp 800w, /img/live-1200.webp 1200w" sizes="(max-width: 767px) 82vw, 400px" width="399" height="502" alt="Silhouettes of people in front of tall, sunlit curtains" loading="lazy" decoding="async">
     </picture>
         <figcaption>Live Events &amp; Experiences</figcaption>
       </figure>
@@ -217,12 +223,12 @@
     <div class="process__grid">
       <div class="process__label">
         <h2 class="eyebrow" id="process-heading">The process</h2>
-        <div class="process__nav" hidden>
-          <button type="button" class="process__arrow" data-dir="-1" aria-label="Previous steps"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg></button>
-          <button type="button" class="process__arrow" data-dir="1" aria-label="Next steps"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
+        <div class="row-nav" data-row-nav="process" hidden>
+          <button type="button" class="row-arrow" data-dir="-1" aria-label="Previous steps"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg></button>
+          <button type="button" class="row-arrow" data-dir="1" aria-label="Next steps"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
         </div>
       </div>
-      <ol class="process__steps" tabindex="0" aria-label="Seven steps, scroll sideways">
+      <ol class="process__steps" data-row="process" tabindex="0" aria-label="Seven steps, scroll sideways">
         <li class="step">
           <span class="numeral" aria-hidden="true">01.</span>
           <div class="step__copy">

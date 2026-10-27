@@ -1,5 +1,6 @@
 import { storeConfigured } from '../src/config.js';
 import { saveSubscriber } from '../src/store.js';
+import { sendSubscriberEmails } from '../src/mail.js';
 import { resultPage } from '../src/contact.js';
 import { parseBody, wantsJson, clientIp, reply } from '../src/http.js';
 
@@ -68,6 +69,8 @@ export default async function handler(req, res) {
         html: page('Not signed up', message)
       });
     }
+    // Only the first sign-up gets the welcome; spam gets nothing.
+    if (result.isNew && !spam) await sendSubscriberEmails(email);
   } catch (error) {
     console.error('[subscribe] could not store sign-up:', error);
     const message = 'Something went wrong at our end. Please try again.';

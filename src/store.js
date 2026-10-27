@@ -1,7 +1,7 @@
 import { config, storeConfigured } from './config.js';
 
 /* Enquiries are written to the database before the email is attempted, so a
- * bad SMTP password can never lose one.
+ * failed email can never lose one.
  *
  * Two databases are supported, chosen by the connection string:
  *   postgres://…  Postgres (Vercel's Storage tab: Neon), through pg
@@ -240,7 +240,7 @@ export async function recordEmailResult(id, ok, error) {
  * Add one newsletter sign-up. Signing up twice is not an error: the second
  * time just leaves the original row alone. Same rate limit as the form.
  *
- * Returns { rateLimited: true } or { ok: true }.
+ * Returns { rateLimited: true } or { ok: true, isNew }.
  */
 export async function saveSubscriber(subscriber) {
   if (!storeConfigured) throw new Error('no_database_configured');
@@ -258,9 +258,9 @@ export async function saveSubscriber(subscriber) {
       if (Number(rows[0].count) >= config.rateLimit.max) return { rateLimited: true };
     }
 
-    await db.run(
+    const result = await db.run(
       isPostgres
-        ? 'INSERT INTO subscribers (email, ip, user_agent, spam) VALUES (?, ?, ?, ?) ON CONFLICT (email) DO NOTHING'
+        ? 'INSERT INTO subscribers (email, ip, user_agent, spam) VALUES (?, ?, ?, ?) ON CONFLICT (email) DO NOTHING RETURNING id'
         : 'INSERT IGNORE INTO subscribers (email, ip, user_agent, spam) VALUES (?, ?, ?, ?)',
       [
         subscriber.email.toLowerCase(),
@@ -269,7 +269,8 @@ export async function saveSubscriber(subscriber) {
         Boolean(subscriber.spam)
       ]
     );
-    return { ok: true };
+    // Postgres returns the new row; MySQL reports how many rows it wrote.
+    return { ok: true, isNew: isPostgres ? result.length > 0 : result.affectedRows > 0 };
   } finally {
     await db.end().catch(() => {});
   }

@@ -254,6 +254,8 @@ em { font-style: normal; }
   letter-spacing: -0.02em;
 }
 .mission__text p + p { margin-top: 1.085em; }
+.mission__text .mission__label { margin-bottom: clamp(1.75rem, 3vw, 2.75rem); }
+.mission__text .mission__label + p { margin-top: 0; }
 .accent { color: var(--rust); }
 
 /* ── Founder ──────────────────────────────────────────────────────────────── */

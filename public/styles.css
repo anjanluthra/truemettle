@@ -476,6 +476,8 @@ em { font-style: normal; }
   border-left: 1px solid var(--hairline);
 }
 .step:last-child { border-right: 1px solid var(--hairline); }
+/* Room for the longest description, so every title sits on the same line. */
+.step__copy { min-height: var(--step-copy, 8.5rem); }
 .step__title {
   margin-bottom: 0.6rem;
   font-family: var(--serif);

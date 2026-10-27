@@ -1051,6 +1051,9 @@ em { font-style: normal; }
   .process .cta-row { padding-top: 4rem; }
 
   .closing { grid-template-columns: 1fr; }
+  /* Figma mobile: a 368-tall rust block, text 35 from the top and 25 in. */
+  .closing__panel { min-height: 23rem; padding: 2.1875rem var(--gutter) 2.5rem 1.5625rem; }
+  .closing__text { font-size: 2.473rem; line-height: 1.06; }   /* 39.6 / 42 */
   .closing__photo { aspect-ratio: 402 / 362; }
 
   .faqs { padding-top: 3rem; }

@@ -1,5 +1,9 @@
 /* Validation and the no-JavaScript response pages. */
 
+// Decks go straight from the browser to Vercel Blob; only a link into our
+// store's decks/ folder is accepted.
+import { cleanDeckUrl } from './decks.js';
+
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const LIMITS = {
@@ -27,14 +31,6 @@ const list = (value, allowed) =>
   [].concat(value ?? []).map(str).filter((item) => allowed.includes(item));
 const one = (value, allowed) => list(value, allowed)[0] || '';
 
-// Decks are uploaded straight to Vercel Blob by the browser; only accept a
-// link that points there.
-const deckUrl = (value) => {
-  const url = str(value);
-  return /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\/decks\//i.test(url) && url.length <= 600
-    ? url
-    : '';
-};
 
 /**
  * Two routes share the endpoint: `pitch` (send your deck) and `press`
@@ -63,7 +59,7 @@ export function validateSubmission(raw) {
   if (kind === 'pitch') {
     clean.business = str(raw.company).slice(0, LIMITS.business);
     clean.revenue = str(raw.revenue).slice(0, LIMITS.revenue);
-    clean.deckUrl = deckUrl(raw.deck_url);
+    clean.deckUrl = cleanDeckUrl(raw.deck_url);
     clean.details = {
       website: str(raw.website).slice(0, LIMITS.website),
       sector: list(raw.sector, CHOICES.sector),

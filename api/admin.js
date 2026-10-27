@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { storeConfigured } from '../src/config.js';
 import { listAll } from '../src/store.js';
+import { cleanDeckUrl, deckLink, isPublicDeck } from '../src/decks.js';
 
 /* GET /api/admin — a password-protected view of every enquiry and newsletter
  * sign-up, with CSV export.
@@ -8,6 +9,8 @@ import { listAll } from '../src/store.js';
  *   /api/admin                          the tables
  *   /api/admin?export=submissions       CSV of enquiries
  *   /api/admin?export=subscribers       CSV of sign-ups
+ *   /api/admin?deck=<blob url>          one uploaded deck, streamed from a
+ *                                       private Blob store
  *
  * HTTP Basic auth; any username, password = ADMIN_PASSWORD. With no
  * ADMIN_PASSWORD set the page does not exist.
@@ -80,7 +83,7 @@ function page({ submissions, subscribers }) {
   <td>${escapeHtml(s.business)}</td>
   <td>${escapeHtml(s.revenue)}</td>
   <td class="wrap">${escapeHtml(detailsText(s.details))}</td>
-  <td>${s.deck_url ? `<a href="${escapeHtml(s.deck_url)}" rel="noopener noreferrer" target="_blank">Open PDF</a>` : ''}</td>
+  <td>${s.deck_url ? `<a href="${escapeHtml(deckLink(s.deck_url, ''))}" rel="noopener noreferrer" target="_blank">Open PDF</a>` : ''}</td>
   <td class="wrap">${escapeHtml(s.situation)}</td>
   <td>${s.spam ? 'spam' : s.emailed ? 'emailed' : `<span title="${escapeHtml(s.email_error)}">not emailed</span>`}</td>
 </tr>`
@@ -148,6 +151,31 @@ ${subscriberRows}
 </html>`;
 }
 
+async function sendDeck(res, value) {
+  const url = cleanDeckUrl(value);
+  if (!url) {
+    res.status(400).send('Not a deck link.');
+    return;
+  }
+  try {
+    const { get } = await import('@vercel/blob');
+    const result = await get(url, { access: isPublicDeck(url) ? 'public' : 'private' });
+    if (!result || result.statusCode !== 200) {
+      res.status(404).send('That deck is no longer in storage.');
+      return;
+    }
+    const { Readable } = await import('node:stream');
+    const name = (url.split('/').pop() || 'deck.pdf').replace(/[^\w.-]+/g, '_');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${name}"`);
+    res.status(200);
+    Readable.fromWeb(result.stream).pipe(res);
+  } catch (error) {
+    console.error('[admin] could not fetch deck:', error.message);
+    res.status(502).send('Could not fetch that deck.');
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
@@ -166,6 +194,14 @@ export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.setHeader('Allow', 'GET');
     res.status(405).send('Method not allowed');
+    return;
+  }
+
+  // A deck in the private Blob store: only the store's token can read it, so
+  // it is streamed through here, behind the same password.
+  const deckParam = new URL(req.url, 'http://localhost').searchParams.get('deck');
+  if (deckParam !== null) {
+    await sendDeck(res, deckParam);
     return;
   }
 

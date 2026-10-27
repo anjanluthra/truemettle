@@ -1,4 +1,5 @@
 import { config, mailConfigured } from './config.js';
+import { deckLink } from './decks.js';
 
 /* Nodemailer is loaded lazily so the site still boots — and still captures
    enquiries — on a box where SMTP was never configured. */
@@ -51,7 +52,7 @@ function plainBody(s) {
           `Trading:     ${yes(d.trading)}`,
           `Profitable:  ${yes(d.profitable)}`,
           `Revenue:     ${s.revenue || '—'}`,
-          `Deck:        ${s.deckUrl || 'not uploaded'}`,
+          `Deck:        ${s.deckUrl ? deckLink(s.deckUrl) : 'not uploaded'}`,
           '',
           'In their words',
           '──────────────',

@@ -168,7 +168,7 @@
       var file = input.files[0];
       var safe = file.name.replace(/[^\w.\-]+/g, '-').slice(-80);
       return loadUploader().then(function (blob) {
-        return blob.upload('decks/' + safe, file, { access: 'public', handleUploadUrl: '/api/deck-upload' });
+        return blob.upload('decks/' + safe, file, { access: 'private', handleUploadUrl: '/api/deck-upload' });
       }).then(function (result) { target.value = result.url; });
     };
 

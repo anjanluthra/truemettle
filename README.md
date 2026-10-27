@@ -126,8 +126,12 @@ or `press`; the route-specific answers are stored as JSON in `details`.
 
 Decks upload straight from the browser to Vercel Blob (a function can't take
 a 20MB body); `/api/deck-upload` only issues the one-time token. Uploads stay
-hidden until `BLOB_READ_WRITE_TOKEN` is set. Blob links are public but
-unguessable, and only the admin page and the notification email show them.
+hidden until `BLOB_READ_WRITE_TOKEN` is set. The store is **private**: a deck
+can't be opened from its Blob URL, so the admin page and the notification
+email link to `/admin?deck=…`, which streams it behind the admin password.
+The browser bundle (`public/vendor/blob-upload.js`) is built from
+`tools/vendor/blob-upload-entry.js` with
+`npx esbuild@0.24.0 tools/vendor/blob-upload-entry.js --bundle --minify --format=iife --platform=browser --target=es2019 --outfile=public/vendor/blob-upload.js`.
 
 ## Reading enquiries and sign-ups
 

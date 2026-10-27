@@ -30,9 +30,6 @@ try {
   /* a read-only filesystem is fine — the environment is already set */
 }
 
-const bool = (value, fallback = false) =>
-  value === undefined ? fallback : /^(1|true|yes|on)$/i.test(value);
-
 /* The values baked into public/index.html, so the static host serving that
    file gets a correct page. Only a differing environment rewrites them. */
 export const DEFAULTS = {
@@ -63,17 +60,14 @@ export const config = {
     ssl: !/^(0|false|no|off)$/i.test(process.env.TIDB_SSL ?? 'true')
   },
 
+  // Email via Resend. Alerts go to the team; confirmations go to the person
+  // who wrote in, with replies to REPLY_TO.
   mail: {
-    to: process.env.CONTACT_EMAIL_TO || '',
-    from: process.env.CONTACT_EMAIL_FROM || '',
-    subjectPrefix: process.env.CONTACT_SUBJECT_PREFIX || 'True Mettle',
-    smtp: {
-      host: process.env.SMTP_HOST || '',
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: bool(process.env.SMTP_SECURE, Number(process.env.SMTP_PORT || 587) === 465),
-      user: process.env.SMTP_USER || '',
-      pass: process.env.SMTP_PASS || ''
-    }
+    apiKey: process.env.RESEND_API_KEY || '',
+    to: (process.env.NOTIFY_EMAIL || 'anjan@joindeployed.com').split(',').map((s) => s.trim()).filter(Boolean),
+    from: process.env.NOTIFY_FROM || 'True Mettle <admin@truemettle.co>',
+    replyTo: process.env.REPLY_TO || 'anjan@joindeployed.com',
+    subjectPrefix: process.env.CONTACT_SUBJECT_PREFIX || 'True Mettle'
   },
 
   rateLimit: {
@@ -82,13 +76,23 @@ export const config = {
   }
 };
 
-export const mailConfigured = Boolean(
-  config.mail.to && config.mail.from && config.mail.smtp.host
-);
+export const mailConfigured = Boolean(config.mail.apiKey && config.mail.to.length && config.mail.from);
 
 export const storeConfigured = Boolean(
   config.database.url || (config.database.host && config.database.user)
 );
 
 // Vercel Blob, for deck uploads. Without it the form asks for a few lines instead.
-export const blobConfigured = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+// A store connected the current way sets only BLOB_STORE_ID, and the function
+// signs in with the deployment's own OIDC identity. An older connection sets a
+// read-write token instead: BLOB_READ_WRITE_TOKEN, or <PREFIX>_READ_WRITE_TOKEN
+// when the store was given a custom prefix.
+export const blobToken =
+  process.env.BLOB_READ_WRITE_TOKEN ||
+  Object.entries(process.env).find(([key, value]) => /_READ_WRITE_TOKEN$/.test(key) && /^vercel_blob_rw_/.test(value || ''))?.[1] ||
+  '';
+export const blobConfigured = Boolean(blobToken || process.env.BLOB_STORE_ID);
+
+// Credentials for @vercel/blob calls made while answering a request.
+export const blobAuth = (req) =>
+  blobToken ? { token: blobToken } : { oidcToken: String(req.headers['x-vercel-oidc-token'] || process.env.VERCEL_OIDC_TOKEN || '') || undefined };

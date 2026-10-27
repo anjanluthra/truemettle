@@ -1,6 +1,6 @@
 import { mailConfigured, storeConfigured } from '../src/config.js';
 import { saveSubmission, recordEmailResult } from '../src/store.js';
-import { sendNotification } from '../src/mail.js';
+import { sendNotification, sendConfirmation } from '../src/mail.js';
 import {
   validateSubmission,
   looksAutomated,
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
   if (!storeConfigured && !mailConfigured) {
     const message =
       'The contact form isn’t connected yet. Please try again shortly, or email me directly.';
-    console.error('[contact] refused: neither DATABASE_URL nor SMTP is configured');
+    console.error('[contact] refused: neither DATABASE_URL nor RESEND_API_KEY is configured');
     return reply(res, json, 503, {
       payload: { ok: false, message },
       html: errorPage({ unconfigured: message })
@@ -96,13 +96,15 @@ export default async function handler(req, res) {
   }
 
   // Stored safely, so the notification can be awaited without holding the
-  // reply hostage to SMTP: a serverless function stops executing once it
+  // reply hostage to Resend: a serverless function stops executing once it
   // responds, so this has to finish first.
   if (spam) {
     console.info('[contact] #%s flagged as automated — stored, not emailed', id ?? '—');
   } else {
     const result = await sendNotification(submission);
     await recordEmailResult(id, result.ok, result.error);
+    // The branded "received" email to them; its outcome is only logged.
+    await sendConfirmation(submission);
     console.info(
       '[contact] #%s from %s — email %s',
       id ?? '—',

@@ -21,7 +21,7 @@ and a password-protected admin page to read both.
 | Hosting | Vercel, serving `public/` statically | Already wired to the repo; deploys on push |
 | Functions | `api/contact.js`, `api/subscribe.js`, `api/admin.js` | The only server-side code in the project |
 | Storage | Postgres (Vercel Storage → Neon) via `pg`, or TiDB/MySQL via `mysql2` | Vercel has no disk; a hosted table is the equivalent. The connection string picks the driver |
-| Email | `nodemailer` over SMTP | Provider-agnostic |
+| Email | Resend (HTTP API) | Same setup as anjanluthra.com |
 | Type | Nanum Myeongjo + Work Sans, self-hosted latin subsets | No Google Fonts request, no third party watching visitors |
 | Images | Responsive AVIF + WebP from `tools/make-photos.py` | Sized per screen; everything below the fold lazy-loads |
 
@@ -78,21 +78,22 @@ npm run db:init        # creates the submissions table and proves it's reachable
 The function also creates the table lazily on the first enquiry, so this is
 really a way to find out about a bad connection string before a founder does.
 
-### 2. Add the SMTP settings
+### 2. Turn on email (Resend)
 
-Set these in the Vercel project's **Environment Variables**:
+As on anjanluthra.com, every enquiry and Fifth sign-up sends two emails: a
+plain alert to the team, and a branded confirmation to the person who wrote in
+(`src/emails.js`, images in `public/email/`). Set these in the Vercel project's
+**Environment Variables**:
 
-| Variable | Example |
+| Variable | Value |
 | --- | --- |
-| `CONTACT_EMAIL_TO` | `anjan@truemettle.com` |
-| `CONTACT_EMAIL_FROM` | `True Mettle <site@truemettle.com>` — must be a sender your provider allows |
-| `SMTP_HOST` | `smtp.postmarkapp.com` |
-| `SMTP_PORT` | `587` (`465` for implicit TLS) |
-| `SMTP_SECURE` | `false` — defaults to `true` on port 465 |
-| `SMTP_USER` / `SMTP_PASS` | blank for an unauthenticated relay |
+| `RESEND_API_KEY` | from Resend → API Keys. Email is off until it's set |
+| `NOTIFY_FROM` | default `True Mettle <admin@truemettle.co>`. Must be on a domain verified in Resend |
+| `NOTIFY_EMAIL` | default `anjan@joindeployed.com`; comma-separate for more than one |
+| `REPLY_TO` | default `anjan@joindeployed.com`: where replies to confirmations go |
 
-Replies go to the sender's own address, so hitting reply in your mail client
-answers the founder directly.
+Replies to an alert go to the founder's own address, so hitting reply answers
+them directly. A repeat Fifth sign-up gets nothing; spam gets nothing.
 
 ### 3. Push
 
@@ -156,16 +157,16 @@ ORDER BY id DESC;
 ```
 
 `emailed` and `email_error` record whether the notification actually went out,
-so a silent SMTP failure is visible rather than invisible. `spam = true` marks
+so a silent email failure is visible rather than invisible. `spam = true` marks
 a submission the filters caught — worth a glance now and then in case
 something genuine landed there.
 
-Enquiries are written to the database **before** the email is attempted, so a bad SMTP
-password can never lose one.
+Enquiries are written to the database **before** the email is attempted, so a
+failed send can never lose one.
 
 Newsletter sign-ups live in `subscribers` (one row per address — signing up
-twice is harmless). They are stored, not emailed; nothing sends the newsletter
-itself yet, so export the CSV into whatever tool sends "Fifth".
+twice is harmless). Each new one gets the welcome email; nothing here sends the
+newsletter itself, so export the CSV into Substack, which sends "Fifth".
 
 ```sql
 SELECT subscribed_at, email FROM subscribers WHERE spam = 0 ORDER BY id DESC;
@@ -232,18 +233,16 @@ emailed. A real person caught by a filter is still recoverable.
 
 ## Decisions still open
 
-1. **SMTP provider.** Postmark or Resend for a site this size; a Google
-   Workspace app password also works.
-2. **Domain.** `SITE_URL` is a placeholder until the domain is confirmed; it
+1. **Domain.** `SITE_URL` is a placeholder until the domain is confirmed; it
    affects link previews only.
-3. **Copy the design doesn't have yet** — all marked `TBC` in
+2. **Copy the design doesn't have yet** — all marked `TBC` in
    `public/index.html`:
    - The FAQ answers. Drafted from the copy elsewhere on the page.
    - Social profile URLs (X, TikTok, Instagram, LinkedIn, YouTube) — shown as
      plain text until there are links.
    - Privacy and cookie policy pages. "Cookie settings" was dropped: the site
      sets no cookies.
-4. **Sending the newsletter.** Sign-ups are collected; picking the tool that
+3. **Sending the newsletter.** Sign-ups are collected; picking the tool that
    sends "Fifth" (and importing the CSV) is still to do.
-5. **Brand fonts.** The nav in the design is Inter; it is set in Work Sans
+4. **Brand fonts.** The nav in the design is Inter; it is set in Work Sans
    here to save a font download.

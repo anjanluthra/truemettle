@@ -373,6 +373,7 @@ em { font-style: normal; }
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
+  overflow-y: hidden;               /* sideways only: the wheel keeps scrolling the page */
   overscroll-behavior-x: contain;
 }
 .sectors__photos::-webkit-scrollbar { display: none; }
@@ -442,6 +443,7 @@ em { font-style: normal; }
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
+  overflow-y: hidden;               /* sideways only: the wheel keeps scrolling the page */
   overscroll-behavior-x: contain;
 }
 .process__steps::-webkit-scrollbar { display: none; }
@@ -946,7 +948,8 @@ em { font-style: normal; }
     display: flex;
     gap: 1.25rem;
     overflow-x: auto;
-    overscroll-behavior-x: contain;
+    overflow-y: hidden;               /* sideways only: the wheel keeps scrolling the page */
+  overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: var(--gutter);
     scrollbar-width: none;

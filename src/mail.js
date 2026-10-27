@@ -20,20 +20,44 @@ function getTransport() {
   return transportPromise;
 }
 
+const yes = (value) => (Array.isArray(value) ? value.join(', ') : value) || '—';
+
 function plainBody(s) {
-  const lines = [
-    `Name:      ${s.name}`,
-    `Email:     ${s.email}`,
-    `Business:  ${s.business || '—'}`,
-    `Turnover:  ${s.revenue || '—'}`,
-    '',
-    'Situation',
-    '─────────',
-    s.situation,
-    '',
-    '─────────',
-    `Received:  ${new Date().toUTCString()}`
-  ];
+  const d = s.details || {};
+  const lines =
+    s.kind === 'press'
+      ? [
+          'PRESS & SPEAKING REQUEST',
+          '',
+          `Name:          ${s.name}`,
+          `Email:         ${s.email}`,
+          `Organisation:  ${s.business || '—'}`,
+          `What:          ${yes(d.requestType)}`,
+          `Location:      ${yes(d.location)}`,
+          `Audience:      ${yes(d.audience)}`,
+          '',
+          'The details',
+          '───────────',
+          s.situation
+        ]
+      : [
+          'PITCH: SEND YOUR DECK',
+          '',
+          `Name:        ${s.name}`,
+          `Email:       ${s.email}`,
+          `Company:     ${s.business || '—'}`,
+          `Website:     ${yes(d.website)}`,
+          `Sector:      ${yes(d.sector)}`,
+          `Trading:     ${yes(d.trading)}`,
+          `Profitable:  ${yes(d.profitable)}`,
+          `Revenue:     ${s.revenue || '—'}`,
+          `Deck:        ${s.deckUrl || 'not uploaded'}`,
+          '',
+          'In their words',
+          '──────────────',
+          s.situation || '—'
+        ];
+  lines.push('', '─────────', `Received:  ${new Date().toUTCString()}`);
   if (s.ip) lines.push(`From:      ${s.ip}`);
   return lines.join('\n');
 }
@@ -54,9 +78,9 @@ export async function sendNotification(submission) {
       to: config.mail.to,
       from: config.mail.from,
       replyTo: `${submission.name} <${submission.email}>`,
-      subject: `${config.mail.subjectPrefix}: ${submission.name}${
-        submission.business ? ` — ${submission.business}` : ''
-      }`,
+      subject: `${config.mail.subjectPrefix} ${submission.kind === 'press' ? 'press request' : 'deck'}: ${
+        submission.name
+      }${submission.business ? ` — ${submission.business}` : ''}`,
       text: plainBody(submission)
     });
     return { ok: true };

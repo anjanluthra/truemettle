@@ -103,12 +103,26 @@ defaults baked into the HTML.
 | `SITE_URL` | `https://truemettle.com` | Canonical and Open Graph tags. Applied at build time |
 | `PERSONAL_SITE_URL` | `https://anjanluthra.com` | Every "Anjan Luthra" / "Anjan's story" link. Leave *empty* to render them as plain text |
 | `ADMIN_PASSWORD` | — | Turns on `/admin`. Unset, the page 404s |
+| `BLOB_READ_WRITE_TOKEN` | — | Turns on deck uploads (PDF, up to 20MB). Added automatically when you connect a Vercel Blob store |
 | `CONTACT_SUBJECT_PREFIX` | `True Mettle` | Subject line prefix |
 | `RATE_LIMIT_MAX` | `5` | Submissions per IP per window |
 | `RATE_LIMIT_WINDOW_MINUTES` | `60` | |
 | `PORT` | `3000` | Local preview only |
 
 ---
+
+## The "Send your deck" flow
+
+Every "send your deck" link opens a dialog: *Where do you want to start?*
+then **Pitch True Mettle** (about you → your business → your deck), **Grow
+with Indexed** (a link out), or **Press & speaking** (about you → the request
+→ the details). Both routes post to `/api/contact` with `kind` set to `pitch`
+or `press`; the route-specific answers are stored as JSON in `details`.
+
+Decks upload straight from the browser to Vercel Blob (a function can't take
+a 20MB body); `/api/deck-upload` only issues the one-time token. Uploads stay
+hidden until `BLOB_READ_WRITE_TOKEN` is set. Blob links are public but
+unguessable, and only the admin page and the notification email show them.
 
 ## Reading enquiries and sign-ups
 

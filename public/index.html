@@ -320,71 +320,193 @@
   </section>
 
   <!-- ── SEND YOUR DECK ───────────────────────────────────────────────────────
-       Without JavaScript this is an ordinary section at the foot of the page.
-       main.js lifts it into a dialog that every "send your deck" link opens. -->
-  <section class="deck" id="contact" aria-labelledby="contact-heading">
-    <div class="deck__inner">
-      <div class="deck__intro">
-        <p class="eyebrow">Step 01</p>
-        <h2 class="display display--sm" id="contact-heading">Send your deck</h2>
-        <p class="body">Or a few lines. Your story, your numbers, where you want to go. Everyone gets honest feedback.</p>
+       From the Figma "SCREEN 2" and "ROUTE A/C" frames. Without JavaScript
+       this is an ordinary section at the foot of the page with every step of
+       both forms showing; main.js lifts it into a dialog that every "send your
+       deck" link opens, and walks one screen and one step at a time. -->
+  <section class="deck flow" id="contact" aria-label="Get in touch">
+
+    <!-- Where do you want to start? -->
+    <div class="flow__screen" data-screen="start">
+      <div class="flow__intro">
+        <h2 class="flow__title">Where do you want to start?</h2>
+        <p class="flow__lede">Tell us what you need, and we will get it to the right person.</p>
       </div>
+      <div class="flow__body">
+        <ul class="routes">
+          <li><a class="route" href="#pitch" data-route="pitch"><span class="route__name">Pitch True Mettle<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></span><span class="route__desc">Send your deck. For profitable businesses trading for 2 years+. Everyone gets honest feedback.</span></a></li>
+          <!-- TBC: confirm the Indexed URL. -->
+          <li><a class="route" href="https://joinindexed.com" rel="noopener" target="_blank"><span class="route__name">Grow with Indexed<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></span><span class="route__desc">More profit from what you already do.</span></a></li>
+          <li><a class="route" href="#press" data-route="press"><span class="route__name">Press &amp; speaking<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></span><span class="route__desc">Interviews, keynotes, panels, firesides, and podcasts with Anjan.</span></a></li>
+        </ul>
+        <p class="flow__aside">Or email us directly at <a href="mailto:inquiries@truemettle.com">inquiries@truemettle.com</a></p>
+      </div>
+    </div>
 
-      <form class="form" id="contact-form" method="post" action="/api/contact" novalidate>
-        <div class="form__row">
-          <label class="field__label" for="f-name">Name</label>
-          <input class="field__input" type="text" id="f-name" name="name" autocomplete="name"
-                 required aria-describedby="e-name" maxlength="120">
-          <p class="field__error" id="e-name" data-error-for="name"></p>
-        </div>
-
-        <div class="form__row">
-          <label class="field__label" for="f-email">Email</label>
-          <input class="field__input" type="email" id="f-email" name="email" autocomplete="email"
-                 inputmode="email" required aria-describedby="e-email" maxlength="200">
-          <p class="field__error" id="e-email" data-error-for="email"></p>
-        </div>
-
-        <div class="form__row">
-          <label class="field__label" for="f-business">Business name <span class="field__opt">optional</span></label>
-          <input class="field__input" type="text" id="f-business" name="business" autocomplete="organization"
-                 aria-describedby="e-business" maxlength="200">
-          <p class="field__error" id="e-business" data-error-for="business"></p>
-        </div>
-
-        <div class="form__row">
-          <label class="field__label" for="f-revenue">Roughly what it turns over <span class="field__opt">optional</span></label>
-          <input class="field__input" type="text" id="f-revenue" name="revenue"
-                 aria-describedby="e-revenue" maxlength="120">
-          <p class="field__error" id="e-revenue" data-error-for="revenue"></p>
-        </div>
-
-        <div class="form__row">
-          <label class="field__label" for="f-situation">Your story — or a link to your deck</label>
-          <textarea class="field__input field__input--area" id="f-situation" name="situation" rows="5"
-                    required aria-describedby="e-situation" maxlength="5000"></textarea>
-          <p class="field__error" id="e-situation" data-error-for="situation"></p>
-        </div>
-
-        <!-- Honeypot: hidden from people, irresistible to bots. Not a CAPTCHA. -->
-        <div class="hp" aria-hidden="true">
-          <label for="f-website">Website</label>
-          <input type="text" id="f-website" name="company_website" tabindex="-1" autocomplete="off">
-        </div>
-        <input type="hidden" name="started_at" id="f-started">
-
-        <p class="form__summary" id="form-summary" role="alert" hidden></p>
-
-        <div class="form__actions">
-          <button class="cta cta--button" type="submit" id="submit-button">Send it over<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
-          <p class="form__note">Nothing you send is shared or used publicly without your permission.</p>
-        </div>
+    <!-- Route A: pitch True Mettle -->
+    <div class="flow__screen" data-screen="pitch" id="pitch">
+      <div class="flow__intro">
+        <h2 class="flow__title">Send us your deck</h2>
+        <p class="flow__lede">Or a few lines. Every founder gets honest feedback, even if we don’t invest.</p>
+      </div>
+      <form class="flow__body flow__form" id="contact-form" data-kind="pitch" method="post" action="/api/contact" novalidate>
+        <input type="hidden" name="kind" value="pitch">
+        <fieldset class="flow__step" data-step="1">
+          <legend class="flow__step-label">Step 1: About you</legend>
+            <div class="form__row">
+              <label class="field__label" for="p-name">Name*</label>
+              <input class="field__input" type="text" id="p-name" name="name" required autocomplete="name" maxlength="120" aria-describedby="e-p-name">
+              <p class="field__error" id="e-p-name" data-error-for="name"></p>
+            </div>
+            <div class="form__row">
+              <label class="field__label" for="p-email">Email*</label>
+              <input class="field__input" type="email" id="p-email" name="email" required autocomplete="email" inputmode="email" maxlength="200" aria-describedby="e-p-email">
+              <p class="field__error" id="e-p-email" data-error-for="email"></p>
+            </div>
+            <div class="form__row">
+              <label class="field__label" for="p-company">Company*</label>
+              <input class="field__input" type="text" id="p-company" name="company" required autocomplete="organization" maxlength="200" aria-describedby="e-p-company">
+              <p class="field__error" id="e-p-company" data-error-for="company"></p>
+            </div>
+            <div class="form__row">
+              <label class="field__label" for="p-website">Website <span class="field__opt">(optional)</span></label>
+              <input class="field__input" type="url" id="p-website" name="website" autocomplete="url" inputmode="url" maxlength="300" placeholder="https://" aria-describedby="e-p-website">
+              <p class="field__error" id="e-p-website" data-error-for="website"></p>
+            </div>
+            <div class="flow__nav"><button type="button" class="cta cta--button flow__next" data-next>Next<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button></div>
+        </fieldset>
+        <fieldset class="flow__step" data-step="2">
+          <legend class="flow__step-label">Step 2: Your business</legend>
+            <fieldset class="form__row choices" data-required-group aria-describedby="e-sector">
+              <legend class="field__label">Sector*</legend>
+                <label class="choice"><input type="checkbox" name="sector" value="Sport &amp; Fitness"><span>Sport &amp; Fitness</span></label>
+                <label class="choice"><input type="checkbox" name="sector" value="Media &amp; Entertainment"><span>Media &amp; Entertainment</span></label>
+                <label class="choice"><input type="checkbox" name="sector" value="Digital Services"><span>Digital Services</span></label>
+                <label class="choice"><input type="checkbox" name="sector" value="Live Events &amp; Experiences"><span>Live Events &amp; Experiences</span></label>
+                <label class="choice"><input type="checkbox" name="sector" value="Other"><span>Other</span></label>
+              <p class="field__error" id="e-sector" data-error-for="sector"></p>
+            </fieldset>
+            <fieldset class="form__row choices" data-required-group aria-describedby="e-trading">
+              <legend class="field__label">How long have you been trading?*</legend>
+                <label class="choice"><input type="radio" name="trading" value="Less than 2 years"><span>Less than 2 years</span></label>
+                <label class="choice"><input type="radio" name="trading" value="2 to 5 years"><span>2 to 5 years</span></label>
+                <label class="choice"><input type="radio" name="trading" value="More than 5 years"><span>More than 5 years</span></label>
+              <p class="field__error" id="e-trading" data-error-for="trading"></p>
+            </fieldset>
+            <fieldset class="form__row choices" data-required-group aria-describedby="e-profitable">
+              <legend class="field__label">Is the business profitable?*</legend>
+                <label class="choice"><input type="radio" name="profitable" value="Yes"><span>Yes</span></label>
+                <label class="choice"><input type="radio" name="profitable" value="Not yet"><span>Not yet</span></label>
+              <p class="field__error" id="e-profitable" data-error-for="profitable"></p>
+            </fieldset>
+            <div class="form__row">
+              <label class="field__label" for="p-revenue">Annual revenue <span class="field__opt">(optional)</span></label>
+              <input class="field__input" type="text" id="p-revenue" name="revenue" maxlength="120" aria-describedby="e-p-revenue">
+              <p class="field__error" id="e-p-revenue" data-error-for="revenue"></p>
+            </div>
+            <p class="flow__help">We back profitable businesses that have traded for two years or more. Not for us: startups, turnarounds, or restructurings.</p>
+            <div class="flow__nav"><button type="button" class="cta cta--button flow__back" data-back><svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg>Back</button><button type="button" class="cta cta--button flow__next" data-next>Next<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button></div>
+        </fieldset>
+        <fieldset class="flow__step" data-step="3">
+          <legend class="flow__step-label">Step 3: Your deck</legend>
+            <div class="form__row upload" data-upload hidden>
+              <p class="field__label" id="deck-label">Upload your deck (PDF, max 20MB)</p>
+              <label class="upload__button"><input type="file" accept="application/pdf,.pdf" data-deck-file aria-labelledby="deck-label">Upload file</label>
+              <span class="upload__name" data-deck-name></span>
+              <input type="hidden" name="deck_url" data-deck-url>
+              <p class="field__error" data-error-for="deck"></p>
+            </div>
+            <div class="form__row">
+              <label class="field__label" for="p-situation">Or tell us in a few lines: what you do, your numbers, and where you want to go.*</label>
+              <textarea class="field__input field__input--area" id="p-situation" name="situation" rows="4" required maxlength="5000" aria-describedby="e-p-situation"></textarea>
+              <p class="field__error" id="e-p-situation" data-error-for="situation"></p>
+            </div>
+          <div class="hp" aria-hidden="true">
+            <label>Leave this empty<input type="text" name="company_website" tabindex="-1" autocomplete="off"></label>
+          </div>
+          <input type="hidden" name="started_at" data-started>
+          <p class="form__summary" role="alert" hidden></p>
+            <div class="flow__nav"><button type="button" class="cta cta--button flow__back" data-back><svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg>Back</button><button type="submit" class="cta cta--button flow__send">Send your deck<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button></div>
+        </fieldset>
       </form>
+    </div>
 
-      <div class="sent" id="sent-panel" hidden tabindex="-1">
-        <p class="sent__heading">Thank you — it’s with us.</p>
-        <p class="body">Anjan reads everything. If it looks like a fit you’ll hear back directly.</p>
+    <!-- Route C: press & speaking -->
+    <div class="flow__screen" data-screen="press" id="press">
+      <div class="flow__intro">
+        <h2 class="flow__title">Book Anjan</h2>
+        <p class="flow__lede">Anjan talks about resilience, failing and starting again, leaving the corporate path, and building a business that pays you properly.</p>
       </div>
+      <form class="flow__body flow__form" data-kind="press" method="post" action="/api/contact" novalidate>
+        <input type="hidden" name="kind" value="press">
+        <fieldset class="flow__step" data-step="1">
+          <legend class="flow__step-label">Step 1: About you</legend>
+            <div class="form__row">
+              <label class="field__label" for="c-name">Name*</label>
+              <input class="field__input" type="text" id="c-name" name="name" required autocomplete="name" maxlength="120" aria-describedby="e-c-name">
+              <p class="field__error" id="e-c-name" data-error-for="name"></p>
+            </div>
+            <div class="form__row">
+              <label class="field__label" for="c-email">Email*</label>
+              <input class="field__input" type="email" id="c-email" name="email" required autocomplete="email" inputmode="email" maxlength="200" aria-describedby="e-c-email">
+              <p class="field__error" id="e-c-email" data-error-for="email"></p>
+            </div>
+            <div class="form__row">
+              <label class="field__label" for="c-org">Organisation / Publication*</label>
+              <input class="field__input" type="text" id="c-org" name="organisation" required autocomplete="organization" maxlength="200" aria-describedby="e-c-org">
+              <p class="field__error" id="e-c-org" data-error-for="organisation"></p>
+            </div>
+            <div class="flow__nav"><button type="button" class="cta cta--button flow__next" data-next>Next<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button></div>
+        </fieldset>
+        <fieldset class="flow__step" data-step="2">
+          <legend class="flow__step-label">Step 2: The request</legend>
+            <fieldset class="form__row choices" data-required-group aria-describedby="e-request_type">
+              <legend class="field__label">What is it?*</legend>
+                <label class="choice"><input type="radio" name="request_type" value="Press interview"><span>Press interview</span></label>
+                <label class="choice"><input type="radio" name="request_type" value="Keynote"><span>Keynote</span></label>
+                <label class="choice"><input type="radio" name="request_type" value="Panel"><span>Panel</span></label>
+                <label class="choice"><input type="radio" name="request_type" value="Fireside chat"><span>Fireside chat</span></label>
+                <label class="choice"><input type="radio" name="request_type" value="Podcast"><span>Podcast</span></label>
+                <label class="choice"><input type="radio" name="request_type" value="Other"><span>Other</span></label>
+              <p class="field__error" id="e-request_type" data-error-for="request_type"></p>
+            </fieldset>
+            <div class="form__row">
+              <label class="field__label" for="c-location">Location: in person (city) or virtual <span class="field__opt">(optional)</span></label>
+              <input class="field__input" type="text" id="c-location" name="location" maxlength="160" aria-describedby="e-c-location">
+              <p class="field__error" id="e-c-location" data-error-for="location"></p>
+            </div>
+            <div class="form__row">
+              <label class="field__label" for="c-audience">Audience size <span class="field__opt">(optional)</span></label>
+              <input class="field__input" type="text" id="c-audience" name="audience" maxlength="120" aria-describedby="e-c-audience">
+              <p class="field__error" id="e-c-audience" data-error-for="audience"></p>
+            </div>
+            <div class="flow__nav"><button type="button" class="cta cta--button flow__back" data-back><svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg>Back</button><button type="button" class="cta cta--button flow__next" data-next>Next<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button></div>
+        </fieldset>
+        <fieldset class="flow__step" data-step="3">
+          <legend class="flow__step-label">Step 3: The details</legend>
+            <div class="form__row">
+              <label class="field__label" for="c-situation">Tell us about the opportunity: topic, audience, format, and any deadlines.*</label>
+              <textarea class="field__input field__input--area" id="c-situation" name="situation" rows="4" required maxlength="5000" aria-describedby="e-c-situation"></textarea>
+              <p class="field__error" id="e-c-situation" data-error-for="situation"></p>
+            </div>
+          <div class="hp" aria-hidden="true">
+            <label>Leave this empty<input type="text" name="company_website" tabindex="-1" autocomplete="off"></label>
+          </div>
+          <input type="hidden" name="started_at" data-started>
+          <p class="form__summary" role="alert" hidden></p>
+            <div class="flow__nav"><button type="button" class="cta cta--button flow__back" data-back><svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 8H2M7 3 2 8l5 5"/></svg>Back</button><button type="submit" class="cta cta--button flow__send">Send request<svg class="cta__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button></div>
+        </fieldset>
+      </form>
+    </div>
+
+    <!-- Thank-you screens -->
+    <div class="flow__screen flow__screen--done" data-screen="pitch-done" tabindex="-1" hidden>
+      <p class="flow__done-title">Deck received.</p>
+      <p class="flow__lede">Anjan’s team reads every one. You’ll hear back within 5 working days, with honest feedback either way.</p>
+    </div>
+    <div class="flow__screen flow__screen--done" data-screen="press-done" tabindex="-1" hidden>
+      <p class="flow__done-title">Request received.</p>
+      <p class="flow__lede">We’ll check Anjan’s diary and get back to you within 5 working days.</p>
     </div>
   </section>
 </main>

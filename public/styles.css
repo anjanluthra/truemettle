@@ -215,7 +215,9 @@ em { font-style: normal; }
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 .hero {
   position: relative;
-  height: clamp(32rem, 61.4vw, 55.25rem);  /* 884 */
+  /* 884 at 1440 wide, but never taller than the window: the wordmark and
+     tagline always sit above the fold. */
+  height: clamp(26rem, min(61.4vw, 100svh), 55.25rem);
   overflow: hidden;
   color: var(--paper);
   background: #4A2A24;
@@ -816,6 +818,7 @@ em { font-style: normal; }
   line-height: 1.55;
 }
 .policy__updated + p { margin-top: 2rem; }
+.policy p.policy__address { font-style: normal; line-height: 1.4; }
 .policy a { text-decoration: underline; text-underline-offset: 0.15em; }
 .policy-dialog { width: min(46rem, calc(100% - 2rem)); }
 .policy-dialog .policy { max-width: none; padding: clamp(2.75rem, 4vw, 3.5rem) clamp(1.5rem, 4vw, 3.5rem) clamp(2rem, 3.5vw, 3rem); }

@@ -215,7 +215,9 @@ em { font-style: normal; }
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 .hero {
   position: relative;
-  height: clamp(32rem, 61.4vw, 55.25rem);  /* 884 */
+  /* 884 at 1440 wide, but never taller than the window: the wordmark and
+     tagline always sit above the fold. */
+  height: clamp(26rem, min(61.4vw, 100svh), 55.25rem);
   overflow: hidden;
   color: var(--paper);
   background: #4A2A24;

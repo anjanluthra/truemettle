@@ -254,6 +254,8 @@ em { font-style: normal; }
   letter-spacing: -0.02em;
 }
 .mission__text p + p { margin-top: 1.085em; }
+.mission__text .mission__label { margin-bottom: clamp(1.75rem, 3vw, 2.75rem); }
+.mission__text .mission__label + p { margin-top: 0; }
 .accent { color: var(--rust); }
 
 /* ── Founder ──────────────────────────────────────────────────────────────── */
@@ -355,8 +357,8 @@ em { font-style: normal; }
 .sectors { padding-top: clamp(2.5rem, 4.5vw, 4rem); }
 .sectors__grid {
   display: grid;
-  grid-template-columns: minmax(0, 30.25rem) minmax(0, 25rem) minmax(0, 25rem);
-  gap: clamp(1rem, 1.75vw, 1.6rem);
+  grid-template-columns: minmax(0, 18.5rem) repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.1vw, 1rem);
   align-items: start;
 }
 .sectors .display { padding-top: 2.4rem; max-width: 20rem; }
@@ -369,7 +371,7 @@ em { font-style: normal; }
 }
 .sector figcaption {
   margin-top: 1.1rem;
-  font-size: clamp(0.9375rem, 1.39vw, 1.25rem);
+  font-size: clamp(0.75rem, 0.9vw, 0.8125rem);
   letter-spacing: 0.11em;
   text-transform: uppercase;
 }
@@ -415,10 +417,36 @@ em { font-style: normal; }
   grid-template-columns: clamp(9rem, 26vw, 23.4rem) 1fr;
 }
 .process__label { padding: clamp(2rem, 4.4vw, 3.9rem) var(--gutter) 0; }
+/* Seven steps in a row that runs off the right edge, as in the design;
+   it scrolls sideways (trackpad, swipe, or the arrows by the label). */
 .process__steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 27.7rem));
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
 }
+.process__steps::-webkit-scrollbar { display: none; }
+.process__steps:focus-visible { outline-offset: -2px; }
+.step { flex: 0 0 clamp(16rem, 30.8vw, 27.7rem); scroll-snap-align: start; }
+.process__nav { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+.process__nav[hidden] { display: none; }
+.process__arrow {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.process__arrow svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.process__arrow:hover { background: rgba(47, 37, 37, 0.06); }
+.process__arrow:disabled { opacity: 0.3; cursor: default; background: none; }
 .step {
   display: flex;
   flex-direction: column;
@@ -473,7 +501,7 @@ em { font-style: normal; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 30% 50%;
+  object-position: 40% 30%;
 }
 .closing__photo .cta-row {
   position: absolute;
@@ -525,47 +553,184 @@ em { font-style: normal; }
   line-height: 1.3;
 }
 
-/* ── Send your deck (section without JS, dialog with it) ──────────────────── */
+/* ── Send your deck flow (Figma "SCREEN 2" / "ROUTE A" / "ROUTE C") ─────────
+   A section at the foot of the page without JS; a dialog with it. */
 .deck {
-  background: var(--sand);
+  background: var(--paper);
   padding: var(--block-y) var(--gutter);
+  border-top: 1px solid var(--hairline);
 }
-.deck__inner {
-  max-width: 68rem;
+.flow__screen {
+  max-width: 61.75rem;                     /* 988 */
   margin-inline: auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  gap: clamp(2.5rem, 6vw, 6rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 30.625rem);   /* … | 490 */
+  gap: 2.5rem;
 }
-.deck__intro .display { margin: 1.25rem 0 1.25rem; }
-.deck__intro .body { max-width: 22rem; line-height: 1.3; }
+.flow__screen + .flow__screen { margin-top: var(--block-y); }
+.flow__screen[hidden] { display: none; }
+.flow__title {
+  max-width: 21rem;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.1875rem, 3.82vw, 3.4375rem);   /* 35 → 55 */
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: #242729;
+}
+.flow__lede {
+  max-width: 18rem;
+  margin-top: 1.4rem;
+  font-size: clamp(0.9375rem, 1.25vw, 1.125rem);     /* 15 → 18 */
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+.flow__body { font-size: 0.9375rem; }
+.flow__step { border: 0; min-width: 0; }
+.flow__step + .flow__step { margin-top: 3rem; }
+.flow__step-label {
+  margin-bottom: 1.75rem;
+  padding: 0;
+  font-size: 0.9375rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.flow .form__row + .form__row { margin-top: 1.6rem; }
+.flow .field__label {
+  display: block;
+  margin-bottom: 0.2rem;
+  padding: 0;
+  font-size: 0.9375rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.flow .field__opt { opacity: 1; color: var(--ink); letter-spacing: 0; }
+.flow .field__input { padding: 0.45rem 0; font-size: 1rem; border-bottom: 0.5px solid var(--hairline); }
+.flow .field__input--area { min-height: 6.5rem; }
+.choices { border: 0; min-width: 0; }
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.18rem 0;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+.choice input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 0.8125rem;
+  height: 0.8125rem;
+  margin: 0;
+  background: #D9D9D9;
+  border: 0.5px solid var(--hairline);
+  border-radius: 0;
+  cursor: pointer;
+}
+.choice input:checked { background: var(--rust); border-color: var(--rust); box-shadow: inset 0 0 0 2px #D9D9D9; }
+.choice input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.flow__help { margin-top: 1.5rem; font-size: 0.9375rem; line-height: 1.15; letter-spacing: -0.02em; color: var(--mist); }
+.flow__nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+.flow__nav .cta { font-size: 0.9375rem; }
+.flow__next, .flow__send { margin-left: auto; }
+.flow__back .cta__arrow { order: -1; }
+.flow__back:hover .cta__arrow { transform: translateX(-3px); }
 
+.upload { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
+.upload[hidden] { display: none; }
+.upload .field__label { flex-basis: 100%; }
+.upload__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  background: #A4A4A4;
+  color: var(--ink);
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+.upload__button:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+.upload__button input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload__name { font-size: 0.875rem; color: var(--ink); }
+
+.routes { border: 0; }
+.route {
+  display: block;
+  padding: 1.15rem 0 1.4rem;
+  text-decoration: none;
+  border-bottom: 0.5px solid var(--hairline);
+}
+.routes li:first-child .route { padding-top: 0; }
+.routes li:last-child .route { border-bottom: 0; }
+.route__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9375rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.route__desc { display: block; margin-top: 0.5rem; max-width: 30rem; font-size: 0.9375rem; line-height: 1.15; }
+.route:hover .route__name { text-decoration: underline; text-underline-offset: 0.3em; }
+.route:hover .cta__arrow { transform: translateX(3px); }
+.flow__aside { margin-top: 2.5rem; font-size: 0.9375rem; letter-spacing: -0.02em; color: var(--mist); }
+.flow__aside a { color: inherit; }
+
+.flow__screen--done { display: block; text-align: center; padding: 1rem 0; }
+.flow__screen--done:focus { outline: none; }
+.flow__done-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.75rem, 5.2vw, 4.6875rem);   /* 75 */
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #242729;
+}
+.flow__screen--done .flow__lede { max-width: 31rem; margin: 1.25rem auto 0; }
+
+/* As a dialog: one screen, one step at a time. */
 .deck-dialog {
-  width: min(64rem, calc(100% - 2rem));
+  width: min(61.75rem, calc(100% - 2rem));
   max-height: calc(100dvh - 2rem);
   margin: auto;
   border: 0;
   padding: 0;
-  background: var(--sand);
+  background: var(--paper);
   color: var(--ink);
   overflow: auto;
+  overscroll-behavior: contain;
 }
-.deck-dialog::backdrop { background: rgba(47, 37, 37, 0.6); }
-.deck-dialog .deck { padding: clamp(3rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem); }
+.deck-dialog::backdrop {
+  background: rgba(47, 37, 37, 0.35);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.deck-dialog .deck { padding: clamp(2.75rem, 3.75vw, 3.4rem) clamp(1.5rem, 3.4vw, 3rem) clamp(1.75rem, 2.5vw, 2.25rem); border: 0; }
+.deck-dialog .flow__screen + .flow__screen { margin-top: 0; }
+.deck-dialog .flow__step + .flow__step { margin-top: 0; }
+.deck-dialog .flow__step[hidden] { display: none; }
 .deck-dialog__close {
   position: sticky;
   top: 0;
   float: right;
   z-index: 1;
-  width: 3rem;
-  height: 3rem;
-  margin: 0.5rem 0.5rem -3.5rem 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0.75rem 0.75rem -3.5rem 0;
+  display: grid;
+  place-items: center;
   background: none;
   border: 0;
-  font-size: 1.75rem;
-  line-height: 1;
   cursor: pointer;
 }
+.deck-dialog__close svg { width: 1rem; height: 1rem; fill: none; stroke: var(--ink); stroke-width: 1.2; }
 .is-deck-open { overflow: hidden; }
 
 .form__row + .form__row { margin-top: 1.5rem; }
@@ -725,11 +890,8 @@ em { font-style: normal; }
   .sectors .display { grid-column: 1 / -1; padding-top: 0; max-width: none; margin-bottom: 1.5rem; }
   .process__grid { grid-template-columns: 1fr; }
   .process__label { padding-bottom: 2rem; }
-  .process__steps { grid-template-columns: repeat(3, 1fr); }
-  .step:first-child { border-left: 0; }
-  .step:last-child { border-right: 0; }
   .faqs { grid-template-columns: 1fr; row-gap: 1.5rem; }
-  .deck__inner { grid-template-columns: 1fr; }
+  .flow__screen { grid-template-columns: 1fr; gap: 2rem; }
   .sent { grid-column: auto; }
 }
 
@@ -821,6 +983,13 @@ em { font-style: normal; }
   .closing__photo { aspect-ratio: 402 / 362; }
 
   .faqs { padding-top: 3rem; }
+
+  .flow__screen { grid-template-columns: 1fr; gap: 1.75rem; }
+  .flow__lede { margin-top: 0.9rem; max-width: 16rem; }
+  .flow__body, .flow .field__label, .choice, .flow__help, .route__desc, .flow__aside { font-size: 0.8125rem; }
+  .flow__step-label, .route__name { font-size: 0.8125rem; }
+  .deck-dialog { width: calc(100% - 2.5rem); }
+  .deck-dialog .deck { padding: 2.75rem 1.5rem 1.75rem; }
 
   .footer__inner { min-height: 41.25rem; padding: 2rem 1.5rem 3.5rem 2rem; }  /* 660 */
   .footer__top img:first-child { width: 2.25rem; }

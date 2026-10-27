@@ -41,9 +41,12 @@ PHOTOS = {
     # Originals 1125x2000 and 1333x2000, centre-cropped to the 399:502 frame.
     'sport':   ('sport-original.jpg', (0, 0.1462, 1, 0.7077), (400, 800, 1200)),
     'media':   ('media-original.jpg', (0, 0.0808, 1, 0.8385), (400, 800, 1200)),
-    # Original portrait, 2731x4096. The crop is the Figma image fill (FILL into
-    # a 915x687 box) clipped by its mask to the right half of the closing panel.
-    'founder': ('founder-original.jpeg', (0.0995, 0.2515, 0.787, 0.4983), (720, 1080, 1440, 2160)),
+    # Originals 1600x2133 and 2730x4096, centre-cropped the same way.
+    'digital': ('digital-original.jpg', (0, 0.0300, 1, 0.9423), (400, 800, 1200)),
+    'live':    ('live-original.jpg', (0, 0.0817, 1, 0.8372), (400, 800, 1200)),
+    # Anjan in the chair by the curtains, 1333x2000: head and shoulders, cut to
+    # the closing panel's near-square (720x684).
+    'founder': ('founder-chair.jpg', (0, 0.205, 1, 0.6333), (720, 1080, 1440, 2160)),
 }
 
 AVIF_QUALITY = 68

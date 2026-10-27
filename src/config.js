@@ -88,3 +88,6 @@ export const mailConfigured = Boolean(
 export const storeConfigured = Boolean(
   config.database.url || (config.database.host && config.database.user)
 );
+
+// Vercel Blob, for deck uploads. Without it the form asks for a few lines instead.
+export const blobConfigured = Boolean(process.env.BLOB_READ_WRITE_TOKEN);

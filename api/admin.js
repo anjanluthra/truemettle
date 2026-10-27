@@ -50,7 +50,20 @@ function toCsv(rows, columns) {
   return [columns.join(','), ...rows.map((row) => columns.map((c) => csvCell(row[c])).join(','))].join('\r\n');
 }
 
-const SUBMISSION_COLUMNS = ['id', 'received_at', 'name', 'email', 'business', 'revenue', 'situation', 'emailed', 'email_error', 'spam'];
+const SUBMISSION_COLUMNS = ['id', 'received_at', 'kind', 'name', 'email', 'business', 'revenue', 'details', 'deck_url', 'situation', 'emailed', 'email_error', 'spam'];
+
+const KIND = { pitch: 'Deck', press: 'Press' };
+
+// details is stored as JSON; show it as "Sector: Sport & Fitness · Trading: …".
+const LABELS = { website: 'Website', sector: 'Sector', trading: 'Trading', profitable: 'Profitable', requestType: 'What', location: 'Location', audience: 'Audience' };
+function detailsText(raw) {
+  let d;
+  try { d = JSON.parse(raw || '{}'); } catch { return ''; }
+  return Object.entries(d)
+    .filter(([, v]) => (Array.isArray(v) ? v.length : v))
+    .map(([k, v]) => `${LABELS[k] || k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+    .join(' · ');
+}
 const SUBSCRIBER_COLUMNS = ['id', 'subscribed_at', 'email', 'spam'];
 
 function page({ submissions, subscribers }) {
@@ -61,10 +74,13 @@ function page({ submissions, subscribers }) {
     .map(
       (s) => `<tr${flag(s)}>
   <td class="nowrap">${escapeHtml(when(s.received_at))}</td>
+  <td>${escapeHtml(KIND[s.kind] || 'Deck')}</td>
   <td>${escapeHtml(s.name)}</td>
   <td><a href="mailto:${escapeHtml(s.email)}">${escapeHtml(s.email)}</a></td>
   <td>${escapeHtml(s.business)}</td>
   <td>${escapeHtml(s.revenue)}</td>
+  <td class="wrap">${escapeHtml(detailsText(s.details))}</td>
+  <td>${s.deck_url ? `<a href="${escapeHtml(s.deck_url)}" rel="noopener noreferrer" target="_blank">Open PDF</a>` : ''}</td>
   <td class="wrap">${escapeHtml(s.situation)}</td>
   <td>${s.spam ? 'spam' : s.emailed ? 'emailed' : `<span title="${escapeHtml(s.email_error)}">not emailed</span>`}</td>
 </tr>`
@@ -96,13 +112,13 @@ function page({ submissions, subscribers }) {
 
   <section>
     <header>
-      <h2>Enquiries <small>${real(submissions).length}</small></h2>
+      <h2>Decks &amp; requests <small>${real(submissions).length}</small></h2>
       <a href="?export=submissions">Download CSV</a>
     </header>
     ${
       submissions.length
         ? `<div class="scroll"><table>
-<thead><tr><th>Received (UTC)</th><th>Name</th><th>Email</th><th>Business</th><th>Turnover</th><th>Situation</th><th>Status</th></tr></thead>
+<thead><tr><th>Received (UTC)</th><th>Type</th><th>Name</th><th>Email</th><th>Company / organisation</th><th>Revenue</th><th>Answers</th><th>Deck</th><th>In their words</th><th>Status</th></tr></thead>
 <tbody>
 ${submissionRows}
 </tbody></table></div>`

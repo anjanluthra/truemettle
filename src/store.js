@@ -28,6 +28,9 @@ CREATE TABLE IF NOT EXISTS submissions (
   emailed     BOOLEAN      NOT NULL DEFAULT FALSE,
   email_error VARCHAR(512) NULL,
   spam        BOOLEAN      NOT NULL DEFAULT FALSE,
+  kind        VARCHAR(16)  NULL,
+  details     TEXT         NULL,
+  deck_url    VARCHAR(600) NULL,
   PRIMARY KEY (id),
   INDEX submissions_received_at (received_at),
   INDEX submissions_ip_received_at (ip, received_at)
@@ -73,9 +76,25 @@ async function connect() {
       });
 }
 
+/* Columns added after the first launch. A table created before them gets
+   them here; MySQL has no ADD COLUMN IF NOT EXISTS, so "already there"
+   (ER_DUP_FIELDNAME) is simply ignored. */
+const LATER_COLUMNS = [
+  'ALTER TABLE submissions ADD COLUMN kind VARCHAR(16) NULL',
+  'ALTER TABLE submissions ADD COLUMN details TEXT NULL',
+  'ALTER TABLE submissions ADD COLUMN deck_url VARCHAR(600) NULL'
+];
+
 async function ensureSchema(connection) {
   if (schemaReady) return;
   for (const statement of SCHEMA) await connection.query(statement);
+  for (const statement of LATER_COLUMNS) {
+    try {
+      await connection.query(statement);
+    } catch (error) {
+      if (error.code !== 'ER_DUP_FIELDNAME' && error.errno !== 1060) throw error;
+    }
+  }
   schemaReady = true;
 }
 
@@ -109,17 +128,20 @@ export async function saveSubmission(submission) {
     // MySQL has no RETURNING; the insert id comes back on the result.
     const [result] = await connection.execute(
       `INSERT INTO submissions
-         (name, email, business, revenue, situation, ip, user_agent, spam)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (name, email, business, revenue, situation, ip, user_agent, spam, kind, details, deck_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         submission.name,
         submission.email,
         submission.business || null,
         submission.revenue || null,
-        submission.situation,
+        submission.situation || '',
         submission.ip || null,
         submission.userAgent || null,
-        submission.spam ? 1 : 0
+        submission.spam ? 1 : 0,
+        submission.kind || null,
+        submission.details ? JSON.stringify(submission.details) : null,
+        submission.deckUrl || null
       ]
     );
 
@@ -194,7 +216,8 @@ export async function listAll({ limit = 1000 } = {}) {
     await ensureSchema(connection);
     const cap = Math.max(1, Math.min(Number(limit) || 1000, 10000));
     const [submissions] = await connection.query(
-      `SELECT id, received_at, name, email, business, revenue, situation, emailed, email_error, spam
+      `SELECT id, received_at, kind, name, email, business, revenue, situation, details, deck_url,
+              emailed, email_error, spam
          FROM submissions ORDER BY id DESC LIMIT ${cap}`
     );
     const [subscribers] = await connection.query(

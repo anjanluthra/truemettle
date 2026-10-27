@@ -20,19 +20,25 @@ function readRawBody(req) {
   });
 }
 
+// A form post repeats a key once per ticked checkbox; keep those as arrays.
+function formFields(raw) {
+  const fields = {};
+  for (const [key, value] of new URLSearchParams(raw)) {
+    if (key in fields) fields[key] = [].concat(fields[key], value);
+    else fields[key] = value;
+  }
+  return fields;
+}
+
 export async function parseBody(req) {
   // Vercel parses JSON and form bodies for us; fall back for anything it didn't.
   if (req.body && typeof req.body === 'object') return req.body;
   if (typeof req.body === 'string') {
-    return req.headers['content-type']?.includes('json')
-      ? safeJson(req.body)
-      : Object.fromEntries(new URLSearchParams(req.body));
+    return req.headers['content-type']?.includes('json') ? safeJson(req.body) : formFields(req.body);
   }
 
   const raw = await readRawBody(req);
-  return req.headers['content-type']?.includes('json')
-    ? safeJson(raw)
-    : Object.fromEntries(new URLSearchParams(raw));
+  return req.headers['content-type']?.includes('json') ? safeJson(raw) : formFields(raw);
 }
 
 function safeJson(raw) {

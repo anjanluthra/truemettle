@@ -32,25 +32,253 @@
     node.textContent = String(new Date().getFullYear());
   });
 
-  /* ── "Send your deck" opens the form in a dialog ──────────────────────────
-     Without JavaScript the form is a section at the foot of the page and the
-     links simply jump to it. */
-  var deck = document.getElementById('contact');
-  if (deck && typeof HTMLDialogElement === 'function') {
+  /* ── "Send your deck" flow ───────────────────────────────────────────────
+     Without JavaScript the flow is a section at the foot of the page with
+     every step showing, and both forms post normally. Here it becomes a
+     dialog: "Where do you want to start?", then one step at a time. */
+  var flow = document.getElementById('contact');
+  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  if (flow && typeof HTMLDialogElement === 'function') {
     var dialog = document.createElement('dialog');
     dialog.className = 'deck-dialog';
-    dialog.setAttribute('aria-labelledby', 'contact-heading');
+    dialog.setAttribute('aria-label', 'Get in touch');
 
     var close = document.createElement('button');
     close.type = 'button';
     close.className = 'deck-dialog__close';
     close.setAttribute('aria-label', 'Close');
-    close.textContent = '×';
+    close.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14"/></svg>';
     close.addEventListener('click', function () { dialog.close(); });
 
-    deck.parentNode.insertBefore(dialog, deck);
+    flow.parentNode.insertBefore(dialog, flow);
     dialog.appendChild(close);
-    dialog.appendChild(deck);
+    dialog.appendChild(flow);
+
+    var screens = flow.querySelectorAll('[data-screen]');
+    var forms = flow.querySelectorAll('.flow__form');
+
+    var showScreen = function (name) {
+      Array.prototype.forEach.call(screens, function (screen) {
+        screen.hidden = screen.getAttribute('data-screen') !== name;
+      });
+      dialog.scrollTop = 0;
+    };
+
+    var stepsOf = function (form) { return form.querySelectorAll('.flow__step'); };
+
+    var showStep = function (form, index) {
+      Array.prototype.forEach.call(stepsOf(form), function (step, i) { step.hidden = i !== index; });
+      form.setAttribute('data-current', String(index));
+      dialog.scrollTop = 0;
+      var first = stepsOf(form)[index].querySelector('input:not([type=hidden]):not([tabindex="-1"]), textarea');
+      if (first) first.focus({ preventScroll: true });
+    };
+
+    var errorNode = function (form, name) { return form.querySelector('[data-error-for="' + name + '"]'); };
+
+    var clearErrors = function (scope) {
+      Array.prototype.forEach.call(scope.querySelectorAll('[data-error-for]'), function (n) { n.textContent = ''; });
+      Array.prototype.forEach.call(scope.querySelectorAll('[aria-invalid]'), function (n) { n.removeAttribute('aria-invalid'); });
+      var summary = scope.querySelector('.form__summary');
+      if (summary) { summary.hidden = true; summary.textContent = ''; }
+    };
+
+    var setError = function (form, name, message) {
+      var node = errorNode(form, name);
+      if (node) node.textContent = message;
+      var field = form.elements[name];
+      if (field && field.setAttribute) field.setAttribute('aria-invalid', 'true');
+    };
+
+    var hasDeck = function (form) {
+      var file = form.querySelector('[data-deck-file]');
+      return Boolean(file && file.files && file.files.length);
+    };
+
+    // Check the fields of one step; returns the first field that failed.
+    var checkStep = function (form, step) {
+      clearErrors(step);
+      var firstBad = null;
+      var fail = function (name, message, el) { setError(form, name, message); if (!firstBad) firstBad = el; };
+
+      Array.prototype.forEach.call(step.querySelectorAll('input[required], textarea[required]'), function (field) {
+        var value = field.value.trim();
+        if (field.name === 'situation' && hasDeck(form)) return;
+        if (!value) fail(field.name, field.name === 'situation' ? 'Upload your deck, or tell us in a few lines.' : 'Please fill this in.', field);
+        else if (field.type === 'email' && !EMAIL.test(value)) fail(field.name, 'That email address doesn’t look right.', field);
+      });
+      Array.prototype.forEach.call(step.querySelectorAll('[data-required-group]'), function (group) {
+        var boxes = group.querySelectorAll('input');
+        var ticked = Array.prototype.some.call(boxes, function (box) { return box.checked; });
+        if (!ticked) fail(boxes[0].name, 'Please choose one.', boxes[0]);
+      });
+      var file = step.querySelector('[data-deck-file]');
+      if (file && file.files && file.files[0]) {
+        var f = file.files[0];
+        if (!/\.pdf$/i.test(f.name)) fail('deck', 'Please upload a PDF.', file);
+        else if (f.size > 20 * 1024 * 1024) fail('deck', 'That file is over 20MB.', file);
+      }
+      return firstBad;
+    };
+
+    var values = function (form) {
+      var out = {};
+      new FormData(form).forEach(function (value, key) {
+        if (typeof value !== 'string') return;           // the file input
+        value = value.trim();
+        if (key === 'sector') (out[key] = out[key] || []).push(value);
+        else out[key] = value;
+      });
+      return out;
+    };
+
+    // Deck uploads go straight from the browser to Vercel Blob (a function
+    // can't take 20MB). The uploader loads only when someone gets this far.
+    var uploadsEnabled = null;
+    var checkUploads = function () {
+      if (uploadsEnabled !== null || !window.fetch) return;
+      uploadsEnabled = false;
+      fetch('/api/deck-upload', { headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (body) {
+          uploadsEnabled = Boolean(body && body.enabled);
+          if (!uploadsEnabled) return;
+          Array.prototype.forEach.call(flow.querySelectorAll('[data-upload]'), function (box) { box.hidden = false; });
+        })
+        .catch(function () {});
+    };
+
+    var loadUploader = function () {
+      if (window.TMBlobUpload) return Promise.resolve(window.TMBlobUpload);
+      return new Promise(function (resolve, reject) {
+        var script = document.createElement('script');
+        script.src = '/vendor/blob-upload.js';
+        script.onload = function () { resolve(window.TMBlobUpload); };
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    };
+
+    var uploadDeck = function (form) {
+      var input = form.querySelector('[data-deck-file]');
+      var target = form.querySelector('[data-deck-url]');
+      if (!input || !input.files || !input.files[0] || !uploadsEnabled) return Promise.resolve();
+      if (target.value) return Promise.resolve();
+      var file = input.files[0];
+      var safe = file.name.replace(/[^\w.\-]+/g, '-').slice(-80);
+      return loadUploader().then(function (blob) {
+        return blob.upload('decks/' + safe, file, { access: 'public', handleUploadUrl: '/api/deck-upload' });
+      }).then(function (result) { target.value = result.url; });
+    };
+
+    Array.prototype.forEach.call(flow.querySelectorAll('[data-deck-file]'), function (input) {
+      input.addEventListener('change', function () {
+        var form = input.form;
+        form.querySelector('[data-deck-url]').value = '';
+        form.querySelector('[data-deck-name]').textContent = input.files[0] ? input.files[0].name : '';
+        clearErrors(input.closest('.flow__step'));
+      });
+    });
+
+    Array.prototype.forEach.call(forms, function (form) {
+      showStep(form, 0);
+
+      form.addEventListener('click', function (event) {
+        var next = event.target.closest('[data-next]');
+        var back = event.target.closest('[data-back]');
+        var index = Number(form.getAttribute('data-current'));
+        if (next) {
+          var bad = checkStep(form, stepsOf(form)[index]);
+          if (bad) { bad.focus(); return; }
+          showStep(form, index + 1);
+          if (index + 1 === stepsOf(form).length - 1) checkUploads();
+        }
+        if (back) showStep(form, index - 1);
+      });
+
+      form.addEventListener('submit', function (event) {
+        if (!window.fetch || !window.FormData) return; // let the browser post it
+        event.preventDefault();
+        var steps = stepsOf(form);
+        var last = steps[steps.length - 1];
+        var bad = checkStep(form, last);
+        if (bad) { bad.focus(); return; }
+
+        var button = form.querySelector('.flow__send');
+        var label = button.innerHTML;
+        button.disabled = true;
+        button.textContent = hasDeck(form) && uploadsEnabled ? 'Uploading…' : 'Sending…';
+        var summary = last.querySelector('.form__summary');
+
+        uploadDeck(form)
+          .then(function () {
+            button.textContent = 'Sending…';
+            return fetch(form.action, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+              body: JSON.stringify(values(form))
+            });
+          })
+          .then(function (response) {
+            return response.json().catch(function () { return {}; }).then(function (body) {
+              return { ok: response.ok, body: body };
+            });
+          })
+          .then(function (result) {
+            if (result.ok && result.body.ok) {
+              showScreen(form.getAttribute('data-kind') + '-done');
+              flow.querySelector('[data-screen="' + form.getAttribute('data-kind') + '-done"]').focus();
+              return;
+            }
+            // Server-side errors: show them, on the step that holds the field.
+            if (result.body && result.body.errors) {
+              var firstStep = null;
+              Object.keys(result.body.errors).forEach(function (name) {
+                setError(form, name, result.body.errors[name]);
+                var node = errorNode(form, name);
+                var step = node && node.closest('.flow__step');
+                var i = Array.prototype.indexOf.call(steps, step);
+                if (i >= 0 && (firstStep === null || i < firstStep)) firstStep = i;
+              });
+              if (firstStep !== null && firstStep !== steps.length - 1) showStep(form, firstStep);
+              return;
+            }
+            throw new Error((result.body && result.body.message) || 'rejected');
+          })
+          .catch(function (error) {
+            summary.hidden = false;
+            summary.textContent = (error && error.message && error.message !== 'rejected' && error.message.length < 160)
+              ? error.message
+              : 'Something went wrong sending that. Nothing has been lost — please try again, or email inquiries@truemettle.com.';
+          })
+          .then(function () {
+            button.disabled = false;
+            button.innerHTML = label;
+          });
+      });
+    });
+
+    Array.prototype.forEach.call(flow.querySelectorAll('[data-route]'), function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        var name = link.getAttribute('data-route');
+        showScreen(name);
+        var form = flow.querySelector('.flow__form[data-kind="' + name + '"]');
+        showStep(form, 0);
+      });
+    });
+
+    var open = function (event) {
+      if (event) event.preventDefault();
+      if (dialog.open) return;
+      showScreen('start');
+      Array.prototype.forEach.call(flow.querySelectorAll('[data-started]'), function (n) { n.value = String(Date.now()); });
+      dialog.showModal();
+      document.documentElement.classList.add('is-deck-open');
+      var first = flow.querySelector('[data-screen="start"] .route');
+      if (first) first.focus({ preventScroll: true });
+    };
 
     // A click on the backdrop lands on the dialog element itself.
     dialog.addEventListener('click', function (event) {
@@ -58,21 +286,44 @@
     });
     dialog.addEventListener('close', function () {
       document.documentElement.classList.remove('is-deck-open');
+      // After a thank-you, start afresh next time; otherwise keep their place.
+      var done = flow.querySelector('.flow__screen--done:not([hidden])');
+      if (done) {
+        Array.prototype.forEach.call(forms, function (form) {
+          form.reset();
+          clearErrors(form);
+          Array.prototype.forEach.call(form.querySelectorAll('[data-deck-name]'), function (n) { n.textContent = ''; });
+          showStep(form, 0);
+        });
+      }
     });
-
-    var open = function (event) {
-      if (event) event.preventDefault();
-      if (dialog.open) return;
-      dialog.showModal();
-      document.documentElement.classList.add('is-deck-open');
-      var first = dialog.querySelector('input:not([type=hidden]):not([tabindex="-1"])');
-      if (first && !document.getElementById('contact-form').hidden) first.focus();
-    };
 
     Array.prototype.forEach.call(document.querySelectorAll('[data-open-deck]'), function (link) {
       link.addEventListener('click', open);
     });
     if (location.hash === '#contact') open();
+  }
+
+  /* ── Process: arrows that step the row sideways ───────────────────────── */
+  var steps = document.querySelector('.process__steps');
+  var nav = document.querySelector('.process__nav');
+  if (steps && nav) {
+    var arrows = nav.querySelectorAll('.process__arrow');
+    var sync = function () {
+      var max = steps.scrollWidth - steps.clientWidth - 2;
+      arrows[0].disabled = steps.scrollLeft <= 2;
+      arrows[1].disabled = steps.scrollLeft >= max;
+      nav.hidden = max <= 0;
+    };
+    Array.prototype.forEach.call(arrows, function (button) {
+      button.addEventListener('click', function () {
+        var step = steps.querySelector('.step');
+        steps.scrollBy({ left: Number(button.dataset.dir) * (step ? step.offsetWidth : 300), behavior: 'smooth' });
+      });
+    });
+    steps.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    sync();
   }
 
   /* ── Newsletter sign-up ───────────────────────────────────────────────── */
@@ -122,112 +373,4 @@
     });
   }
 
-  /* ── Contact form ─────────────────────────────────────────────────────── */
-  var form = document.getElementById('contact-form');
-  if (!form) return;
-
-  var button = document.getElementById('submit-button');
-  var summary = document.getElementById('form-summary');
-  var sent = document.getElementById('sent-panel');
-  var startedAt = document.getElementById('f-started');
-
-  // A bot filling the form in under two seconds is not a founder.
-  if (startedAt) startedAt.value = String(Date.now());
-
-  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-  function errorNode(field) {
-    return form.querySelector('[data-error-for="' + field + '"]');
-  }
-
-  function clearErrors() {
-    if (summary) { summary.hidden = true; summary.textContent = ''; }
-    Array.prototype.forEach.call(form.querySelectorAll('[data-error-for]'), function (node) {
-      node.textContent = '';
-    });
-    Array.prototype.forEach.call(form.querySelectorAll('[aria-invalid]'), function (input) {
-      input.removeAttribute('aria-invalid');
-    });
-  }
-
-  function showErrors(errors) {
-    var first = null;
-    Object.keys(errors).forEach(function (field) {
-      var node = errorNode(field);
-      var input = form.elements[field];
-      if (node) node.textContent = errors[field];
-      if (input && input.setAttribute) {
-        input.setAttribute('aria-invalid', 'true');
-        if (!first) first = input;
-      }
-    });
-    if (first) first.focus();
-  }
-
-  function validate(values) {
-    var errors = {};
-    if (!values.name) errors.name = 'Please tell me your name.';
-    if (!values.email) errors.email = 'I need an email address to reply to.';
-    else if (!EMAIL.test(values.email)) errors.email = 'That email address doesn’t look right.';
-    if (!values.situation) errors.situation = 'A line or two about the situation, please.';
-    return errors;
-  }
-
-  form.addEventListener('submit', function (event) {
-    if (!window.fetch || !window.FormData) return; // let the browser post it
-
-    event.preventDefault();
-    clearErrors();
-
-    var data = new FormData(form);
-    var values = {};
-    data.forEach(function (value, key) {
-      values[key] = typeof value === 'string' ? value.trim() : value;
-    });
-
-    var errors = validate(values);
-    if (Object.keys(errors).length) {
-      showErrors(errors);
-      return;
-    }
-
-    button.disabled = true;
-    var label = button.innerHTML;
-    button.textContent = 'Sending…';
-
-    fetch(form.action, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(values)
-    })
-      .then(function (response) {
-        return response.json().catch(function () { return {}; }).then(function (body) {
-          return { ok: response.ok, status: response.status, body: body };
-        });
-      })
-      .then(function (result) {
-        if (result.ok && result.body.ok) {
-          form.hidden = true;
-          sent.hidden = false;
-          sent.focus();
-          return;
-        }
-        // Nothing is cleared on failure — whatever they wrote is still there.
-        if (result.body && result.body.errors) {
-          showErrors(result.body.errors);
-          return;
-        }
-        throw new Error('rejected');
-      })
-      .catch(function () {
-        summary.hidden = false;
-        summary.textContent =
-          'Something went wrong sending that — nothing has been lost, please try again. ' +
-          'If it keeps failing, email us directly.';
-      })
-      .then(function () {
-        button.disabled = false;
-        button.innerHTML = label;
-      });
-  });
 })();

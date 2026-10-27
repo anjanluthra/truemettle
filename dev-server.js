@@ -7,6 +7,7 @@ import { renderHtml } from './src/render.js';
 import contactHandler from './api/contact.js';
 import subscribeHandler from './api/subscribe.js';
 import adminHandler from './api/admin.js';
+import deckUploadHandler from './api/deck-upload.js';
 
 /* Local preview only — production is Vercel, which serves public/ statically
    and runs api/*.js as functions. This stands in for both so the page
@@ -36,7 +37,7 @@ const SECURITY_HEADERS = {
   'Content-Security-Policy':
     "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
     "form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self'; " +
-    "script-src 'self'; connect-src 'self'",
+    "script-src 'self'; connect-src 'self' https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com",
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'geolocation=(), camera=(), microphone=(), interest-cohort=()'
@@ -70,6 +71,7 @@ const server = http.createServer(async (req, res) => {
     '/api/contact': contactHandler,
     '/api/subscribe': subscribeHandler,
     '/api/admin': adminHandler,
+    '/api/deck-upload': deckUploadHandler,
     '/admin': adminHandler
   }[pathname];
 

@@ -1,5 +1,6 @@
 tools/icon-template.html
 tools/og-template.html
+tools/brand
 tools/make-images.sh
 data
 *.log

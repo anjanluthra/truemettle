@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Renders the Open Graph card and the icons from the HTML templates in this
-# folder, using headless Chromium so the real Fraunces cut is used.
+# Renders the link-preview card and the icons from the HTML templates in this
+# folder, using headless Chromium.
 #
 #   npm run images
 #
@@ -14,6 +14,7 @@ if [ -z "$chrome" ]; then
   # The headless shell reports an exact viewport for --window-size; full
   # Chrome subtracts its window chrome and silently clips the render.
   for candidate in \
+    /opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell \
     /opt/pw-browsers/chromium_headless_shell-*/chrome-linux/headless_shell \
     /opt/pw-browsers/chromium-*/chrome-linux/chrome \
     "$(command -v chromium || true)" \
@@ -42,6 +43,12 @@ shot() { # template  width  height  output
 }
 
 echo "Rendering with $chrome"
-shot og-template.html   1200 630 og.png
+shot og-template.html   1200 630 opengraph-image.png
+# Link previews take a JPEG; LinkedIn, X, WhatsApp and Slack all read it.
+python3 -c "from PIL import Image; Image.open('$root/public/opengraph-image.png').convert('RGB').save('$root/public/opengraph-image.jpg', quality=90)" \
+  || sips -s format jpeg -s formatOptions 90 "$root/public/opengraph-image.png" --out "$root/public/opengraph-image.jpg" >/dev/null
+rm "$root/public/opengraph-image.png"
+cp "$root/public/opengraph-image.jpg" "$root/public/twitter-image.jpg"
+echo "  public/opengraph-image.jpg, public/twitter-image.jpg  (1200×630)"
 shot icon-template.html  180 180 apple-touch-icon.png
 shot icon-template.html   32  32 icon-32.png

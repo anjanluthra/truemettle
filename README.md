@@ -202,7 +202,7 @@ The wordmark, monogram and arrows are SVGs and are sharp at any size.
 - `public/favicon.svg` — still the typographic "TM" placeholder, hand-editable.
 - `tools/og-template.html` and `tools/icon-template.html` — the sources for
   `public/opengraph-image.jpg` / `public/twitter-image.jpg` (the link preview
-  card: MUSED's tagline lockup in Cream White on Light Auburn) and the touch icons.
+  card: MUSED's True Mettle wordmark in Cream White on Light Auburn) and the touch icons.
 
 ```bash
 npm run images   # re-renders the link preview card, apple-touch-icon.png and icon-32.png

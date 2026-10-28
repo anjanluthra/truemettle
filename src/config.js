@@ -33,7 +33,7 @@ try {
 /* The values baked into public/index.html, so the static host serving that
    file gets a correct page. Only a differing environment rewrites them. */
 export const DEFAULTS = {
-  siteUrl: 'https://truemettle.co',
+  siteUrl: 'https://www.truemettle.co',
   personalSiteUrl: 'https://anjanluthra.com'
 };
 

@@ -938,6 +938,8 @@ em { font-style: normal; }
   text-transform: uppercase;
 }
 .footer__small a { text-decoration: none; }
+/* Each link a 24px-tall tap target, rows 24px apart (WCAG 2.2 target size). */
+.footer__links .footer__small a { display: inline-block; padding-block: calc((24px - 1.07em) / 2); }
 .footer__small a:hover { text-decoration: underline; text-underline-offset: 0.25em; }
 .footer__fifth .footer__small { max-width: 20rem; }
 
@@ -1023,13 +1025,13 @@ em { font-style: normal; }
   font-size: 0.875rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(47, 37, 37, 0.6);
+  color: var(--ink);
   background: none;
   border: 0;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
-.cookie-banner__decline:hover { color: var(--ink); }
+.cookie-banner__decline:hover { opacity: 0.7; }
 .cookie-banner .cta { font-size: 0.875rem; color: var(--ink); }
 
 /* ── Reveal (main.js adds .reveal only to things below the fold) ──────────── */

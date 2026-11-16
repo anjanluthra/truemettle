@@ -129,7 +129,14 @@ Decks upload straight from the browser to Vercel Blob (a function can't take
 a 20MB body); `/api/deck-upload` only issues the one-time token. Uploads stay
 hidden until `BLOB_READ_WRITE_TOKEN` is set. The store is **private**: a deck
 can't be opened from its Blob URL, so the admin page and the notification
-email link to `/admin?deck=…`, which streams it behind the admin password.
+email link to `/admin?deck=…`, which serves it behind the admin password.
+
+Each deck is checked before it reaches your browser (`src/pdfcheck.js`). A file
+that isn't really a PDF is never opened. A PDF that runs JavaScript, can launch
+a program, hides embedded files, carries Flash or an XFA form, posts data, or
+is encrypted (so it can't be fully checked) is held behind a warning page with
+an **Open anyway** link. This is not an antivirus scan: it looks for the
+features harmful PDFs use, which ordinary decks never need.
 The browser bundle (`public/vendor/blob-upload.js`) is built from
 `tools/vendor/blob-upload-entry.js` with
 `npx esbuild@0.24.0 tools/vendor/blob-upload-entry.js --bundle --minify --format=iife --platform=browser --target=es2019 --outfile=public/vendor/blob-upload.js`.

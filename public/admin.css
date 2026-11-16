@@ -281,3 +281,10 @@ td.wrap { min-width: 22rem; max-width: 40rem; white-space: pre-wrap; }
 tr.is-spam td { color: #aaa; }
 .empty, .note { color: #777; }
 .note { margin-top: 2rem; font-size: 0.8125rem; }
+
+/* A deck held back by the PDF check (api/admin.js). */
+.tables main.notice { max-width: 46rem; }
+.notice p { margin: 0 0 1rem; font-size: 1rem; line-height: 1.55; }
+.notice__actions { display: flex; gap: 2rem; margin-top: 2rem !important; font-size: 0.75rem !important; letter-spacing: 0.22em; text-transform: uppercase; }
+.notice__actions a { color: var(--ink); }
+.notice__risky { color: var(--rust) !important; }

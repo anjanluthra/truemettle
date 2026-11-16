@@ -3,6 +3,7 @@ import { blobAuth, storeConfigured } from '../src/config.js';
 import { listAll } from '../src/store.js';
 import { cleanDeckUrl, deckLink, isPublicDeck } from '../src/decks.js';
 import { parseBody } from '../src/http.js';
+import { inspectPdf } from '../src/pdfcheck.js';
 
 /* GET /api/admin — a password-protected view of every enquiry and newsletter
  * sign-up, with CSV export.
@@ -10,8 +11,10 @@ import { parseBody } from '../src/http.js';
  *   /api/admin                          the tables
  *   /api/admin?export=submissions       CSV of enquiries
  *   /api/admin?export=subscribers       CSV of sign-ups
- *   /api/admin?deck=<blob url>          one uploaded deck, streamed from a
- *                                       private Blob store
+ *   /api/admin?deck=<blob url>          one uploaded deck from the private Blob
+ *                                       store, after a PDF safety check
+ *                                       (src/pdfcheck.js); &open=anyway past a
+ *                                       warning
  *
  *   /api/admin?logout=1                 signs out
  *
@@ -250,12 +253,45 @@ ${subscriberRows}
 </html>`;
 }
 
-async function sendDeck(req, res, value) {
+const MAX_DECK_BYTES = 25 * 1024 * 1024;
+
+// A page in the admin's own style, for a deck that is held back.
+function noticePage({ title, lines, deckUrl, allowOpen }) {
+  const open = `/admin?deck=${encodeURIComponent(deckUrl)}&open=anyway`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>${escapeHtml(title)} — True Mettle</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body class="tables">
+<main class="notice">
+  <div class="tables__top">
+    <h1><img src="/brand/monogram-ink.svg" width="50" height="37" alt="">${escapeHtml(title)}</h1>
+    <a href="/admin">Back to admin</a>
+  </div>
+  ${lines.map((l) => `<p>${l}</p>`).join('\n  ')}
+  ${allowOpen ? `<p class="notice__actions"><a href="/admin">Don’t open it</a><a class="notice__risky" href="${escapeHtml(open)}">Open anyway</a></p>` : '<p class="notice__actions"><a href="/admin">Back to admin</a></p>'}
+</main>
+</body>
+</html>`;
+}
+
+/* Fetched whole (decks are capped at 20 MB on upload) so it can be checked
+ * before any of it reaches the browser. A file that isn't a PDF is never
+ * served; a PDF with scripts, launch actions, embedded files and the like is
+ * held behind a warning. ?open=anyway skips the warning, not the PDF check. */
+async function sendDeck(req, res, value, openAnyway) {
   const url = cleanDeckUrl(value);
   if (!url) {
     res.status(400).send('Not a deck link.');
     return;
   }
+  let file;
   try {
     const { get } = await import('@vercel/blob');
     const result = await get(url, { access: isPublicDeck(url) ? 'public' : 'private', ...blobAuth(req) });
@@ -263,16 +299,55 @@ async function sendDeck(req, res, value) {
       res.status(404).send('That deck is no longer in storage.');
       return;
     }
-    const { Readable } = await import('node:stream');
-    const name = (url.split('/').pop() || 'deck.pdf').replace(/[^\w.-]+/g, '_');
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${name}"`);
-    res.status(200);
-    Readable.fromWeb(result.stream).pipe(res);
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of result.stream) {
+      size += chunk.length;
+      if (size > MAX_DECK_BYTES) throw new Error('deck larger than 25 MB');
+      chunks.push(Buffer.from(chunk));
+    }
+    file = Buffer.concat(chunks);
   } catch (error) {
     console.error('[admin] could not fetch deck:', error.message);
     res.status(502).send('Could not fetch that deck.');
+    return;
   }
+
+  const check = inspectPdf(file);
+  if (!check.isPdf) {
+    console.warn('[admin] refused a deck that is not a PDF:', url);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(415).send(noticePage({
+      title: 'Not a PDF',
+      lines: ['This upload is not a PDF, whatever its name says, so it won’t be opened. It may be harmless, but a file pretending to be a PDF is a common way to deliver malware.', 'Reply to the sender and ask for the deck as a PDF.'],
+      deckUrl: url,
+      allowOpen: false
+    }));
+    return;
+  }
+
+  const concerns = [...check.risks];
+  if (check.encrypted) concerns.push('is encrypted, so parts of it could not be checked');
+  if (concerns.length && !openAnyway) {
+    console.warn('[admin] held back a deck:', url, concerns.join('; '));
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(200).send(noticePage({
+      title: 'Check this deck',
+      lines: [
+        `This PDF ${concerns.map(escapeHtml).join(', ')}. Ordinary pitch decks don’t need ${concerns.length > 1 ? 'any of these' : 'this'}, and it’s how harmful PDFs work.`,
+        'If you know the sender and want to look, open it here in the browser rather than downloading it into Acrobat or Preview: the browser’s viewer doesn’t run PDF scripts or open embedded files.'
+      ],
+      deckUrl: url,
+      allowOpen: true
+    }));
+    return;
+  }
+
+  const name = (url.split('/').pop() || 'deck.pdf').replace(/[^\w.-]+/g, '_');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `inline; filename="${name}"`);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.status(200).send(file);
 }
 
 export default async function handler(req, res) {
@@ -329,7 +404,7 @@ export default async function handler(req, res) {
   // it is streamed through here, behind the same password.
   const deckParam = params.get('deck');
   if (deckParam !== null) {
-    await sendDeck(req, res, deckParam);
+    await sendDeck(req, res, deckParam, params.get('open') === 'anyway');
     return;
   }
 
